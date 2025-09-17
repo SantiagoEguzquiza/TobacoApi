@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 
@@ -6,6 +7,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class CategoriaController : ControllerBase
     {
         private readonly ICategoriaService _categoriaService;

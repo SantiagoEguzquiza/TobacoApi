@@ -30,12 +30,15 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<TokenService>();
 
 //Registrar repositorios
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 // Cors
@@ -45,7 +48,8 @@ builder.Services.AddCors(options => options.AddPolicy("AllowWebapp",
                                             .AllowAnyMethod()));
 
 
-//Configuración de Jwt
+//Configuraciï¿½n de Jwt
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
 builder.Services.AddAuthentication(options =>
@@ -91,6 +95,7 @@ app.UseCors(builder =>
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

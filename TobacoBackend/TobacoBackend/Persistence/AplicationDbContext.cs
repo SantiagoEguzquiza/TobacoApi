@@ -9,6 +9,7 @@ public class AplicationDbContext : DbContext
     public DbSet<Pedido> Pedidos { get; set; }
     public DbSet<PedidoProducto> PedidosProductos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
+    public DbSet<User> Users { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -62,6 +63,29 @@ public class AplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // User entity configuration
+        modelBuilder.Entity<User>()
+            .Property(u => u.UserName)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.Password)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.Email)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.UserName)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
 
     }
 
