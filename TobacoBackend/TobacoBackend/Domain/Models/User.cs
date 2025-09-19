@@ -20,6 +20,10 @@ namespace TobacoBackend.Domain.Models
         [StringLength(100)]
         public string? Email { get; set; }
 
+        [Required]
+        [StringLength(20)]
+        public string Role { get; set; } = "Employee"; // Admin or Employee
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? LastLogin { get; set; }

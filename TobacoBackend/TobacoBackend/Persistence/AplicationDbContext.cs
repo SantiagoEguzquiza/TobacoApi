@@ -80,6 +80,12 @@ public class AplicationDbContext : DbContext
             .HasMaxLength(100);
 
         modelBuilder.Entity<User>()
+            .Property(u => u.Role)
+            .IsRequired()
+            .HasMaxLength(20)
+            .HasDefaultValue("Employee");
+
+        modelBuilder.Entity<User>()
             .HasIndex(u => u.UserName)
             .IsUnique();
 

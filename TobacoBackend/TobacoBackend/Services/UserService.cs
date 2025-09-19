@@ -83,5 +83,86 @@ namespace TobacoBackend.Services
                 return Convert.ToBase64String(hashedBytes);
             }
         }
+
+        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
+        }
+
+        public async Task<UserDTO> CreateUserAsync(CreateUserDTO createUserDto)
+        {
+            // Check if username already exists
+            var existingUser = await _userRepository.GetByUserNameAsync(createUserDto.UserName);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("El nombre de usuario ya existe.");
+            }
+
+            var user = _mapper.Map<User>(createUserDto);
+            user.Password = HashPasswordForStorage(createUserDto.Password);
+            user.CreatedAt = DateTime.UtcNow;
+            user.IsActive = true;
+
+            var createdUser = await _userRepository.CreateAsync(user);
+            return _mapper.Map<UserDTO>(createdUser);
+        }
+
+        public async Task<UserDTO?> UpdateUserAsync(int id, UpdateUserDTO updateUserDto)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // Check if username is being changed and if it already exists
+            if (!string.IsNullOrEmpty(updateUserDto.UserName) && updateUserDto.UserName != user.UserName)
+            {
+                var existingUser = await _userRepository.GetByUserNameAsync(updateUserDto.UserName);
+                if (existingUser != null)
+                {
+                    throw new InvalidOperationException("El nombre de usuario ya existe.");
+                }
+            }
+
+            // Update fields if provided
+            if (!string.IsNullOrEmpty(updateUserDto.UserName))
+                user.UserName = updateUserDto.UserName;
+            
+            if (!string.IsNullOrEmpty(updateUserDto.Email))
+                user.Email = updateUserDto.Email;
+            
+            if (!string.IsNullOrEmpty(updateUserDto.Role))
+                user.Role = updateUserDto.Role;
+            
+            if (!string.IsNullOrEmpty(updateUserDto.Password))
+                user.Password = HashPasswordForStorage(updateUserDto.Password);
+            
+            if (updateUserDto.IsActive.HasValue)
+                user.IsActive = updateUserDto.IsActive.Value;
+
+            await _userRepository.UpdateAsync(user);
+            return _mapper.Map<UserDTO>(user);
+        }
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Hard delete - actually remove the user from database
+            await _userRepository.DeleteAsync(id);
+            return true;
+        }
+
+        public async Task<bool> IsAdminAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user?.Role == "Admin";
+        }
     }
 }
