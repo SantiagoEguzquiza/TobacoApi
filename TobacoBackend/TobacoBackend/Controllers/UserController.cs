@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
+using System.Security.Claims;
 
 namespace TobacoBackend.Controllers
 {
@@ -33,7 +34,7 @@ namespace TobacoBackend.Controllers
                 var result = await _userService.LoginAsync(loginDto);
 
                 if (result == null)
-                    return Unauthorized(new { message = "Credenciales inválidas." });
+                    return Unauthorized(new { message = "Usuario o contraseña incorrectos. Verifica tus datos e intenta nuevamente." });
 
                 return Ok(result);
             }
@@ -126,6 +127,178 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al obtener el usuario actual: {ex.Message}" });
             }
         }
+
+        [Authorize]
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
+        {
+            try
+            {
+                // Extract user ID from claims (try both sub and NameIdentifier)
+                var subClaim = User.FindFirst("sub")?.Value;
+                var nameIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = subClaim ?? nameIdClaim;
+                
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                    return Unauthorized(new { message = "Token inválido. No se pudo extraer el ID del usuario." });
+
+                // Check if user is admin
+                var isAdmin = await _userService.IsAdminAsync(userId);
+                if (!isAdmin)
+                    return Forbid("Solo los administradores pueden acceder a esta funcionalidad.");
+
+                var users = await _userService.GetAllUsersAsync();
+                
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener los usuarios: {ex.Message}" });
+            }
+        }
+
+        // Test endpoint to verify all users are being returned (remove in production)
+        [HttpGet("test-all")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> TestGetAllUsers()
+        {
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
+                
+                Console.WriteLine($"Test endpoint: Returning {users.Count()} users");
+                foreach (var user in users)
+                {
+                    Console.WriteLine($"Test endpoint: User {user.UserName} - Active: {user.IsActive}");
+                }
+                
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener los usuarios: {ex.Message}" });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("create")]
+        public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO createUserDto)
+        {
+            try
+            {
+                var subClaim = User.FindFirst("sub")?.Value;
+                var nameIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = subClaim ?? nameIdClaim;
+                
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                    return Unauthorized(new { message = "Token inválido." });
+
+                // Check if user is admin
+                var isAdmin = await _userService.IsAdminAsync(userId);
+                if (!isAdmin)
+                    return Forbid("Solo los administradores pueden crear usuarios.");
+
+                if (createUserDto == null)
+                    return BadRequest(new { message = "Los datos del usuario no pueden ser nulos." });
+
+                var user = await _userService.CreateUserAsync(createUserDto);
+                return CreatedAtAction(nameof(GetUserProfile), new { id = user.Id }, user);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al crear el usuario: {ex.Message}" });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("update/{id}")]
+        public async Task<ActionResult<object>> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDto)
+        {
+            try
+            {
+                // Extract user ID from claims (try both sub and NameIdentifier)
+                var subClaim = User.FindFirst("sub")?.Value;
+                var nameIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = subClaim ?? nameIdClaim;
+                
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int currentUserId))
+                    return Unauthorized(new { message = "Token inválido." });
+
+                // Check if user is admin
+                var isAdmin = await _userService.IsAdminAsync(currentUserId);
+                if (!isAdmin)
+                    return Forbid("Solo los administradores pueden actualizar usuarios.");
+
+                if (updateUserDto == null)
+                    return BadRequest(new { message = "Los datos de actualización no pueden ser nulos." });
+
+                var user = await _userService.UpdateUserAsync(id, updateUserDto);
+                if (user == null)
+                    return NotFound(new { message = "Usuario no encontrado." });
+
+                // Check if the current user was deactivated
+                bool currentUserAffected = false;
+                if (id == currentUserId && updateUserDto.IsActive.HasValue && !updateUserDto.IsActive.Value)
+                {
+                    currentUserAffected = true;
+                }
+
+                return Ok(new { 
+                    user = user, 
+                    currentUserAffected = currentUserAffected,
+                    message = currentUserAffected ? "Tu cuenta ha sido desactivada. Serás redirigido al login." : "Usuario actualizado exitosamente."
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al actualizar el usuario: {ex.Message}" });
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult<object>> DeleteUser(int id)
+        {
+            try
+            {
+                // Extract user ID from claims (try both sub and NameIdentifier)
+                var subClaim = User.FindFirst("sub")?.Value;
+                var nameIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = subClaim ?? nameIdClaim;
+
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int currentUserId))
+                    return Unauthorized(new { message = "Token inválido." });
+
+                // Check if user is admin
+                var isAdmin = await _userService.IsAdminAsync(currentUserId);
+                if (!isAdmin)
+                    return Forbid("Solo los administradores pueden eliminar usuarios.");
+
+                // Check if trying to delete themselves
+                bool currentUserAffected = (currentUserId == id);
+
+                var success = await _userService.DeleteUserAsync(id);
+                if (!success)
+                    return NotFound(new { message = "Usuario no encontrado." });
+
+                return Ok(new { 
+                    currentUserAffected = currentUserAffected,
+                    message = currentUserAffected ? "Tu cuenta ha sido eliminada. Serás redirigido al login." : "Usuario eliminado exitosamente."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al eliminar el usuario: {ex.Message}" });
+            }
+        }
+
     }
 
     public class TokenValidationRequest

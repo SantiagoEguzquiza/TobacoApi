@@ -689,10 +689,10 @@ C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\TobacoBa.AB98EC4A.Up2Date
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\TobacoBackend.dll
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\refint\TobacoBackend.dll
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\TobacoBackend.pdb
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\TobacoBackend.genruntimeconfig.cache
 C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\ref\TobacoBackend.dll
+C:\Users\rodri\OneDrive\Escritorio\Tobaco\TobacoApi\TobacoBackend\TobacoBackend\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
