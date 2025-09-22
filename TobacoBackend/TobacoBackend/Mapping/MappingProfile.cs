@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
-using AutoMapper;
 
 namespace TobacoBackend.Mapping
 {
@@ -13,6 +12,7 @@ namespace TobacoBackend.Mapping
             CreateMap<Pedido, PedidoDTO>().ReverseMap();
             CreateMap<PedidoProducto, PedidoProductoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
+            CreateMap<VentaPagos, VentaPagosDTO>().ReverseMap();
 
             // Mapeo personalizado para Producto
             CreateMap<ProductoDTO, Producto>()

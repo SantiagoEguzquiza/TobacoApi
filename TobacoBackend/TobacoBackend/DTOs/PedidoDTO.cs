@@ -8,8 +8,10 @@ namespace TobacoBackend.DTOs
         public int ClienteId { get; set; }
         public ClienteDTO Cliente { get; set; } 
         public List<PedidoProductoDTO> PedidoProductos { get; set; }
+        public List<VentaPagosDTO> VentaPagos { get; set; }
         public decimal Total { get; set; }
         public DateTime Fecha { get; set; }
-        public MetodoPagoEnum MetodoPago { get; set; } 
+        public MetodoPagoEnum MetodoPago { get; set; }
+ 
     }
 }

@@ -1,0 +1,76 @@
+### VentaPagos API Examples
+
+### 1. Create a Pedido with VentaPagos
+POST https://localhost:7000/Pedidos
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "clienteId": 1,
+  "pedidoProductos": [
+    {
+      "productoId": 1,
+      "cantidad": 2
+    }
+  ],
+  "ventaPagos": [
+    {
+      "metodo": 0,
+      "monto": 100.50
+    },
+    {
+      "metodo": 1,
+      "monto": 50.00
+    }
+  ],
+  "metodoPago": 0
+}
+
+### 2. Get all VentaPagos
+GET https://localhost:7000/VentaPagos
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 3. Get VentaPagos by ID
+GET https://localhost:7000/VentaPagos/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 4. Get VentaPagos by VentaId (Pedido ID)
+GET https://localhost:7000/VentaPagos/venta/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 5. Create a new VentaPagos
+POST https://localhost:7000/VentaPagos
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "ventaId": 1,
+  "metodo": 2,
+  "monto": 75.25
+}
+
+### 6. Update VentaPagos
+PUT https://localhost:7000/VentaPagos/1
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "id": 1,
+  "ventaId": 1,
+  "metodo": 0,
+  "monto": 100.00
+}
+
+### 7. Delete VentaPagos
+DELETE https://localhost:7000/VentaPagos/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 8. Get Pedido with VentaPagos included
+GET https://localhost:7000/Pedidos/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### MetodoPagoEnum values:
+### 0 = Efectivo
+### 1 = Transferencia  
+### 2 = Tarjeta
+### 3 = CuentaCorriente

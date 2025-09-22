@@ -12,13 +12,15 @@ namespace TobacoBackend.Services
     {
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IProductoRepository _productoRepository;
+        private readonly IVentaPagosService _ventaPagosService;
         private readonly IMapper _mapper;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
             _productoRepository = productoRepository;
+            _ventaPagosService = ventaPagosService;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -27,7 +29,8 @@ namespace TobacoBackend.Services
             {
                 ClienteId = pedidoDto.ClienteId,
                 Fecha = DateTime.Now,
-                PedidoProductos = new List<PedidoProducto>()
+                PedidoProductos = new List<PedidoProducto>(),
+                MetodoPago = pedidoDto.MetodoPago
             };
 
             decimal total = 0;
@@ -53,7 +56,18 @@ namespace TobacoBackend.Services
 
             pedido.Total = total;
 
+            // Add the pedido first to get the ID
             await _pedidoRepository.AddPedido(pedido);
+
+            // Add VentaPagos if provided
+            if (pedidoDto.VentaPagos != null && pedidoDto.VentaPagos.Any())
+            {
+                foreach (var ventaPagoDto in pedidoDto.VentaPagos)
+                {
+                    ventaPagoDto.PedidoId = pedido.Id;
+                    await _ventaPagosService.AddVentaPagos(ventaPagoDto);
+                }
+            }
         }
 
 
@@ -61,19 +75,39 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeletePedido(int id)
         {
+            // Delete associated VentaPagos first
+            await _ventaPagosService.DeleteVentaPagosByPedidoId(id);
+            
+            // Then delete the pedido
             return await _pedidoRepository.DeletePedido(id);
         }
 
         public async Task<List<PedidoDTO>> GetAllPedidos()
         {
-            var pedido = await _pedidoRepository.GetAllPedidos();
-            return _mapper.Map<List<PedidoDTO>>(pedido);
+            var pedidos = await _pedidoRepository.GetAllPedidos();
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(pedidos);
+            
+            // Load VentaPagos for each pedido
+            foreach (var pedidoDto in pedidosDto)
+            {
+                pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
+            }
+            
+            return pedidosDto;
         }
 
         public async Task<PedidoDTO> GetPedidoById(int id)
         {
             var pedido = await _pedidoRepository.GetPedidoById(id);
-            return _mapper.Map<PedidoDTO>(pedido);
+            var pedidoDto = _mapper.Map<PedidoDTO>(pedido);
+            
+            // Load VentaPagos for this pedido
+            if (pedido != null)
+            {
+                pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(id);
+            }
+            
+            return pedidoDto;
         }
 
         public async Task UpdatePedido(int id, PedidoDTO pedidoDto)
@@ -81,6 +115,20 @@ namespace TobacoBackend.Services
             var pedido = _mapper.Map<Pedido>(pedidoDto);
             pedido.Id = id;
             await _pedidoRepository.UpdatePedido(pedido);
+            
+            // Update VentaPagos
+            if (pedidoDto.VentaPagos != null)
+            {
+                // Delete existing VentaPagos for this pedido
+                await _ventaPagosService.DeleteVentaPagosByPedidoId(id);
+                
+                // Add new VentaPagos
+                foreach (var ventaPagoDto in pedidoDto.VentaPagos)
+                {
+                    ventaPagoDto.PedidoId = id;
+                    await _ventaPagosService.AddVentaPagos(ventaPagoDto);
+                }
+            }
         }
     }
 }

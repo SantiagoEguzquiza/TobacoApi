@@ -204,6 +204,31 @@ namespace TobacoBackend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.VentaPagos", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Metodo")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Monto")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PedidoId");
+
+                    b.ToTable("VentaPagos");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.Pedido", b =>
                 {
                     b.HasOne("TobacoBackend.Domain.Models.Cliente", "Cliente")
@@ -249,6 +274,17 @@ namespace TobacoBackend.Migrations
                     b.Navigation("Categoria");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.VentaPagos", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.Pedido", "Pedido")
+                        .WithMany("VentaPagos")
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pedido");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.Categoria", b =>
                 {
                     b.Navigation("Productos");
@@ -262,6 +298,8 @@ namespace TobacoBackend.Migrations
             modelBuilder.Entity("TobacoBackend.Domain.Models.Pedido", b =>
                 {
                     b.Navigation("PedidoProductos");
+
+                    b.Navigation("VentaPagos");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Producto", b =>
