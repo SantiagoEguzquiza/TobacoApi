@@ -2,9 +2,9 @@
 {
     public enum MetodoPagoEnum
     {
-        EFECTIVO,
-        TRANSFERENCIA,
-        TARJETA,
-        CUENTACORRIENTE
+        Efectivo,
+        Transferencia,
+        Tarjeta,
+        CuentaCorriente
     }
 }

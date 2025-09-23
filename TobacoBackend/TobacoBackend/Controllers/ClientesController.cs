@@ -1,5 +1,6 @@
-﻿using System.Diagnostics.Contracts;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Contracts;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
@@ -8,6 +9,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;

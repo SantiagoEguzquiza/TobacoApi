@@ -59,11 +59,15 @@ namespace TobacoBackend.Repositories
         public async Task<List<Pedido>> GetAllPedidos()
         {
             return await _context.Pedidos
-                .Include(p => p.Cliente) // Incluye la info del cliente
+                .AsNoTracking()                     // lecturas más rápidas
+                .OrderByDescending(p => p.Id) // o p.Id si es identity creciente
+                .Include(p => p.Cliente)
                 .Include(p => p.PedidoProductos)
-                    .ThenInclude(pp => pp.Producto) // Incluye la info del producto por cada item
+                    .ThenInclude(pp => pp.Producto)
+                .AsSplitQuery()                     // evita explosiones cartesianas
                 .ToListAsync();
         }
+
 
 
         public async Task<Pedido> GetPedidoById(int id)

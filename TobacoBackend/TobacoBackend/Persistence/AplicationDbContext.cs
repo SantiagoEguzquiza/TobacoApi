@@ -10,6 +10,7 @@ public class AplicationDbContext : DbContext
     public DbSet<PedidoProducto> PedidosProductos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<VentaPagos> VentaPagos { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -92,6 +93,17 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
+
+        // VentaPagos entity configuration
+        modelBuilder.Entity<VentaPagos>()
+            .Property(v => v.Monto)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<VentaPagos>()
+            .HasOne(v => v.Pedido)
+            .WithMany(p => p.VentaPagos)
+            .HasForeignKey(v => v.PedidoId)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 

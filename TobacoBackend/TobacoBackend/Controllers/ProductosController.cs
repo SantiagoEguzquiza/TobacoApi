@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
@@ -7,6 +8,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class ProductosController : ControllerBase
     {
         private readonly IProductoService _productoService;
