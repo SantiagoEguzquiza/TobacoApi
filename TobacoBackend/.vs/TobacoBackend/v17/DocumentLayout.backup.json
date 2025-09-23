@@ -118,8 +118,7 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\ProductoDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:51:40.399Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:51:40.399Z"
             },
             {
               "$type": "Document",
@@ -131,8 +130,7 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\ClienteDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:51:23.307Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:51:23.307Z"
             },
             {
               "$type": "Document",
@@ -144,8 +142,7 @@
               "RelativeToolTip": "TobacoBackend\\Controllers\\VentaPagosController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:50:19.991Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:50:19.991Z"
             },
             {
               "$type": "Document",
@@ -157,8 +154,7 @@
               "RelativeToolTip": "TobacoBackend\\Persistence\\AplicationDbContext.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAAYwGsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:48:18.505Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:48:18.505Z"
             },
             {
               "$type": "Document",
@@ -170,8 +166,7 @@
               "RelativeToolTip": "TobacoBackend\\Mapping\\MappingProfile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:48:05.001Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:48:05.001Z"
             },
             {
               "$type": "Document",
@@ -196,8 +191,7 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\PedidoDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:21:02.073Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:21:02.073Z"
             },
             {
               "$type": "Document",
@@ -209,8 +203,7 @@
               "RelativeToolTip": "TobacoBackend\\Controllers\\ProductosController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAAoAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T13:36:25.084Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T13:36:25.084Z"
             },
             {
               "$type": "Document",
@@ -222,8 +215,7 @@
               "RelativeToolTip": "TobacoBackend\\Repositories\\PedidoRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T23:58:36.599Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-21T23:58:36.599Z"
             },
             {
               "$type": "Document",
@@ -259,8 +251,7 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\PedidoProductoDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:34:42.877Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:34:42.877Z"
             },
             {
               "$type": "Document",
@@ -284,8 +275,7 @@
               "RelativeToolTip": "TobacoBackend\\Domain\\Models\\Pedido.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:21:29.578Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:21:29.578Z"
             },
             {
               "$type": "Document",
@@ -297,8 +287,7 @@
               "RelativeToolTip": "TobacoBackend\\Controllers\\PedidosController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAAoAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-21T23:57:40.09Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-21T23:57:40.09Z"
             },
             {
               "$type": "Document",
