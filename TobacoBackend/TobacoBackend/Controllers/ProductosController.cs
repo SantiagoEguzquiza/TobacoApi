@@ -53,6 +53,23 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El producto no puede ser nulo." });
                 }
 
+                // Validar el modelo
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                        );
+                    
+                    return BadRequest(new
+                    {
+                        message = "Datos de validación incorrectos",
+                        errors = errors
+                    });
+                }
+
                 await _productoService.AddProducto(productoDto);
 
                 return Ok(new { message = "Producto agregado exitosamente." });
@@ -77,6 +94,23 @@ namespace TobacoBackend.Controllers
             if (productoDto == null || id != productoDto.Id)
             {
                 return BadRequest(new { message = "ID del producto no coincide o el producto es nulo." });
+            }
+
+            // Validar el modelo
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                
+                return BadRequest(new
+                {
+                    message = "Datos de validación incorrectos",
+                    errors = errors
+                });
             }
 
             try

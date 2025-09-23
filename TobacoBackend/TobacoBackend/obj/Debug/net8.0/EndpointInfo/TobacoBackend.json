@@ -1334,6 +1334,10 @@
           "nombre": {
             "type": "string",
             "nullable": true
+          },
+          "colorHex": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1501,6 +1505,12 @@
         "additionalProperties": false
       },
       "ProductoDTO": {
+        "required": [
+          "cantidad",
+          "categoriaId",
+          "nombre",
+          "precio"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1508,14 +1518,17 @@
             "format": "int32"
           },
           "nombre": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
           },
           "cantidad": {
+            "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "precio": {
+            "minimum": 0,01,
             "type": "number",
             "format": "double"
           },
