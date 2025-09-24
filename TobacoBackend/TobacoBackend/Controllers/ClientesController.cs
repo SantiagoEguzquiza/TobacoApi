@@ -55,7 +55,7 @@ namespace TobacoBackend.Controllers
 
                 await _clienteService.AddCliente(clienteDto);
 
-                return CreatedAtAction(nameof(GetClienteById), new { id = clienteDto.Id }, new { message = "Cliente agregado exitosamente." });
+                return Ok(new { message = "Cliente agregado exitosamente." });
             }
             catch (Exception ex)
             {
@@ -66,13 +66,15 @@ namespace TobacoBackend.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCliente(int id, [FromBody] ClienteDTO clienteDto)
         {
-            if (clienteDto == null || id != clienteDto.Id)
+            if (clienteDto == null || (clienteDto.Id.HasValue && id != clienteDto.Id))
             {
                 return BadRequest(new { message = "ID del cliente no coincide o el cliente es nulo." });
             }
 
             try
             {
+                // Asegurar que el ID del DTO coincida con el ID de la ruta
+                clienteDto.Id = id;
                 await _clienteService.UpdateCliente(id, clienteDto);
                 return Ok(new { message = "Cliente actualizado exitosamente." });
             }
