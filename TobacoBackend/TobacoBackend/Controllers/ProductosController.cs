@@ -72,7 +72,7 @@ namespace TobacoBackend.Controllers
 
                 await _productoService.AddProducto(productoDto);
 
-                return Ok(new { message = "Producto agregado exitosamente." });
+                return CreatedAtAction(nameof(GetProductoById), new { id = productoDto.Id }, new { message = "Producto agregado exitosamente." });
             }
             catch (Exception ex)
             {

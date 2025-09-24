@@ -55,7 +55,7 @@ namespace TobacoBackend.Controllers
 
                 await _clienteService.AddCliente(clienteDto);
 
-                return Ok(new { message = "Cliente agregado exitosamente." });
+                return CreatedAtAction(nameof(GetClienteById), new { id = clienteDto.Id }, new { message = "Cliente agregado exitosamente." });
             }
             catch (Exception ex)
             {
