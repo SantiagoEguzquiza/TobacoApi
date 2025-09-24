@@ -3,14 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\ventapagosdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\ventapagosdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\pedidoproductodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\pedidoproductodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\productodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\productodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -19,20 +11,28 @@
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\clientedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\pedidodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\pedidodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\ventapagoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\ventapagoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\persistence\\aplicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\persistence\\aplicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\ventapagosdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\ventapagosdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\pedidoproductodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\pedidoproductodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\pedidodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\pedidodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\santi\\desktop\\carrera\\tobacoapi\\tobacobackend\\tobacobackend\\mapping\\mappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -90,7 +90,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -110,7 +110,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "ProductoDTO.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\ProductoDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\ProductoDTO.cs",
@@ -118,11 +118,12 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\ProductoDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:51:40.399Z"
+              "WhenOpened": "2025-09-22T18:51:40.399Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "ClienteDTO.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\ClienteDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\ClienteDTO.cs",
@@ -134,7 +135,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "VentaPagosController.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\VentaPagosController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\VentaPagosController.cs",
@@ -146,7 +147,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 3,
               "Title": "AplicationDbContext.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\Persistence\\AplicationDbContext.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Persistence\\AplicationDbContext.cs",
@@ -170,7 +171,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "VentaPagosDTO.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\VentaPagosDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\VentaPagosDTO.cs",
@@ -178,12 +179,11 @@
               "RelativeToolTip": "TobacoBackend\\DTOs\\VentaPagosDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T18:31:44.435Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T18:31:44.435Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "PedidoDTO.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\PedidoDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\PedidoDTO.cs",
@@ -243,7 +243,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "PedidoProductoDTO.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\PedidoProductoDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\PedidoProductoDTO.cs",
@@ -279,7 +279,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "PedidosController.cs",
               "DocumentMoniker": "C:\\Users\\santi\\Desktop\\Carrera\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\PedidosController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\PedidosController.cs",
