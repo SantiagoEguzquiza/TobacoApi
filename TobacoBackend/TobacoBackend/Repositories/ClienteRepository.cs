@@ -15,10 +15,11 @@ namespace TobacoBackend.Repositories
             this._context = context;
         }
 
-        public async Task AddCliente(Cliente cliente)
+        public async Task<Cliente> AddCliente(Cliente cliente)
         {
             _context.Clientes.Add(cliente);
             await _context.SaveChangesAsync();
+            return cliente; // El cliente ahora tiene el ID asignado por la base de datos
         }
 
         public async Task<bool> DeleteCliente(int id)

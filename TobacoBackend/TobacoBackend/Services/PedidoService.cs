@@ -13,14 +13,16 @@ namespace TobacoBackend.Services
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IProductoRepository _productoRepository;
         private readonly IVentaPagosService _ventaPagosService;
+        private readonly IPrecioEspecialService _precioEspecialService;
         private readonly IMapper _mapper;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
             _productoRepository = productoRepository;
             _ventaPagosService = ventaPagosService;
+            _precioEspecialService = precioEspecialService;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -43,13 +45,16 @@ namespace TobacoBackend.Services
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
 
+                // Obtener el precio final (especial si existe, estándar si no)
+                var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(pedidoDto.ClienteId, producto.Id);
+
                 var pedidoProducto = new PedidoProducto
                 {
                     ProductoId = producto.Id,
                     Cantidad = productoDto.Cantidad
                 };
 
-                total += producto.Precio * productoDto.Cantidad;
+                total += precioFinal * productoDto.Cantidad;
 
                 pedido.PedidoProductos.Add(pedidoProducto);
             }

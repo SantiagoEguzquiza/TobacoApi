@@ -339,7 +339,17 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "TobacoBackend.DTOs.ClienteDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "TobacoBackend.Controllers.ClientesController",
@@ -534,6 +544,230 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "GetAllPreciosEspeciales",
+    "RelativePath": "PreciosEspeciales",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[TobacoBackend.DTOs.PrecioEspecialDTO, TobacoBackend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "AddPrecioEspecial",
+    "RelativePath": "PreciosEspeciales",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "precioEspecialDto",
+        "Type": "TobacoBackend.DTOs.PrecioEspecialDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "GetPrecioEspecialById",
+    "RelativePath": "PreciosEspeciales/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TobacoBackend.DTOs.PrecioEspecialDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "UpdatePrecioEspecial",
+    "RelativePath": "PreciosEspeciales/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "precioEspecialDto",
+        "Type": "TobacoBackend.DTOs.PrecioEspecialDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "DeletePrecioEspecial",
+    "RelativePath": "PreciosEspeciales/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "GetPreciosEspecialesByCliente",
+    "RelativePath": "PreciosEspeciales/cliente/{clienteId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "clienteId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[TobacoBackend.DTOs.PrecioEspecialDTO, TobacoBackend, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "GetPrecioEspecialByClienteAndProducto",
+    "RelativePath": "PreciosEspeciales/cliente/{clienteId}/producto/{productoId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "clienteId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productoId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TobacoBackend.DTOs.PrecioEspecialDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "DeletePrecioEspecialByClienteAndProducto",
+    "RelativePath": "PreciosEspeciales/cliente/{clienteId}/producto/{productoId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "clienteId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productoId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "GetPrecioFinalProducto",
+    "RelativePath": "PreciosEspeciales/precio-final/cliente/{clienteId}/producto/{productoId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "clienteId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productoId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Decimal",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PreciosEspecialesController",
+    "Method": "UpsertPrecioEspecial",
+    "RelativePath": "PreciosEspeciales/upsert",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "TobacoBackend.Controllers.UpsertPrecioEspecialRequest",
         "IsRequired": true
       }
     ],

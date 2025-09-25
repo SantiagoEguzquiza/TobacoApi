@@ -13,6 +13,7 @@ namespace TobacoBackend.Mapping
             CreateMap<PedidoProducto, PedidoProductoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
             CreateMap<VentaPagos, VentaPagosDTO>().ReverseMap();
+            CreateMap<PrecioEspecial, PrecioEspecialDTO>().ReverseMap();
 
             // Mapeo personalizado para Producto
             CreateMap<ProductoDTO, Producto>()
