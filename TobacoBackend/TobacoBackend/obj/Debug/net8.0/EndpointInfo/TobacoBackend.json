@@ -1484,6 +1484,14 @@
           },
           "metodoPago": {
             "$ref": "#/components/schemas/MetodoPagoEnum"
+          },
+          "usuarioId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false

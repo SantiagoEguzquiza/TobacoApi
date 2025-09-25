@@ -9,7 +9,9 @@ namespace TobacoBackend.Mapping
         public MappingProfile()
         {
             CreateMap<Cliente, ClienteDTO>().ReverseMap();
-            CreateMap<Pedido, PedidoDTO>().ReverseMap();
+            CreateMap<Pedido, PedidoDTO>()
+                .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.Usuario))
+                .ReverseMap();
             CreateMap<PedidoProducto, PedidoProductoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
             CreateMap<VentaPagos, VentaPagosDTO>().ReverseMap();

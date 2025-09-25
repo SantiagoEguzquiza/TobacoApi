@@ -12,6 +12,8 @@ namespace TobacoBackend.DTOs
         public decimal Total { get; set; }
         public DateTime Fecha { get; set; }
         public MetodoPagoEnum MetodoPago { get; set; }
+        public int? UsuarioId { get; set; }
+        public UserDTO? Usuario { get; set; }
  
     }
 }
