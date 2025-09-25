@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
@@ -15,24 +17,35 @@ namespace TobacoBackend.Services
         private readonly IVentaPagosService _ventaPagosService;
         private readonly IPrecioEspecialService _precioEspecialService;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IHttpContextAccessor httpContextAccessor)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
             _productoRepository = productoRepository;
             _ventaPagosService = ventaPagosService;
             _precioEspecialService = precioEspecialService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
         {
+            // Obtener el ID del usuario actual del contexto de autenticación
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+            int? usuarioId = null;
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                usuarioId = userId;
+            }
+
             var pedido = new Pedido
             {
                 ClienteId = pedidoDto.ClienteId,
                 Fecha = DateTime.Now,
                 PedidoProductos = new List<PedidoProducto>(),
-                MetodoPago = pedidoDto.MetodoPago
+                MetodoPago = pedidoDto.MetodoPago,
+                UsuarioId = usuarioId
             };
 
             decimal total = 0;
