@@ -11,6 +11,7 @@ public class AplicationDbContext : DbContext
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<VentaPagos> VentaPagos { get; set; }
+    public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -104,6 +105,28 @@ public class AplicationDbContext : DbContext
             .WithMany(p => p.VentaPagos)
             .HasForeignKey(v => v.PedidoId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // PrecioEspecial entity configuration
+        modelBuilder.Entity<PrecioEspecial>()
+            .Property(pe => pe.Precio)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<PrecioEspecial>()
+            .HasOne(pe => pe.Cliente)
+            .WithMany(c => c.PreciosEspeciales)
+            .HasForeignKey(pe => pe.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PrecioEspecial>()
+            .HasOne(pe => pe.Producto)
+            .WithMany()
+            .HasForeignKey(pe => pe.ProductoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Índice único para evitar duplicados de cliente-producto
+        modelBuilder.Entity<PrecioEspecial>()
+            .HasIndex(pe => new { pe.ClienteId, pe.ProductoId })
+            .IsUnique();
 
     }
 

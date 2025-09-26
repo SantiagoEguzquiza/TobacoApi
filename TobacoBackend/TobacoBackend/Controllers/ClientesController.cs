@@ -44,7 +44,7 @@ namespace TobacoBackend.Controllers
 
        
         [HttpPost]
-        public async Task<ActionResult> AddCliente([FromBody] ClienteDTO clienteDto)
+        public async Task<ActionResult<ClienteDTO>> AddCliente([FromBody] ClienteDTO clienteDto)
         {
             try
             {
@@ -53,9 +53,9 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El cliente no puede ser nulo." });
                 }
 
-                await _clienteService.AddCliente(clienteDto);
+                var clienteCreado = await _clienteService.AddCliente(clienteDto);
 
-                return Ok(new { message = "Cliente agregado exitosamente." });
+                return Ok(clienteCreado);
             }
             catch (Exception ex)
             {

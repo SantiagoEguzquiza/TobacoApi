@@ -19,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddDbContext<AplicationDbContext>(options =>
@@ -32,6 +33,7 @@ builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVentaPagosService, VentaPagosService>();
+builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
 builder.Services.AddScoped<TokenService>();
 
 //Registrar repositorios
@@ -41,6 +43,7 @@ builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVentaPagosRepository, VentaPagosRepository>();
+builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>();
 
 
 // Cors
