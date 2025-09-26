@@ -25,5 +25,7 @@ namespace TobacoBackend.DTOs
         public string CategoriaNombre { get; set; }   
         
         public bool Half { get; set; } = false;
+
+        public bool IsActive { get; set; } = true;
     }
 }

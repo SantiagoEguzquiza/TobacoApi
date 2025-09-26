@@ -873,6 +873,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "TobacoBackend.Controllers.ProductosController",
+    "Method": "ActivateProducto",
+    "RelativePath": "Productos/{id}/activate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.ProductosController",
+    "Method": "DeactivateProducto",
+    "RelativePath": "Productos/{id}/deactivate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "TobacoBackend.Controllers.VentaPagosController",
     "Method": "GetAllVentaPagos",
     "RelativePath": "VentaPagos",
