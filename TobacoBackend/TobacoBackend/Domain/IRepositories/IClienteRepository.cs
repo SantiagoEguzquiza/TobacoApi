@@ -7,7 +7,7 @@ namespace TobacoBackend.Domain.IRepositories
     {
         Task<List<Cliente>> GetAllClientes();
         Task<Cliente> GetClienteById(int id);
-        Task AddCliente(Cliente cliente);
+        Task<Cliente> AddCliente(Cliente cliente);
         Task UpdateCliente(Cliente cliente);
         Task<bool> DeleteCliente(int id);
         Task<IEnumerable<Cliente>> BuscarClientesAsync(string query);

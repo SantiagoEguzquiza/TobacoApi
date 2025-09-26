@@ -26,6 +26,12 @@ namespace TobacoBackend.Domain.Models
 
         [Required]
         public MetodoPagoEnum MetodoPago { get; set; }
+
+        // Usuario que creó la venta
+        public int? UsuarioId { get; set; }
+
+        [ForeignKey("UsuarioId")]
+        public User? Usuario { get; set; }
         
     }
 }

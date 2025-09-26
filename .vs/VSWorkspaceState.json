@@ -3,8 +3,9 @@
     "",
     "\\TobacoBackend",
     "\\TobacoBackend\\TobacoBackend",
+    "\\TobacoBackend\\TobacoBackend\\DTOs",
     "\\TobacoBackend\\TobacoBackend\\Services"
   ],
-  "SelectedNode": "\\TobacoBackend\\TobacoBackend\\Services\\ClienteService.cs",
+  "SelectedNode": "\\TobacoBackend\\TobacoBackend\\DTOs\\CategoriaDTO.cs",
   "PreviewInSolutionExplorer": false
 }

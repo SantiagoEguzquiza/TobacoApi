@@ -16,10 +16,11 @@ namespace TobacoBackend.Services
             _clienteRepository = clienteRepository;
             _mapper = mapper;
         }
-        public async Task AddCliente(ClienteDTO clienteDto)
+        public async Task<ClienteDTO> AddCliente(ClienteDTO clienteDto)
         {
             var cliente = _mapper.Map<Cliente>(clienteDto);
-            await _clienteRepository.AddCliente(cliente);
+            var clienteCreado = await _clienteRepository.AddCliente(cliente);
+            return _mapper.Map<ClienteDTO>(clienteCreado);
         }
 
         public async Task<bool> DeleteCliente(int id)

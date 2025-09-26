@@ -62,6 +62,7 @@ namespace TobacoBackend.Repositories
                 .AsNoTracking()                     // lecturas más rápidas
                 .OrderByDescending(p => p.Id) // o p.Id si es identity creciente
                 .Include(p => p.Cliente)
+                .Include(p => p.Usuario)
                 .Include(p => p.PedidoProductos)
                     .ThenInclude(pp => pp.Producto)
                 .AsSplitQuery()                     // evita explosiones cartesianas
@@ -72,7 +73,12 @@ namespace TobacoBackend.Repositories
 
         public async Task<Pedido> GetPedidoById(int id)
         {
-            var pedido = await _context.Pedidos.FirstOrDefaultAsync(c => c.Id == id);
+            var pedido = await _context.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Usuario)
+                .Include(p => p.PedidoProductos)
+                    .ThenInclude(pp => pp.Producto)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (pedido == null)
             {
                 throw new Exception($"El pedido con id {id} no fue encontrado o no existe");

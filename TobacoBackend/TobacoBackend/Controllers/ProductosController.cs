@@ -53,9 +53,26 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El producto no puede ser nulo." });
                 }
 
+                // Validar el modelo
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                        );
+                    
+                    return BadRequest(new
+                    {
+                        message = "Datos de validación incorrectos",
+                        errors = errors
+                    });
+                }
+
                 await _productoService.AddProducto(productoDto);
 
-                return Ok(new { message = "Producto agregado exitosamente." });
+                return CreatedAtAction(nameof(GetProductoById), new { id = productoDto.Id }, new { message = "Producto agregado exitosamente." });
             }
             catch (Exception ex)
             {
@@ -77,6 +94,23 @@ namespace TobacoBackend.Controllers
             if (productoDto == null || id != productoDto.Id)
             {
                 return BadRequest(new { message = "ID del producto no coincide o el producto es nulo." });
+            }
+
+            // Validar el modelo
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+                
+                return BadRequest(new
+                {
+                    message = "Datos de validación incorrectos",
+                    errors = errors
+                });
             }
 
             try
@@ -106,9 +140,59 @@ namespace TobacoBackend.Controllers
                     return NotFound(new { message = "El producto no existe o no se pudo eliminar." });
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { 
+                    message = ex.Message,
+                    canSoftDelete = true,
+                    suggestion = "Este producto tiene ventas vinculadas. ¿Desea desactivarlo en lugar de eliminarlo?"
+                });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Ocurrió un error al intentar eliminar el producto: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/deactivate")]
+        public async Task<ActionResult> DeactivateProducto(int id)
+        {
+            try
+            {
+                var result = await _productoService.SoftDeleteProducto(id);
+                if (result)
+                {
+                    return Ok(new { message = "Producto desactivado exitosamente." });
+                }
+                else
+                {
+                    return NotFound(new { message = "El producto no existe o no se pudo desactivar." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Ocurrió un error al intentar desactivar el producto: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/activate")]
+        public async Task<ActionResult> ActivateProducto(int id)
+        {
+            try
+            {
+                var result = await _productoService.ActivateProducto(id);
+                if (result)
+                {
+                    return Ok(new { message = "Producto activado exitosamente." });
+                }
+                else
+                {
+                    return NotFound(new { message = "El producto no existe o no se pudo activar." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Ocurrió un error al intentar activar el producto: {ex.Message}" });
             }
         }
     }

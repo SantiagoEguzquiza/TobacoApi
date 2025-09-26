@@ -26,7 +26,25 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeleteProducto(int id)
         {
-            return await _productoRepository.DeleteProducto(id);
+            try
+            {
+                return await _productoRepository.DeleteProducto(id);
+            }
+            catch (InvalidOperationException)
+            {
+                // Re-lanzar la excepción para que el controlador la maneje
+                throw;
+            }
+        }
+
+        public async Task<bool> SoftDeleteProducto(int id)
+        {
+            return await _productoRepository.SoftDeleteProducto(id);
+        }
+
+        public async Task<bool> ActivateProducto(int id)
+        {
+            return await _productoRepository.ActivateProducto(id);
         }
 
         public async Task<List<ProductoDTO>> GetAllProductos()
