@@ -155,6 +155,16 @@
   },
   {
     "ContainingType": "TobacoBackend.Controllers.UserController",
+    "Method": "TestTokenDuration",
+    "RelativePath": "api/User/test-token-duration",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.UserController",
     "Method": "UpdateUser",
     "RelativePath": "api/User/update/{id}",
     "HttpMethod": "PUT",
