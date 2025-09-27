@@ -1578,6 +1578,18 @@
         }
       }
     },
+    "/api/User/test-token-duration": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/VentaPagos": {
       "get": {
         "tags": [

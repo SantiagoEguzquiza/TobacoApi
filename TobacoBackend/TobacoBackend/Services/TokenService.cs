@@ -38,7 +38,7 @@ namespace TobacoBackend.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddDays(_jwtSettings.ExpirationDays),
                 signingCredentials: credentials
             );
 
