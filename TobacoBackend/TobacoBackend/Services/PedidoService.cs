@@ -16,16 +16,18 @@ namespace TobacoBackend.Services
         private readonly IProductoRepository _productoRepository;
         private readonly IVentaPagosService _ventaPagosService;
         private readonly IPrecioEspecialService _precioEspecialService;
+        private readonly IClienteService _clienteService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IHttpContextAccessor httpContextAccessor)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
             _productoRepository = productoRepository;
             _ventaPagosService = ventaPagosService;
             _precioEspecialService = precioEspecialService;
+            _clienteService = clienteService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -70,6 +72,14 @@ namespace TobacoBackend.Services
                 total += precioFinal * productoDto.Cantidad;
 
                 pedido.PedidoProductos.Add(pedidoProducto);
+            }
+
+            // Aplicar descuento global del cliente si existe
+            var cliente = await _clienteService.GetClienteById(pedidoDto.ClienteId);
+            if (cliente != null && cliente.DescuentoGlobal > 0)
+            {
+                var descuento = total * (cliente.DescuentoGlobal / 100);
+                total = total - descuento;
             }
 
             pedido.Total = total;

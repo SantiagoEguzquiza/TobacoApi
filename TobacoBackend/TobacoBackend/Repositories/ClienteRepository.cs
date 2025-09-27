@@ -72,5 +72,18 @@ namespace TobacoBackend.Repositories
             var clientesConDeuda = clientes.Where(c => c.DeudaDecimal > 0).ToList(); 
             return clientesConDeuda;
         }
+
+        public async Task<(List<Cliente> Clientes, int TotalCount)> GetClientesPaginados(int page, int pageSize)
+        {
+            var totalCount = await _context.Clientes.CountAsync();
+            
+            var clientes = await _context.Clientes
+                .OrderByDescending(c => c.Id) // Ordenar por ID descendente para obtener los más recientes primero
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (clientes, totalCount);
+        }
     }
 }

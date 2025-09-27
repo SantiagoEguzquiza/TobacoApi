@@ -417,6 +417,38 @@
         }
       }
     },
+    "/Clientes/paginados": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Pedidos": {
       "get": {
         "tags": [
@@ -1807,6 +1839,10 @@
           "deuda": {
             "type": "string",
             "nullable": true
+          },
+          "descuentoGlobal": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
