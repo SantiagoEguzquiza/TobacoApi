@@ -451,6 +451,27 @@
     ]
   },
   {
+    "ContainingType": "TobacoBackend.Controllers.ClientesController",
+    "Method": "GetClientesPaginados",
+    "RelativePath": "Clientes/paginados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "TobacoBackend.Controllers.PedidosController",
     "Method": "GetAllPedidos",
     "RelativePath": "Pedidos",

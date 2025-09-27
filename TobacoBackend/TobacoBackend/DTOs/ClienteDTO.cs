@@ -7,6 +7,7 @@
         public string Direccion { get; set; }
         public string Telefono { get; set; }
         public string Deuda { get; set; }
+        public decimal DescuentoGlobal { get; set; } = 0;
         
     }
 }
