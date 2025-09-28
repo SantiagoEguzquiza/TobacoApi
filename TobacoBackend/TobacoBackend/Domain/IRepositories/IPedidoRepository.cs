@@ -12,5 +12,6 @@ namespace TobacoBackend.Domain.IRepositories
         Task AddOrUpdatePedidoProducto(PedidoProducto pedidoProducto);
         Task UpdatePedido(Pedido pedido);
         Task<bool> DeletePedido(int id);
+        Task<PedidoPaginationResult> GetPedidosPaginados(int page, int pageSize);
     }
 }

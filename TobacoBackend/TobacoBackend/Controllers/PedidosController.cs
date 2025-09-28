@@ -108,5 +108,20 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Ocurrió un error al intentar eliminar el pedido: {ex.Message}" });
             }
         }
+
+        // GET: api/pedidos/paginados?page=1&pageSize=20
+        [HttpGet("paginados")]
+        public async Task<ActionResult<object>> GetPedidosPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _pedidosService.GetPedidosPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener pedidos paginados: {ex.Message}" });
+            }
+        }
     }
 }

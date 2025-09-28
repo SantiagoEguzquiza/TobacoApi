@@ -13,5 +13,6 @@ namespace TobacoBackend.Domain.IServices
         Task<IEnumerable<ClienteDTO>> BuscarClientesAsync(string query);
         Task<List<ClienteDTO>> GetClientesConDeuda();
         Task<object> GetClientesPaginados(int page, int pageSize);
+        Task<object> GetClientesConDeudaPaginados(int page, int pageSize);
     }
 }

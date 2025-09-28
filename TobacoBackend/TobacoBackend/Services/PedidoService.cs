@@ -158,5 +158,28 @@ namespace TobacoBackend.Services
                 }
             }
         }
+
+        public async Task<object> GetPedidosPaginados(int page, int pageSize)
+        {
+            var result = await _pedidoRepository.GetPedidosPaginados(page, pageSize);
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
+            
+            // Load VentaPagos for each pedido
+            foreach (var pedidoDto in pedidosDto)
+            {
+                pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
+            }
+            
+            return new
+            {
+                pedidos = pedidosDto,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
+        }
     }
 }

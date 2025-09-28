@@ -195,5 +195,20 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Ocurrió un error al intentar activar el producto: {ex.Message}" });
             }
         }
+
+        // GET: api/productos/paginados?page=1&pageSize=20
+        [HttpGet("paginados")]
+        public async Task<ActionResult<object>> GetProductosPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _productoService.GetProductosPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener productos paginados: {ex.Message}" });
+            }
+        }
     }
 }

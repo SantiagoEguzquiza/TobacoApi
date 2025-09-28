@@ -462,6 +462,27 @@
   },
   {
     "ContainingType": "TobacoBackend.Controllers.ClientesController",
+    "Method": "GetClientesConDeudaPaginados",
+    "RelativePath": "Clientes/con-deuda/paginados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.ClientesController",
     "Method": "GetClientesPaginados",
     "RelativePath": "Clientes/paginados",
     "HttpMethod": "GET",
@@ -576,6 +597,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.PedidosController",
+    "Method": "GetPedidosPaginados",
+    "RelativePath": "Pedidos/paginados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -931,6 +973,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TobacoBackend.Controllers.ProductosController",
+    "Method": "GetProductosPaginados",
+    "RelativePath": "Productos/paginados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

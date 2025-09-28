@@ -106,5 +106,29 @@ namespace TobacoBackend.Repositories
             _context.Productos.Update(producto);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ProductoPaginationResult> GetProductosPaginados(int page, int pageSize)
+        {
+            var totalItems = await _context.Productos
+                .Where(p => p.IsActive)
+                .CountAsync();
+
+            var productos = await _context.Productos
+                .Where(p => p.IsActive)
+                .Include(p => p.Categoria)
+                .OrderBy(p => p.Nombre)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            return new ProductoPaginationResult
+            {
+                Productos = productos,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+        }
     }
 }
