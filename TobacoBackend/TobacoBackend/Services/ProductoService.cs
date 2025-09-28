@@ -26,7 +26,25 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeleteProducto(int id)
         {
-            return await _productoRepository.DeleteProducto(id);
+            try
+            {
+                return await _productoRepository.DeleteProducto(id);
+            }
+            catch (InvalidOperationException)
+            {
+                // Re-lanzar la excepción para que el controlador la maneje
+                throw;
+            }
+        }
+
+        public async Task<bool> SoftDeleteProducto(int id)
+        {
+            return await _productoRepository.SoftDeleteProducto(id);
+        }
+
+        public async Task<bool> ActivateProducto(int id)
+        {
+            return await _productoRepository.ActivateProducto(id);
         }
 
         public async Task<List<ProductoDTO>> GetAllProductos()
@@ -46,6 +64,23 @@ namespace TobacoBackend.Services
             var producto = _mapper.Map<Producto>(productoDto);
             producto.Id = id;
             await _productoRepository.UpdateProducto(producto);
+        }
+
+        public async Task<object> GetProductosPaginados(int page, int pageSize)
+        {
+            var result = await _productoRepository.GetProductosPaginados(page, pageSize);
+            var productos = _mapper.Map<List<ProductoDTO>>(result.Productos);
+            
+            return new
+            {
+                productos = productos,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
         }
     }
 }

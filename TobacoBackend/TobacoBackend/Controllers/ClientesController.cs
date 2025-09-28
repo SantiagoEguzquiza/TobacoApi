@@ -123,5 +123,35 @@ namespace TobacoBackend.Controllers
             var clientes = await _clienteService.GetClientesConDeuda();
             return Ok(clientes);
         }
+
+        // GET: api/clientes/paginados?page=1&pageSize=20
+        [HttpGet("paginados")]
+        public async Task<ActionResult<object>> GetClientesPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _clienteService.GetClientesPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener clientes paginados: {ex.Message}" });
+            }
+        }
+
+        // GET: api/clientes/con-deuda/paginados?page=1&pageSize=20
+        [HttpGet("con-deuda/paginados")]
+        public async Task<ActionResult<object>> GetClientesConDeudaPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _clienteService.GetClientesConDeudaPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener clientes con deuda paginados: {ex.Message}" });
+            }
+        }
     }
 }

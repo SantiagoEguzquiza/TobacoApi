@@ -27,5 +27,7 @@ namespace TobacoBackend.Domain.Models
         public List<PedidoProducto> PedidoProductos { get; set; } = new List<PedidoProducto>();
 
         public bool Half { get; set; } = false;
+
+        public bool IsActive { get; set; } = true;
     }
 }

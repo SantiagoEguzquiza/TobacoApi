@@ -299,6 +299,34 @@ namespace TobacoBackend.Controllers
             }
         }
 
+        // Endpoint temporal para verificar la duración del token
+        [HttpGet("test-token-duration")]
+        public ActionResult TestTokenDuration()
+        {
+            try
+            {
+                var testToken = _tokenService.GenerateToken("999", "test_user");
+                var expiration = _tokenService.GetTokenExpiration(testToken);
+                var now = DateTime.UtcNow;
+                var duration = expiration - now;
+
+                return Ok(new
+                {
+                    message = "Token de prueba generado",
+                    tokenGenerated = testToken,
+                    expiration = expiration,
+                    currentTime = now,
+                    durationInDays = duration.TotalDays,
+                    durationInHours = duration.TotalHours,
+                    configuredExpirationDays = 30
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al generar token de prueba: {ex.Message}" });
+            }
+        }
+
     }
 
     public class TokenValidationRequest

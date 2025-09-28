@@ -10,5 +10,6 @@ namespace TobacoBackend.Domain.IServices
         Task AddPedido(PedidoDTO pedidoDto);
         Task UpdatePedido(int id, PedidoDTO pedidoDto);
         Task<bool> DeletePedido(int id);
+        Task<object> GetPedidosPaginados(int page, int pageSize);
     }
 }

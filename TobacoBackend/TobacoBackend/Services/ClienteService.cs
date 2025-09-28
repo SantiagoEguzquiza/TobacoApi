@@ -58,5 +58,39 @@ namespace TobacoBackend.Services
             var clientes = await _clienteRepository.GetClientesConDeuda();
             return _mapper.Map<List<ClienteDTO>>(clientes);
         }
+
+        public async Task<object> GetClientesPaginados(int page, int pageSize)
+        {
+            var result = await _clienteRepository.GetClientesPaginados(page, pageSize);
+            var clientes = _mapper.Map<List<ClienteDTO>>(result.Clientes);
+            
+            return new
+            {
+                Clientes = clientes,
+                TotalCount = result.TotalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize),
+                HasNextPage = page < (int)Math.Ceiling((double)result.TotalCount / pageSize),
+                HasPreviousPage = page > 1
+            };
+        }
+
+        public async Task<object> GetClientesConDeudaPaginados(int page, int pageSize)
+        {
+            var result = await _clienteRepository.GetClientesConDeudaPaginados(page, pageSize);
+            var clientes = _mapper.Map<List<ClienteDTO>>(result.Clientes);
+            
+            return new
+            {
+                clientes = clientes,
+                totalItems = result.TotalCount,
+                totalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize),
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < (int)Math.Ceiling((double)result.TotalCount / pageSize),
+                hasPreviousPage = page > 1
+            };
+        }
     }
 }

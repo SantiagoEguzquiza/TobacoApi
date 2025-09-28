@@ -140,9 +140,74 @@ namespace TobacoBackend.Controllers
                     return NotFound(new { message = "El producto no existe o no se pudo eliminar." });
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { 
+                    message = ex.Message,
+                    canSoftDelete = true,
+                    suggestion = "Este producto tiene ventas vinculadas. ¿Desea desactivarlo en lugar de eliminarlo?"
+                });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Ocurrió un error al intentar eliminar el producto: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/deactivate")]
+        public async Task<ActionResult> DeactivateProducto(int id)
+        {
+            try
+            {
+                var result = await _productoService.SoftDeleteProducto(id);
+                if (result)
+                {
+                    return Ok(new { message = "Producto desactivado exitosamente." });
+                }
+                else
+                {
+                    return NotFound(new { message = "El producto no existe o no se pudo desactivar." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Ocurrió un error al intentar desactivar el producto: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/activate")]
+        public async Task<ActionResult> ActivateProducto(int id)
+        {
+            try
+            {
+                var result = await _productoService.ActivateProducto(id);
+                if (result)
+                {
+                    return Ok(new { message = "Producto activado exitosamente." });
+                }
+                else
+                {
+                    return NotFound(new { message = "El producto no existe o no se pudo activar." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Ocurrió un error al intentar activar el producto: {ex.Message}" });
+            }
+        }
+
+        // GET: api/productos/paginados?page=1&pageSize=20
+        [HttpGet("paginados")]
+        public async Task<ActionResult<object>> GetProductosPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _productoService.GetProductosPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener productos paginados: {ex.Message}" });
             }
         }
     }

@@ -2,13 +2,9 @@
 {
     public class JwtSettings
     {
-
-
         public string Secret { get; set; }
         public string Issuer { get; set; }
         public string Audience { get; set; }
-
-
-
+        public int ExpirationDays { get; set; } = 30; // Duración del token en días, por defecto 30 días
     }
 }
