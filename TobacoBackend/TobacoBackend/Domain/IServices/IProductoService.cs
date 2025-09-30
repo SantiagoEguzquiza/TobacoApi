@@ -12,5 +12,6 @@ namespace TobacoBackend.Domain.IServices
         Task<bool> DeleteProducto(int id);
         Task<bool> SoftDeleteProducto(int id);
         Task<bool> ActivateProducto(int id);
+        Task<object> GetProductosPaginados(int page, int pageSize);
     }
 }

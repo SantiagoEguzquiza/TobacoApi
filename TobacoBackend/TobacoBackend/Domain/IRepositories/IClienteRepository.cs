@@ -13,5 +13,6 @@ namespace TobacoBackend.Domain.IRepositories
         Task<IEnumerable<Cliente>> BuscarClientesAsync(string query);
         Task<List<Cliente>> GetClientesConDeuda();
         Task<(List<Cliente> Clientes, int TotalCount)> GetClientesPaginados(int page, int pageSize);
+        Task<(List<Cliente> Clientes, int TotalCount)> GetClientesConDeudaPaginados(int page, int pageSize);
     }
 }
