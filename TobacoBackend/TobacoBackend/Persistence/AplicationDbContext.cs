@@ -12,6 +12,7 @@ public class AplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<VentaPagos> VentaPagos { get; set; }
     public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
+    public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -126,6 +127,22 @@ public class AplicationDbContext : DbContext
         // Índice único para evitar duplicados de cliente-producto
         modelBuilder.Entity<PrecioEspecial>()
             .HasIndex(pe => new { pe.ClienteId, pe.ProductoId })
+            .IsUnique();
+
+        // ProductQuantityPrice entity configuration
+        modelBuilder.Entity<ProductQuantityPrice>()
+            .Property(pqp => pqp.TotalPrice)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<ProductQuantityPrice>()
+            .HasOne(pqp => pqp.Producto)
+            .WithMany(p => p.QuantityPrices)
+            .HasForeignKey(pqp => pqp.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Índice único compuesto para evitar cantidades duplicadas por producto
+        modelBuilder.Entity<ProductQuantityPrice>()
+            .HasIndex(pqp => new { pqp.ProductId, pqp.Quantity })
             .IsUnique();
 
     }

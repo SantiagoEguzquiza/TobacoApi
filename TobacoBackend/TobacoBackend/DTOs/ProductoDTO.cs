@@ -27,5 +27,7 @@ namespace TobacoBackend.DTOs
         public bool Half { get; set; } = false;
 
         public bool IsActive { get; set; } = true;
+        
+        public List<ProductQuantityPriceDTO> QuantityPrices { get; set; } = new List<ProductQuantityPriceDTO>();
     }
 }

@@ -2144,6 +2144,40 @@
         },
         "additionalProperties": false
       },
+      "ProductQuantityPriceDTO": {
+        "required": [
+          "quantity",
+          "totalPrice"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quantity": {
+            "maximum": 2147483647,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPrice": {
+            "minimum": 0,01,
+            "type": "number",
+            "format": "double"
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProductoDTO": {
         "required": [
           "cantidad",
@@ -2185,6 +2219,13 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "quantityPrices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductQuantityPriceDTO"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false

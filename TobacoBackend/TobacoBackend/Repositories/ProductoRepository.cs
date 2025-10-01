@@ -83,7 +83,8 @@ namespace TobacoBackend.Repositories
         {
             return await _context.Productos
                 .Where(p => p.IsActive)
-                .Include(p => p.Categoria) 
+                .Include(p => p.Categoria)
+                .Include(p => p.QuantityPrices)
                 .ToListAsync();
         }
 
@@ -91,7 +92,8 @@ namespace TobacoBackend.Repositories
         public async Task<Producto> GetProductoById(int id)
         {
             var producto = await _context.Productos
-                .Include(p => p.Categoria) 
+                .Include(p => p.Categoria)
+                .Include(p => p.QuantityPrices)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (producto == null)
@@ -103,7 +105,34 @@ namespace TobacoBackend.Repositories
 
         public async Task UpdateProducto(Producto producto)
         {
-            _context.Productos.Update(producto);
+            // Get the existing product with quantity prices
+            var existingProduct = await _context.Productos
+                .Include(p => p.QuantityPrices)
+                .FirstOrDefaultAsync(p => p.Id == producto.Id);
+
+            if (existingProduct == null)
+                throw new Exception($"El producto con id {producto.Id} no fue encontrado.");
+
+            // Update basic product properties
+            existingProduct.Nombre = producto.Nombre;
+            existingProduct.Cantidad = producto.Cantidad;
+            existingProduct.Precio = producto.Precio;
+            existingProduct.CategoriaId = producto.CategoriaId;
+            existingProduct.Half = producto.Half;
+            existingProduct.IsActive = producto.IsActive;
+
+            // Remove existing quantity prices
+            _context.ProductQuantityPrices.RemoveRange(existingProduct.QuantityPrices);
+
+            // Add new quantity prices
+            foreach (var qp in producto.QuantityPrices)
+            {
+                qp.Id = 0; // Reset ID for new entities
+                qp.ProductId = producto.Id;
+                _context.ProductQuantityPrices.Add(qp);
+            }
+
+            _context.Productos.Update(existingProduct);
             await _context.SaveChangesAsync();
         }
 
@@ -116,6 +145,7 @@ namespace TobacoBackend.Repositories
             var productos = await _context.Productos
                 .Where(p => p.IsActive)
                 .Include(p => p.Categoria)
+                .Include(p => p.QuantityPrices)
                 .OrderBy(p => p.Nombre)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
