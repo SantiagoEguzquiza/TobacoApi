@@ -19,8 +19,9 @@ namespace TobacoBackend.Services
         private readonly IClienteService _clienteService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly PricingService _pricingService;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
@@ -29,6 +30,7 @@ namespace TobacoBackend.Services
             _precioEspecialService = precioEspecialService;
             _clienteService = clienteService;
             _httpContextAccessor = httpContextAccessor;
+            _pricingService = pricingService;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -60,8 +62,24 @@ namespace TobacoBackend.Services
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
 
-                // Obtener el precio final (especial si existe, estándar si no)
-                var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(pedidoDto.ClienteId, producto.Id);
+                // Obtener el precio especial si existe
+                decimal? specialPrice = null;
+                try
+                {
+                    specialPrice = await _precioEspecialService.GetPrecioFinalProductoAsync(pedidoDto.ClienteId, producto.Id);
+                }
+                catch
+                {
+                    // No special price available, use regular pricing
+                }
+
+                // Calculate optimal pricing using quantity-based pricing
+                var pricingResult = _pricingService.CalculateOptimalPricing(
+                    producto, 
+                    (int)productoDto.Cantidad, 
+                    specialPrice, 
+                    null // Global discount will be applied later
+                );
 
                 var pedidoProducto = new PedidoProducto
                 {
@@ -69,7 +87,7 @@ namespace TobacoBackend.Services
                     Cantidad = productoDto.Cantidad
                 };
 
-                total += precioFinal * productoDto.Cantidad;
+                total += pricingResult.TotalPrice;
 
                 pedido.PedidoProductos.Add(pedidoProducto);
             }
@@ -157,6 +175,29 @@ namespace TobacoBackend.Services
                     await _ventaPagosService.AddVentaPagos(ventaPagoDto);
                 }
             }
+        }
+
+        public async Task<object> GetPedidosPaginados(int page, int pageSize)
+        {
+            var result = await _pedidoRepository.GetPedidosPaginados(page, pageSize);
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
+            
+            // Load VentaPagos for each pedido
+            foreach (var pedidoDto in pedidosDto)
+            {
+                pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
+            }
+            
+            return new
+            {
+                pedidos = pedidosDto,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
         }
     }
 }

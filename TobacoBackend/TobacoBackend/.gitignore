@@ -1,1 +1,26 @@
+# Build results
+bin/
+obj/
+Debug/
+Release/
+
+# Visual Studio
 .vs/
+*.v17
+*.user
+*.suo
+*.db
+*.db-shm
+*.db-wal
+
+# Otros temporales
+*.log
+*.tmp
+
+# Rider/Resharper
+.idea/
+*.DotSettings.user
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

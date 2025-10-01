@@ -12,10 +12,12 @@ namespace TobacoBackend.Controllers
     public class ProductosController : ControllerBase
     {
         private readonly IProductoService _productoService;
+        private readonly PricingService _pricingService;
 
-        public ProductosController(IProductoService productoService)
+        public ProductosController(IProductoService productoService, PricingService pricingService)
         {
             _productoService = productoService;
+            _pricingService = pricingService;
         }
 
 
@@ -48,14 +50,31 @@ namespace TobacoBackend.Controllers
         {
             try
             {
+                Console.WriteLine("=== ADD PRODUCTO ENDPOINT CALLED ===");
+                Console.WriteLine($"Producto DTO recibido: {productoDto != null}");
+                
                 if (productoDto == null)
                 {
+                    Console.WriteLine("ERROR: Producto DTO es null");
                     return BadRequest(new { message = "El producto no puede ser nulo." });
+                }
+
+                Console.WriteLine($"Nombre: {productoDto.Nombre}");
+                Console.WriteLine($"Precio: {productoDto.Precio}");
+                Console.WriteLine($"QuantityPrices count: {productoDto.QuantityPrices?.Count ?? 0}");
+                
+                if (productoDto.QuantityPrices != null && productoDto.QuantityPrices.Any())
+                {
+                    foreach (var qp in productoDto.QuantityPrices)
+                    {
+                        Console.WriteLine($"  - Quantity: {qp.Quantity}, TotalPrice: {qp.TotalPrice}, ProductId: {qp.ProductId}");
+                    }
                 }
 
                 // Validar el modelo
                 if (!ModelState.IsValid)
                 {
+                    Console.WriteLine("ERROR: ModelState no es válido");
                     var errors = ModelState
                         .Where(x => x.Value.Errors.Count > 0)
                         .ToDictionary(
@@ -63,11 +82,28 @@ namespace TobacoBackend.Controllers
                             kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
                         );
                     
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"  - {error.Key}: {string.Join(", ", error.Value)}");
+                    }
+                    
                     return BadRequest(new
                     {
                         message = "Datos de validación incorrectos",
                         errors = errors
                     });
+                }
+
+                // Validar precios por cantidad
+                if (productoDto.QuantityPrices != null && productoDto.QuantityPrices.Any())
+                {
+                    if (!_pricingService.ValidateQuantityPrices(productoDto.QuantityPrices))
+                    {
+                        return BadRequest(new
+                        {
+                            message = "Los precios por cantidad no son válidos. Solo se permiten packs (cantidad >= 2), no debe haber cantidades duplicadas, y todos los valores deben ser positivos."
+                        });
+                    }
                 }
 
                 await _productoService.AddProducto(productoDto);
@@ -111,6 +147,18 @@ namespace TobacoBackend.Controllers
                     message = "Datos de validación incorrectos",
                     errors = errors
                 });
+            }
+
+            // Validar precios por cantidad
+            if (productoDto.QuantityPrices != null && productoDto.QuantityPrices.Any())
+            {
+                if (!_pricingService.ValidateQuantityPrices(productoDto.QuantityPrices))
+                {
+                    return BadRequest(new
+                    {
+                        message = "Los precios por cantidad no son válidos. Solo se permiten packs (cantidad >= 2), no debe haber cantidades duplicadas, y todos los valores deben ser positivos."
+                    });
+                }
             }
 
             try
@@ -193,6 +241,21 @@ namespace TobacoBackend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Ocurrió un error al intentar activar el producto: {ex.Message}" });
+            }
+        }
+
+        // GET: api/productos/paginados?page=1&pageSize=20
+        [HttpGet("paginados")]
+        public async Task<ActionResult<object>> GetProductosPaginados([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var result = await _productoService.GetProductosPaginados(page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener productos paginados: {ex.Message}" });
             }
         }
     }

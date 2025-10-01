@@ -68,8 +68,8 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<Cliente>> GetClientesConDeuda()
         {
-            var clientes = await _context.Clientes.ToListAsync(); 
-            var clientesConDeuda = clientes.Where(c => c.DeudaDecimal > 0).ToList(); 
+            var allClientes = await _context.Clientes.ToListAsync();
+            var clientesConDeuda = allClientes.Where(c => c.DeudaDecimal > 0).ToList();
             return clientesConDeuda;
         }
 
@@ -84,6 +84,23 @@ namespace TobacoBackend.Repositories
                 .ToListAsync();
 
             return (clientes, totalCount);
+        }
+
+        public async Task<(List<Cliente> Clientes, int TotalCount)> GetClientesConDeudaPaginados(int page, int pageSize)
+        {
+            // Obtener todos los clientes y filtrar en memoria usando DeudaDecimal
+            var allClientes = await _context.Clientes.ToListAsync();
+            var clientesConDeuda = allClientes.Where(c => c.DeudaDecimal > 0).ToList();
+            
+            var totalCount = clientesConDeuda.Count;
+            
+            var clientesPaginados = clientesConDeuda
+                .OrderByDescending(c => c.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return (clientesPaginados, totalCount);
         }
     }
 }
