@@ -12,6 +12,7 @@ public class AplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<VentaPagos> VentaPagos { get; set; }
     public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
+    public DbSet<Abonos> Abonos { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -127,6 +128,17 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<PrecioEspecial>()
             .HasIndex(pe => new { pe.ClienteId, pe.ProductoId })
             .IsUnique();
+
+        // Abonos entity configuration
+        modelBuilder.Entity<Abonos>()
+            .HasOne(a => a.Cliente)
+            .WithMany(c => c.Abonos)
+            .HasForeignKey(a => a.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Abonos>()
+            .Property(a => a.Fecha)
+            .HasDefaultValueSql("GETUTCDATE()");
 
     }
 

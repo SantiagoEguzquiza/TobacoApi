@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
-using TobacoBackend.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace TobacoBackend.Services
 {
@@ -19,8 +18,9 @@ namespace TobacoBackend.Services
         private readonly IClienteService _clienteService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AplicationDbContext _context;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor)
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, AplicationDbContext context)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
@@ -29,6 +29,7 @@ namespace TobacoBackend.Services
             _precioEspecialService = precioEspecialService;
             _clienteService = clienteService;
             _httpContextAccessor = httpContextAccessor;
+            _context = context;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -95,6 +96,12 @@ namespace TobacoBackend.Services
                     ventaPagoDto.PedidoId = pedido.Id;
                     await _ventaPagosService.AddVentaPagos(ventaPagoDto);
                 }
+            }
+
+            // Si el método de pago es CuentaCorriente, sumar el total a la deuda del cliente
+            if (pedido.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                await _clienteService.AgregarDeuda(pedido.ClienteId, total);
             }
         }
 

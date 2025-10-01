@@ -153,5 +153,24 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al obtener clientes con deuda paginados: {ex.Message}" });
             }
         }
+
+        [HttpGet("{id}/validar-abono")]
+        public async Task<ActionResult<bool>> ValidarMontoAbono(int id, [FromQuery] decimal monto)
+        {
+            try
+            {
+                if (monto <= 0)
+                {
+                    return BadRequest(new { message = "El monto debe ser mayor a cero." });
+                }
+
+                var esValido = await _clienteService.ValidarMontoAbono(id, monto);
+                return Ok(new { esValido = esValido });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al validar monto de abono: {ex.Message}" });
+            }
+        }
     }
 }

@@ -92,5 +92,54 @@ namespace TobacoBackend.Services
                 hasPreviousPage = page > 1
             };
         }
+
+        // Métodos para manejo de deuda
+        public async Task AgregarDeuda(int clienteId, decimal monto)
+        {
+            var cliente = await _clienteRepository.GetClienteById(clienteId);
+            if (cliente == null)
+            {
+                throw new Exception($"Cliente con ID {clienteId} no encontrado");
+            }
+
+            var deudaActual = cliente.DeudaDecimal;
+            var nuevaDeuda = deudaActual + monto;
+
+            cliente.Deuda = nuevaDeuda.ToString();
+            await _clienteRepository.UpdateCliente(cliente);
+        }
+
+        public async Task ReducirDeuda(int clienteId, decimal monto)
+        {
+            var cliente = await _clienteRepository.GetClienteById(clienteId);
+            if (cliente == null)
+            {
+                throw new Exception($"Cliente con ID {clienteId} no encontrado");
+            }
+
+            var deudaActual = cliente.DeudaDecimal;
+            var nuevaDeuda = deudaActual - monto;
+            
+            // No permitir deuda negativa
+            if (nuevaDeuda < 0)
+            {
+                nuevaDeuda = 0;
+            }
+
+            cliente.Deuda = nuevaDeuda.ToString();
+            await _clienteRepository.UpdateCliente(cliente);
+        }
+
+        public async Task<bool> ValidarMontoAbono(int clienteId, decimal montoAbono)
+        {
+            var cliente = await _clienteRepository.GetClienteById(clienteId);
+            if (cliente == null)
+            {
+                return false;
+            }
+
+            var deudaActual = cliente.DeudaDecimal;
+            return montoAbono <= deudaActual && montoAbono > 0;
+        }
     }
 }

@@ -34,6 +34,7 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVentaPagosService, VentaPagosService>();
 builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
+builder.Services.AddScoped<IAbonosService, AbonosService>();
 builder.Services.AddScoped<TokenService>();
 
 //Registrar repositorios
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVentaPagosRepository, VentaPagosRepository>();
 builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>();
+builder.Services.AddScoped<IAbonosRepository, AbonosRepository>();
 
 
 // Cors

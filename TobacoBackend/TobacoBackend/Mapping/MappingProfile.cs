@@ -40,6 +40,12 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.LastLogin, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+
+            // Mapeo para Abonos
+            CreateMap<Abonos, AbonoDTO>()
+                .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente != null ? src.Cliente.Nombre : string.Empty))
+                .ReverseMap()
+                .ForMember(dest => dest.Cliente, opt => opt.Ignore());
         }
     }
 }

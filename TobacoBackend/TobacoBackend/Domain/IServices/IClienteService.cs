@@ -14,5 +14,10 @@ namespace TobacoBackend.Domain.IServices
         Task<List<ClienteDTO>> GetClientesConDeuda();
         Task<object> GetClientesPaginados(int page, int pageSize);
         Task<object> GetClientesConDeudaPaginados(int page, int pageSize);
+        
+        // Métodos para manejo de deuda
+        Task AgregarDeuda(int clienteId, decimal monto);
+        Task ReducirDeuda(int clienteId, decimal monto);
+        Task<bool> ValidarMontoAbono(int clienteId, decimal montoAbono);
     }
 }
