@@ -98,10 +98,23 @@ namespace TobacoBackend.Services
                 }
             }
 
-            // Si el método de pago es CuentaCorriente, sumar el total a la deuda del cliente
+            // Si el método de pago es CuentaCorriente, sumar SOLO la parte pagada con cuenta corriente
             if (pedido.MetodoPago == MetodoPagoEnum.CuentaCorriente)
             {
-                await _clienteService.AgregarDeuda(pedido.ClienteId, total);
+                // Calcular el monto pagado con cuenta corriente
+                decimal montoCuentaCorriente = 0;
+                if (pedidoDto.VentaPagos != null && pedidoDto.VentaPagos.Any())
+                {
+                    montoCuentaCorriente = pedidoDto.VentaPagos
+                        .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                        .Sum(vp => vp.Monto);
+                }
+                
+                // Solo agregar a la deuda si hay monto pagado con cuenta corriente
+                if (montoCuentaCorriente > 0)
+                {
+                    await _clienteService.AgregarDeuda(pedido.ClienteId, montoCuentaCorriente);
+                }
             }
         }
 
@@ -117,10 +130,16 @@ namespace TobacoBackend.Services
                 return false; // Pedido no encontrado
             }
 
-            // Store debt adjustment info before deletion
-            bool necesitaAjustarDeuda = pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente;
-            int clienteId = pedidoExistente.ClienteId;
-            decimal monto = pedidoExistente.Total;
+            // Calculate the debt amount that needs to be reduced
+            decimal montoDeudaAReducir = 0;
+            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Get the actual amount paid with cuenta corriente from existing VentaPagos
+                var ventaPagosAnteriores = await _ventaPagosService.GetVentaPagosByPedidoId(id);
+                montoDeudaAReducir = ventaPagosAnteriores
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
+            }
             
             // Delete associated VentaPagos first
             await _ventaPagosService.DeleteVentaPagosByPedidoId(id);
@@ -128,10 +147,10 @@ namespace TobacoBackend.Services
             // Then delete the pedido
             bool eliminado = await _pedidoRepository.DeletePedido(id);
             
-            // Only adjust debt if the pedido was successfully deleted
-            if (eliminado && necesitaAjustarDeuda)
+            // Reduce debt only if there was actual debt from cuenta corriente payments
+            if (eliminado && montoDeudaAReducir > 0)
             {
-                await _clienteService.ReducirDeuda(clienteId, monto);
+                await _clienteService.ReducirDeuda(pedidoExistente.ClienteId, montoDeudaAReducir);
             }
             
             return eliminado;
@@ -193,29 +212,35 @@ namespace TobacoBackend.Services
                 nuevoTotal = nuevoTotal - descuento;
             }
 
-            // Handle debt changes based on payment method changes
-            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago != MetodoPagoEnum.CuentaCorriente)
+            // Calculate the current debt amount from the existing pedido
+            decimal deudaAnterior = 0;
+            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente)
             {
-                // Was CuentaCorriente, now is not -> reduce debt
-                await _clienteService.ReducirDeuda(pedidoExistente.ClienteId, pedidoExistente.Total);
+                // Get the actual amount paid with cuenta corriente from existing VentaPagos
+                var ventaPagosAnteriores = await _ventaPagosService.GetVentaPagosByPedidoId(id);
+                deudaAnterior = ventaPagosAnteriores
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
             }
-            else if (pedidoExistente.MetodoPago != MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+
+            // Calculate the new debt amount from the new pedido
+            decimal deudaNueva = 0;
+            if (pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.VentaPagos != null)
             {
-                // Was not CuentaCorriente, now is -> add debt
-                await _clienteService.AgregarDeuda(pedidoDto.ClienteId, nuevoTotal);
+                deudaNueva = pedidoDto.VentaPagos
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
             }
-            else if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+
+            // Adjust debt based on the difference
+            var diferenciaDeuda = deudaNueva - deudaAnterior;
+            if (diferenciaDeuda > 0)
             {
-                // Both are CuentaCorriente, adjust debt based on total difference
-                var diferencia = nuevoTotal - pedidoExistente.Total;
-                if (diferencia > 0)
-                {
-                    await _clienteService.AgregarDeuda(pedidoDto.ClienteId, diferencia);
-                }
-                else if (diferencia < 0)
-                {
-                    await _clienteService.ReducirDeuda(pedidoDto.ClienteId, Math.Abs(diferencia));
-                }
+                await _clienteService.AgregarDeuda(pedidoDto.ClienteId, diferenciaDeuda);
+            }
+            else if (diferenciaDeuda < 0)
+            {
+                await _clienteService.ReducirDeuda(pedidoDto.ClienteId, Math.Abs(diferenciaDeuda));
             }
 
             var pedido = _mapper.Map<Pedido>(pedidoDto);
