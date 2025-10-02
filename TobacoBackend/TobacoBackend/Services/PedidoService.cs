@@ -110,11 +110,31 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeletePedido(int id)
         {
+            // Get the pedido before deleting to check if it affects debt
+            var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
+            if (pedidoExistente == null)
+            {
+                return false; // Pedido no encontrado
+            }
+
+            // Store debt adjustment info before deletion
+            bool necesitaAjustarDeuda = pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente;
+            int clienteId = pedidoExistente.ClienteId;
+            decimal monto = pedidoExistente.Total;
+            
             // Delete associated VentaPagos first
             await _ventaPagosService.DeleteVentaPagosByPedidoId(id);
             
             // Then delete the pedido
-            return await _pedidoRepository.DeletePedido(id);
+            bool eliminado = await _pedidoRepository.DeletePedido(id);
+            
+            // Only adjust debt if the pedido was successfully deleted
+            if (eliminado && necesitaAjustarDeuda)
+            {
+                await _clienteService.ReducirDeuda(clienteId, monto);
+            }
+            
+            return eliminado;
         }
 
         public async Task<List<PedidoDTO>> GetAllPedidos()
@@ -147,8 +167,60 @@ namespace TobacoBackend.Services
 
         public async Task UpdatePedido(int id, PedidoDTO pedidoDto)
         {
+            // Get the existing pedido to compare changes
+            var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
+
+            // Calculate the new total
+            decimal nuevoTotal = 0;
+            if (pedidoDto.PedidoProductos != null)
+            {
+                foreach (var productoDto in pedidoDto.PedidoProductos)
+                {
+                    var producto = await _productoRepository.GetProductoById(productoDto.ProductoId);
+                    if (producto != null)
+                    {
+                        var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(pedidoDto.ClienteId, producto.Id);
+                        nuevoTotal += precioFinal * productoDto.Cantidad;
+                    }
+                }
+            }
+
+            // Apply global discount if exists
+            var cliente = await _clienteService.GetClienteById(pedidoDto.ClienteId);
+            if (cliente != null && cliente.DescuentoGlobal > 0)
+            {
+                var descuento = nuevoTotal * (cliente.DescuentoGlobal / 100);
+                nuevoTotal = nuevoTotal - descuento;
+            }
+
+            // Handle debt changes based on payment method changes
+            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago != MetodoPagoEnum.CuentaCorriente)
+            {
+                // Was CuentaCorriente, now is not -> reduce debt
+                await _clienteService.ReducirDeuda(pedidoExistente.ClienteId, pedidoExistente.Total);
+            }
+            else if (pedidoExistente.MetodoPago != MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Was not CuentaCorriente, now is -> add debt
+                await _clienteService.AgregarDeuda(pedidoDto.ClienteId, nuevoTotal);
+            }
+            else if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Both are CuentaCorriente, adjust debt based on total difference
+                var diferencia = nuevoTotal - pedidoExistente.Total;
+                if (diferencia > 0)
+                {
+                    await _clienteService.AgregarDeuda(pedidoDto.ClienteId, diferencia);
+                }
+                else if (diferencia < 0)
+                {
+                    await _clienteService.ReducirDeuda(pedidoDto.ClienteId, Math.Abs(diferencia));
+                }
+            }
+
             var pedido = _mapper.Map<Pedido>(pedidoDto);
             pedido.Id = id;
+            pedido.Total = nuevoTotal;
             await _pedidoRepository.UpdatePedido(pedido);
             
             // Update VentaPagos

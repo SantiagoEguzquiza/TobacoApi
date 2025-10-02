@@ -129,6 +129,19 @@ public class AplicationDbContext : DbContext
             .HasIndex(pe => new { pe.ClienteId, pe.ProductoId })
             .IsUnique();
 
+        // Pedido entity configuration
+        modelBuilder.Entity<Pedido>()
+            .HasOne(p => p.Cliente)
+            .WithMany(c => c.Pedidos)
+            .HasForeignKey(p => p.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Pedido>()
+            .HasOne(p => p.Usuario)
+            .WithMany()
+            .HasForeignKey(p => p.UsuarioId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Abonos entity configuration
         modelBuilder.Entity<Abonos>()
             .HasOne(a => a.Cliente)
