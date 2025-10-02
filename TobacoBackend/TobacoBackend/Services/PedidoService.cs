@@ -260,5 +260,22 @@ namespace TobacoBackend.Services
                 hasPreviousPage = page > 1
             };
         }
+
+        public async Task<object> GetPedidosConCuentaCorrienteByClienteId(int clienteId, int page = 1, int pageSize = 20)
+        {
+            var result = await _pedidoRepository.GetPedidosConCuentaCorrienteByClienteId(clienteId, page, pageSize);
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
+
+            return new
+            {
+                pedidos = pedidosDto,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
+        }
     }
 }

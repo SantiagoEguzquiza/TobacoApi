@@ -150,5 +150,32 @@ namespace TobacoBackend.Repositories
             };
         }
 
+        public async Task<PedidoPaginationResult> GetPedidosConCuentaCorrienteByClienteId(int clienteId, int page, int pageSize)
+        {
+            var query = _context.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Usuario)
+                .Include(p => p.PedidoProductos)
+                    .ThenInclude(pp => pp.Producto)
+                .Where(p => p.ClienteId == clienteId && p.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+                .OrderByDescending(p => p.Fecha);
+
+            var totalItems = await query.CountAsync();
+
+            var pedidos = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            return new PedidoPaginationResult
+            {
+                Pedidos = pedidos,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+        }
+
     }
 }

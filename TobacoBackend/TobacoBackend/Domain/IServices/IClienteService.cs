@@ -19,5 +19,6 @@ namespace TobacoBackend.Domain.IServices
         Task AgregarDeuda(int clienteId, decimal monto);
         Task ReducirDeuda(int clienteId, decimal monto);
         Task<bool> ValidarMontoAbono(int clienteId, decimal montoAbono);
+        Task<object> GetDetalleDeuda(int clienteId);
     }
 }

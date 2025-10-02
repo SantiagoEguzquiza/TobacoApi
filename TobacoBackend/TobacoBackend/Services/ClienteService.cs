@@ -141,5 +141,37 @@ namespace TobacoBackend.Services
             var deudaActual = cliente.DeudaDecimal;
             return montoAbono <= deudaActual && montoAbono > 0;
         }
+
+        public async Task<object> GetDetalleDeuda(int clienteId)
+        {
+            var cliente = await _clienteRepository.GetClienteById(clienteId);
+            if (cliente == null)
+            {
+                throw new Exception($"Cliente con ID {clienteId} no encontrado");
+            }
+
+            // Solo devolver si tiene deuda
+            if (cliente.DeudaDecimal <= 0)
+            {
+                return new
+                {
+                    clienteId = cliente.Id,
+                    clienteNombre = cliente.Nombre,
+                    deudaActual = 0,
+                    deudaFormateada = "0",
+                    fechaConsulta = DateTime.Now,
+                    mensaje = "El cliente no tiene deuda pendiente"
+                };
+            }
+
+            return new
+            {
+                clienteId = cliente.Id,
+                clienteNombre = cliente.Nombre,
+                deudaActual = cliente.DeudaDecimal,
+                deudaFormateada = cliente.Deuda,
+                fechaConsulta = DateTime.Now
+            };
+        }
     }
 }
