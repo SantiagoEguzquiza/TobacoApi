@@ -49,7 +49,26 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeleteAbono(int id)
         {
-            return await _abonosRepository.DeleteAbono(id);
+            // Primero obtener la información del abono antes de eliminarlo
+            var abono = await _abonosRepository.GetAbonoById(id);
+            if (abono == null)
+            {
+                return false;
+            }
+
+            // Obtener el monto del abono para restaurar la deuda
+            var montoAbono = decimal.TryParse(abono.Monto, out var monto) ? monto : 0;
+            
+            // Eliminar el abono
+            bool eliminado = await _abonosRepository.DeleteAbono(id);
+            
+            if (eliminado && montoAbono > 0)
+            {
+                // Restaurar la deuda del cliente (agregar el monto del abono eliminado)
+                await _clienteService.AgregarDeuda(abono.ClienteId, montoAbono);
+            }
+            
+            return eliminado;
         }
 
         public async Task<AbonoDTO> GetAbonoById(int id)

@@ -157,6 +157,7 @@ namespace TobacoBackend.Repositories
                 .Include(p => p.Usuario)
                 .Include(p => p.PedidoProductos)
                     .ThenInclude(pp => pp.Producto)
+                .Include(p => p.VentaPagos) // Agregar VentaPagos
                 .Where(p => p.ClienteId == clienteId && p.MetodoPago == MetodoPagoEnum.CuentaCorriente)
                 .OrderByDescending(p => p.Fecha);
 
