@@ -119,6 +119,14 @@ namespace TobacoBackend.Repositories
                 });
             }
 
+            // Aplicar descuento global del cliente si existe
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == pedido.ClienteId);
+            if (cliente != null && cliente.DescuentoGlobal > 0)
+            {
+                var descuento = total * (cliente.DescuentoGlobal / 100);
+                total = total - descuento;
+            }
+
             pedidoExistente.Total = total;
 
             await _context.SaveChangesAsync();
@@ -131,6 +139,46 @@ namespace TobacoBackend.Repositories
             var pedidos = await _context.Pedidos
                 .AsNoTracking()
                 .OrderByDescending(p => p.Id)
+                .Include(p => p.Cliente)
+                .Include(p => p.Usuario)
+                .Include(p => p.PedidoProductos)
+                    .ThenInclude(pp => pp.Producto)
+                .AsSplitQuery()
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            return new PedidoPaginationResult
+            {
+                Pedidos = pedidos,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+        }
+
+        public async Task<PedidoPaginationResult> GetPedidosPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null)
+        {
+            var query = _context.Pedidos
+                .AsNoTracking()
+                .Where(p => p.ClienteId == clienteId);
+
+            // Apply date filters if provided
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(p => p.Fecha >= dateFrom.Value);
+            }
+
+            if (dateTo.HasValue)
+            {
+                query = query.Where(p => p.Fecha <= dateTo.Value);
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var pedidos = await query
+                .OrderByDescending(p => p.Fecha)
                 .Include(p => p.Cliente)
                 .Include(p => p.Usuario)
                 .Include(p => p.PedidoProductos)

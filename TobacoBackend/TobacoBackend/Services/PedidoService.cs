@@ -84,7 +84,8 @@ namespace TobacoBackend.Services
                 var pedidoProducto = new PedidoProducto
                 {
                     ProductoId = producto.Id,
-                    Cantidad = productoDto.Cantidad
+                    Cantidad = productoDto.Cantidad,
+                    PrecioFinalCalculado = pricingResult.TotalPrice // Precio después de descuentos por cantidad
                 };
 
                 total += pricingResult.TotalPrice;
@@ -94,13 +95,29 @@ namespace TobacoBackend.Services
 
             // Aplicar descuento global del cliente si existe
             var cliente = await _clienteService.GetClienteById(pedidoDto.ClienteId);
+            decimal descuentoGlobal = 0;
             if (cliente != null && cliente.DescuentoGlobal > 0)
             {
-                var descuento = total * (cliente.DescuentoGlobal / 100);
-                total = total - descuento;
+                descuentoGlobal = total * (cliente.DescuentoGlobal / 100);
+                total = total - descuentoGlobal;
             }
 
             pedido.Total = total;
+
+            // Calcular y asignar precios finales a cada producto después del descuento global
+            if (descuentoGlobal > 0)
+            {
+                foreach (var pedidoProducto in pedido.PedidoProductos)
+                {
+                    // Calcular la proporción de este producto en el total antes del descuento global
+                    var precioAntesDescuentoGlobal = pedidoProducto.PrecioFinalCalculado;
+                    var proporcionProducto = precioAntesDescuentoGlobal / (total + descuentoGlobal);
+                    
+                    // Aplicar el descuento global proporcionalmente a este producto
+                    var descuentoProducto = descuentoGlobal * proporcionProducto;
+                    pedidoProducto.PrecioFinalCalculado = precioAntesDescuentoGlobal - descuentoProducto;
+                }
+            }
 
             // Add the pedido first to get the ID
             await _pedidoRepository.AddPedido(pedido);
@@ -180,6 +197,29 @@ namespace TobacoBackend.Services
         public async Task<object> GetPedidosPaginados(int page, int pageSize)
         {
             var result = await _pedidoRepository.GetPedidosPaginados(page, pageSize);
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
+            
+            // Load VentaPagos for each pedido
+            foreach (var pedidoDto in pedidosDto)
+            {
+                pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
+            }
+            
+            return new
+            {
+                pedidos = pedidosDto,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
+        }
+
+        public async Task<object> GetPedidosPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null)
+        {
+            var result = await _pedidoRepository.GetPedidosPorCliente(clienteId, page, pageSize, dateFrom, dateTo);
             var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
             
             // Load VentaPagos for each pedido

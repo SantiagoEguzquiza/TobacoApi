@@ -123,5 +123,25 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al obtener pedidos paginados: {ex.Message}" });
             }
         }
+
+        // GET: api/pedidos/por-cliente/{clienteId}?pageNumber=1&pageSize=20&dateFrom=&dateTo=
+        [HttpGet("por-cliente/{clienteId}")]
+        public async Task<ActionResult<object>> GetPedidosPorCliente(
+            int clienteId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] DateTime? dateFrom = null,
+            [FromQuery] DateTime? dateTo = null)
+        {
+            try
+            {
+                var result = await _pedidosService.GetPedidosPorCliente(clienteId, pageNumber, pageSize, dateFrom, dateTo);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
