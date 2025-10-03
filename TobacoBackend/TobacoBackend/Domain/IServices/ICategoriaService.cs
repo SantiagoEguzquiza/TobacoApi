@@ -7,4 +7,5 @@ public interface ICategoriaService
     Task AddAsync(CategoriaDTO categoriaDto);
     Task UpdateAsync(int id, CategoriaDTO categoriaDto);
     Task DeleteAsync(int id);
+    Task ReorderAsync(List<(int id, int sortOrder)> categoriaOrders);
 }

@@ -16,6 +16,8 @@ namespace TobacoBackend.Domain.Models
         [StringLength(7)]
         public string ColorHex { get; set; } = "#9E9E9E"; // Default gray color
 
+        public int SortOrder { get; set; } = 0; // Default sort order
+
         public List<Producto> Productos { get; set; } = new List<Producto>();
     }
 }
