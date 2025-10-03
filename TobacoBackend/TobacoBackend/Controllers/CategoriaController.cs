@@ -135,5 +135,29 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al eliminar la categoría: {ex.Message}" });
             }
         }
+
+        [HttpPut("reordenar")]
+        public async Task<ActionResult> ReorderCategorias([FromBody] List<CategoriaReorderDTO> categoriaOrders)
+        {
+            try
+            {
+                if (categoriaOrders == null || !categoriaOrders.Any())
+                    return BadRequest(new { message = "La lista de categorías para reordenar no puede estar vacía." });
+
+                var orders = categoriaOrders.Select(co => (co.Id, co.SortOrder)).ToList();
+                await _categoriaService.ReorderAsync(orders);
+                return Ok(new { message = "Categorías reordenadas exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al reordenar las categorías: {ex.Message}" });
+            }
+        }
+    }
+
+    public class CategoriaReorderDTO
+    {
+        public int Id { get; set; }
+        public int SortOrder { get; set; }
     }
 }

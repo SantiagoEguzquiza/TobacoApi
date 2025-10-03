@@ -7,4 +7,5 @@ public interface ICategoriaRepository
     Task AddAsync(Categoria categoria);
     Task UpdateAsync(Categoria categoria);
     Task DeleteAsync(int id);
+    Task ReorderAsync(List<(int id, int sortOrder)> categoriaOrders);
 }

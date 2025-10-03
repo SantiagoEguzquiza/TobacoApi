@@ -16,15 +16,18 @@ namespace TobacoBackend.Mapping
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
             CreateMap<VentaPagos, VentaPagosDTO>().ReverseMap();
             CreateMap<PrecioEspecial, PrecioEspecialDTO>().ReverseMap();
+            CreateMap<ProductQuantityPrice, ProductQuantityPriceDTO>().ReverseMap();
 
             // Mapeo personalizado para Producto
             CreateMap<ProductoDTO, Producto>()
                 .ForMember(dest => dest.Categoria, opt => opt.Ignore())
-                .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId));
+                .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
 
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
-                .ForMember(dest => dest.CategoriaNombre, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nombre : string.Empty));
+                .ForMember(dest => dest.CategoriaNombre, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nombre : string.Empty))
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
 
             CreateMap<User, UserDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

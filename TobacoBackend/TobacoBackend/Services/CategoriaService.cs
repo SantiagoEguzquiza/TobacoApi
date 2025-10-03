@@ -29,6 +29,11 @@ public class CategoriaService : ICategoriaService
     public async Task AddAsync(CategoriaDTO categoriaDto)
     {
         var categoria = _mapper.Map<Categoria>(categoriaDto);
+        
+        // Set SortOrder to the next available value (highest + 1)
+        var allCategorias = await _repository.GetAllAsync();
+        categoria.SortOrder = allCategorias.Any() ? allCategorias.Max(c => c.SortOrder) + 1 : 0;
+        
         await _repository.AddAsync(categoria);
     }
 
@@ -52,6 +57,11 @@ public class CategoriaService : ICategoriaService
         {
             throw new Exception("No se puede eliminar la categoría porque tiene productos asociados.");
         }
+    }
+
+    public async Task ReorderAsync(List<(int id, int sortOrder)> categoriaOrders)
+    {
+        await _repository.ReorderAsync(categoriaOrders);
     }
 
 }

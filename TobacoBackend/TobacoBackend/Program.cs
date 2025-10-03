@@ -35,6 +35,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVentaPagosService, VentaPagosService>();
 builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<PricingService>();
 
 //Registrar repositorios
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
