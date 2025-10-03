@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace TobacoBackend.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    partial class AplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251003220457_AddPrecioFinalCalculadoToPedidoProducto")]
+    partial class AddPrecioFinalCalculadoToPedidoProducto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("Nombre")
                         .IsUnique();
 
-                    b.ToTable("Categorias", (string)null);
+                    b.ToTable("Categorias");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Cliente", b =>
@@ -79,7 +82,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clientes", (string)null);
+                    b.ToTable("Clientes");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Pedido", b =>
@@ -112,7 +115,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Pedidos", (string)null);
+                    b.ToTable("Pedidos");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.PedidoProducto", b =>
@@ -135,7 +138,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("PedidosProductos", (string)null);
+                    b.ToTable("PedidosProductos");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.PrecioEspecial", b =>
@@ -169,7 +172,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("ClienteId", "ProductoId")
                         .IsUnique();
 
-                    b.ToTable("PreciosEspeciales", (string)null);
+                    b.ToTable("PreciosEspeciales");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.ProductQuantityPrice", b =>
@@ -195,7 +198,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("ProductId", "Quantity")
                         .IsUnique();
 
-                    b.ToTable("ProductQuantityPrices", (string)null);
+                    b.ToTable("ProductQuantityPrices");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Producto", b =>
@@ -236,7 +239,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("CategoriaId1");
 
-                    b.ToTable("Productos", (string)null);
+                    b.ToTable("Productos");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.User", b =>
@@ -284,7 +287,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.VentaPagos", b =>
@@ -309,7 +312,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("PedidoId");
 
-                    b.ToTable("VentaPagos", (string)null);
+                    b.ToTable("VentaPagos");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Pedido", b =>

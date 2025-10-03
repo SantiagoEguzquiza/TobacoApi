@@ -60,10 +60,20 @@ TobacoApi es el backend de la app Tobaco y expone una serie de endpoints para la
    }
    ```
 
-4. Ejecuta las migraciones para preparar la base de datos (opcional, según configuración):
+4. Ejecuta las migraciones para preparar la base de datos:
 
    ```bash
    dotnet ef database update
+   ```
+
+   **⚠️ NOTA IMPORTANTE:** Si encuentras el error "Column name 'SortOrder' is specified more than once" al ejecutar las migraciones, esto significa que la columna ya existe en tu base de datos. La migración está diseñada para manejar este caso automáticamente, pero si persiste el problema, ejecuta:
+
+   ```bash
+   # Verificar estado de migraciones
+   dotnet ef migrations list
+   
+   # Si hay migraciones pendientes, aplicarlas una por una
+   dotnet ef database update 20251002233543_AddSortOrderToCategorias
    ```
 
 5. Inicia la API:

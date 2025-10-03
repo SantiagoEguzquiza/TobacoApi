@@ -107,6 +107,11 @@ public class AplicationDbContext : DbContext
             .HasForeignKey(v => v.PedidoId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // PedidoProducto entity configuration
+        modelBuilder.Entity<PedidoProducto>()
+            .Property(pp => pp.PrecioFinalCalculado)
+            .HasPrecision(18, 2);
+
         // PrecioEspecial entity configuration
         modelBuilder.Entity<PrecioEspecial>()
             .Property(pe => pe.Precio)
