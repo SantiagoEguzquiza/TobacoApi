@@ -13,10 +13,14 @@ namespace TobacoBackend.Controllers
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;
+        private readonly IAbonosService _abonosService;
+        private readonly IPedidoService _pedidoService;
 
-        public ClientesController(IClienteService clienteService)
+        public ClientesController(IClienteService clienteService, IAbonosService abonosService, IPedidoService pedidoService)
         {
             _clienteService = clienteService;
+            _abonosService = abonosService;
+            _pedidoService = pedidoService;
         }
 
         
@@ -151,6 +155,93 @@ namespace TobacoBackend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Error al obtener clientes con deuda paginados: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("{id}/validar-abono")]
+        public async Task<ActionResult<bool>> ValidarMontoAbono(int id, [FromQuery] decimal monto)
+        {
+            try
+            {
+                if (monto <= 0)
+                {
+                    return BadRequest(new { message = "El monto debe ser mayor a cero." });
+                }
+
+                var esValido = await _clienteService.ValidarMontoAbono(id, monto);
+                return Ok(new { esValido = esValido });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al validar monto de abono: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("{id}/deuda")]
+        public async Task<ActionResult<object>> GetDetalleDeuda(int id)
+        {
+            try
+            {
+                var detalle = await _clienteService.GetDetalleDeuda(id);
+                return Ok(detalle);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener detalle de deuda: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("{id}/ventas-cc")]
+        public async Task<ActionResult<object>> GetVentasCuentaCorriente(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var ventas = await _pedidoService.GetPedidosConCuentaCorrienteByClienteId(id, page, pageSize);
+                return Ok(ventas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener ventas con cuenta corriente: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/saldarDeuda")]
+        public async Task<ActionResult<AbonoDTO>> SaldarDeuda(int id, [FromBody] SaldarDeudaDTO saldarDeudaDto)
+        {
+            try
+            {
+                if (saldarDeudaDto == null)
+                {
+                    return BadRequest(new { message = "Los datos del abono no pueden ser nulos." });
+                }
+
+                if (saldarDeudaDto.Monto <= 0)
+                {
+                    return BadRequest(new { message = "El monto debe ser mayor a cero." });
+                }
+
+                // Validar que el monto no exceda la deuda
+                var esValido = await _clienteService.ValidarMontoAbono(id, saldarDeudaDto.Monto);
+                if (!esValido)
+                {
+                    return BadRequest(new { message = "El monto del abono no puede ser mayor a la deuda del cliente." });
+                }
+
+                // Crear el abono
+                var abonoDto = new AbonoDTO
+                {
+                    ClienteId = id,
+                    Monto = saldarDeudaDto.Monto.ToString(),
+                    Fecha = saldarDeudaDto.Fecha,
+                    Nota = saldarDeudaDto.Nota ?? ""
+                };
+
+                var abonoCreado = await _abonosService.AddAbono(abonoDto);
+                return Ok(abonoCreado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al saldar deuda: {ex.Message}" });
             }
         }
     }

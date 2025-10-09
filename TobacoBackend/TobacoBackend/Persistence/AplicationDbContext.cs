@@ -13,6 +13,7 @@ public class AplicationDbContext : DbContext
     public DbSet<VentaPagos> VentaPagos { get; set; }
     public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
     public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
+    public DbSet<Abonos> Abonos { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -149,6 +150,29 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<ProductQuantityPrice>()
             .HasIndex(pqp => new { pqp.ProductId, pqp.Quantity })
             .IsUnique();
+        // Pedido entity configuration
+        modelBuilder.Entity<Pedido>()
+            .HasOne(p => p.Cliente)
+            .WithMany(c => c.Pedidos)
+            .HasForeignKey(p => p.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Pedido>()
+            .HasOne(p => p.Usuario)
+            .WithMany()
+            .HasForeignKey(p => p.UsuarioId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Abonos entity configuration
+        modelBuilder.Entity<Abonos>()
+            .HasOne(a => a.Cliente)
+            .WithMany(c => c.Abonos)
+            .HasForeignKey(a => a.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Abonos>()
+            .Property(a => a.Fecha)
+            .HasDefaultValueSql("GETUTCDATE()");
 
     }
 

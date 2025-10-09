@@ -14,5 +14,6 @@ namespace TobacoBackend.Domain.IRepositories
         Task<bool> DeletePedido(int id);
         Task<PedidoPaginationResult> GetPedidosPaginados(int page, int pageSize);
         Task<PedidoPaginationResult> GetPedidosPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null);
+        Task<PedidoPaginationResult> GetPedidosConCuentaCorrienteByClienteId(int clienteId, int page, int pageSize);
     }
 }

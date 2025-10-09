@@ -27,6 +27,8 @@ namespace TobacoBackend.Domain.Models
 
         public List<PrecioEspecial> PreciosEspeciales { get; set; } = new List<PrecioEspecial>();
 
+        public List<Abonos> Abonos { get; set; } = new List<Abonos>();
+
         [NotMapped]
         public decimal DeudaDecimal => decimal.TryParse(Deuda, out var value) ? value : 0;
     }

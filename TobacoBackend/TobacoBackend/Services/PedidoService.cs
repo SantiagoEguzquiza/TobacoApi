@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
-using TobacoBackend.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace TobacoBackend.Services
 {
@@ -22,6 +21,9 @@ namespace TobacoBackend.Services
         private readonly PricingService _pricingService;
 
         public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService)
+        private readonly AplicationDbContext _context;
+
+        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, AplicationDbContext context)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
@@ -31,6 +33,7 @@ namespace TobacoBackend.Services
             _clienteService = clienteService;
             _httpContextAccessor = httpContextAccessor;
             _pricingService = pricingService;
+            _context = context;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -131,6 +134,25 @@ namespace TobacoBackend.Services
                     await _ventaPagosService.AddVentaPagos(ventaPagoDto);
                 }
             }
+
+            // Si el método de pago es CuentaCorriente, sumar SOLO la parte pagada con cuenta corriente
+            if (pedido.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Calcular el monto pagado con cuenta corriente
+                decimal montoCuentaCorriente = 0;
+                if (pedidoDto.VentaPagos != null && pedidoDto.VentaPagos.Any())
+                {
+                    montoCuentaCorriente = pedidoDto.VentaPagos
+                        .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                        .Sum(vp => vp.Monto);
+                }
+                
+                // Solo agregar a la deuda si hay monto pagado con cuenta corriente
+                if (montoCuentaCorriente > 0)
+                {
+                    await _clienteService.AgregarDeuda(pedido.ClienteId, montoCuentaCorriente);
+                }
+            }
         }
 
 
@@ -138,11 +160,37 @@ namespace TobacoBackend.Services
 
         public async Task<bool> DeletePedido(int id)
         {
+            // Get the pedido before deleting to check if it affects debt
+            var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
+            if (pedidoExistente == null)
+            {
+                return false; // Pedido no encontrado
+            }
+
+            // Calculate the debt amount that needs to be reduced
+            decimal montoDeudaAReducir = 0;
+            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Get the actual amount paid with cuenta corriente from existing VentaPagos
+                var ventaPagosAnteriores = await _ventaPagosService.GetVentaPagosByPedidoId(id);
+                montoDeudaAReducir = ventaPagosAnteriores
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
+            }
+            
             // Delete associated VentaPagos first
             await _ventaPagosService.DeleteVentaPagosByPedidoId(id);
             
             // Then delete the pedido
-            return await _pedidoRepository.DeletePedido(id);
+            bool eliminado = await _pedidoRepository.DeletePedido(id);
+            
+            // Reduce debt only if there was actual debt from cuenta corriente payments
+            if (eliminado && montoDeudaAReducir > 0)
+            {
+                await _clienteService.ReducirDeuda(pedidoExistente.ClienteId, montoDeudaAReducir);
+            }
+            
+            return eliminado;
         }
 
         public async Task<List<PedidoDTO>> GetAllPedidos()
@@ -175,8 +223,66 @@ namespace TobacoBackend.Services
 
         public async Task UpdatePedido(int id, PedidoDTO pedidoDto)
         {
+            // Get the existing pedido to compare changes
+            var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
+
+            // Calculate the new total
+            decimal nuevoTotal = 0;
+            if (pedidoDto.PedidoProductos != null)
+            {
+                foreach (var productoDto in pedidoDto.PedidoProductos)
+                {
+                    var producto = await _productoRepository.GetProductoById(productoDto.ProductoId);
+                    if (producto != null)
+                    {
+                        var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(pedidoDto.ClienteId, producto.Id);
+                        nuevoTotal += precioFinal * productoDto.Cantidad;
+                    }
+                }
+            }
+
+            // Apply global discount if exists
+            var cliente = await _clienteService.GetClienteById(pedidoDto.ClienteId);
+            if (cliente != null && cliente.DescuentoGlobal > 0)
+            {
+                var descuento = nuevoTotal * (cliente.DescuentoGlobal / 100);
+                nuevoTotal = nuevoTotal - descuento;
+            }
+
+            // Calculate the current debt amount from the existing pedido
+            decimal deudaAnterior = 0;
+            if (pedidoExistente.MetodoPago == MetodoPagoEnum.CuentaCorriente)
+            {
+                // Get the actual amount paid with cuenta corriente from existing VentaPagos
+                var ventaPagosAnteriores = await _ventaPagosService.GetVentaPagosByPedidoId(id);
+                deudaAnterior = ventaPagosAnteriores
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
+            }
+
+            // Calculate the new debt amount from the new pedido
+            decimal deudaNueva = 0;
+            if (pedidoDto.MetodoPago == MetodoPagoEnum.CuentaCorriente && pedidoDto.VentaPagos != null)
+            {
+                deudaNueva = pedidoDto.VentaPagos
+                    .Where(vp => vp.Metodo == MetodoPagoEnum.CuentaCorriente)
+                    .Sum(vp => vp.Monto);
+            }
+
+            // Adjust debt based on the difference
+            var diferenciaDeuda = deudaNueva - deudaAnterior;
+            if (diferenciaDeuda > 0)
+            {
+                await _clienteService.AgregarDeuda(pedidoDto.ClienteId, diferenciaDeuda);
+            }
+            else if (diferenciaDeuda < 0)
+            {
+                await _clienteService.ReducirDeuda(pedidoDto.ClienteId, Math.Abs(diferenciaDeuda));
+            }
+
             var pedido = _mapper.Map<Pedido>(pedidoDto);
             pedido.Id = id;
+            pedido.Total = nuevoTotal;
             await _pedidoRepository.UpdatePedido(pedido);
             
             // Update VentaPagos
@@ -228,6 +334,11 @@ namespace TobacoBackend.Services
                 pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
             }
             
+        public async Task<object> GetPedidosConCuentaCorrienteByClienteId(int clienteId, int page = 1, int pageSize = 20)
+        {
+            var result = await _pedidoRepository.GetPedidosConCuentaCorrienteByClienteId(clienteId, page, pageSize);
+            var pedidosDto = _mapper.Map<List<PedidoDTO>>(result.Pedidos);
+
             return new
             {
                 pedidos = pedidosDto,
