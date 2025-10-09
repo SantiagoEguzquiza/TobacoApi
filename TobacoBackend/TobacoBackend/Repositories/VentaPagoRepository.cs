@@ -4,61 +4,61 @@ using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.Repositories
 {
-    public class VentaPagosRepository : IVentaPagosRepository
+    public class VentaPagoRepository : IVentaPagoRepository
     {
         private readonly AplicationDbContext _context;
 
-        public VentaPagosRepository(AplicationDbContext context)
+        public VentaPagoRepository(AplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<VentaPagos>> GetAllVentaPagos()
+        public async Task<List<VentaPago>> GetAllVentaPagos()
         {
             return await _context.VentaPagos.ToListAsync();
         }
 
-        public async Task<VentaPagos> GetVentaPagosById(int id)
+        public async Task<VentaPago> GetVentaPagoById(int id)
         {
             return await _context.VentaPagos.FindAsync(id);
         }
 
-        public async Task<List<VentaPagos>> GetVentaPagosByPedidoId(int pedidoId)
+        public async Task<List<VentaPago>> GetVentaPagosByVentaId(int ventaId)
         {
             return await _context.VentaPagos
-                .Where(vp => vp.PedidoId == pedidoId)
+                .Where(vp => vp.VentaId == ventaId)
                 .ToListAsync();
         }
 
-        public async Task<VentaPagos> AddVentaPagos(VentaPagos ventaPagos)
+        public async Task<VentaPago> AddVentaPago(VentaPago ventaPago)
         {
-            _context.VentaPagos.Add(ventaPagos);
+            _context.VentaPagos.Add(ventaPago);
             await _context.SaveChangesAsync();
-            return ventaPagos;
+            return ventaPago;
         }
 
-        public async Task<VentaPagos> UpdateVentaPagos(VentaPagos ventaPagos)
+        public async Task<VentaPago> UpdateVentaPago(VentaPago ventaPago)
         {
-            _context.VentaPagos.Update(ventaPagos);
+            _context.VentaPagos.Update(ventaPago);
             await _context.SaveChangesAsync();
-            return ventaPagos;
+            return ventaPago;
         }
 
-        public async Task<bool> DeleteVentaPagos(int id)
+        public async Task<bool> DeleteVentaPago(int id)
         {
-            var ventaPagos = await _context.VentaPagos.FindAsync(id);
-            if (ventaPagos == null)
+            var ventaPago = await _context.VentaPagos.FindAsync(id);
+            if (ventaPago == null)
                 return false;
 
-            _context.VentaPagos.Remove(ventaPagos);
+            _context.VentaPagos.Remove(ventaPago);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> DeleteVentaPagosByPedidoId(int pedidoId)
+        public async Task<bool> DeleteVentaPagosByVentaId(int ventaId)
         {
             var ventaPagos = await _context.VentaPagos
-                .Where(vp => vp.PedidoId == pedidoId)
+                .Where(vp => vp.VentaId == ventaId)
                 .ToListAsync();
 
             if (!ventaPagos.Any())
@@ -70,3 +70,4 @@ namespace TobacoBackend.Repositories
         }
     }
 }
+

@@ -17,7 +17,35 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Tobaco API", Version = "v1" });
+    
+    // Configurar autenticación JWT en Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
@@ -29,22 +57,24 @@ builder.Services.AddDbContext<AplicationDbContext>(options =>
 //Registrar servicios
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
-builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IVentaPagosService, VentaPagosService>();
+builder.Services.AddScoped<IVentaPagoService, VentaPagoService>();
 builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
+builder.Services.AddScoped<IAbonosService, AbonosService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PricingService>();
 
 //Registrar repositorios
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
-builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IVentaPagosRepository, VentaPagosRepository>();
+builder.Services.AddScoped<IVentaPagoRepository, VentaPagoRepository>();
 builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>();
+builder.Services.AddScoped<IAbonosRepository, AbonosRepository>();
 
 
 // Cors
