@@ -59,7 +59,7 @@ public class AplicationDbContext : DbContext
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<Producto>()
-            .Property(p => p.Cantidad)
+            .Property(p => p.Stock)
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<Producto>()

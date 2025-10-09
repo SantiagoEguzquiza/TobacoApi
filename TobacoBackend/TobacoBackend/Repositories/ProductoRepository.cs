@@ -115,7 +115,7 @@ namespace TobacoBackend.Repositories
 
             // Update basic product properties
             existingProduct.Nombre = producto.Nombre;
-            existingProduct.Cantidad = producto.Cantidad;
+            existingProduct.Stock = producto.Stock;
             existingProduct.Precio = producto.Precio;
             existingProduct.CategoriaId = producto.CategoriaId;
             existingProduct.Half = producto.Half;

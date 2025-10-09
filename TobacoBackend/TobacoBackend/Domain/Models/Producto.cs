@@ -13,7 +13,7 @@ namespace TobacoBackend.Domain.Models
         public string Nombre { get; set; }
 
         [Required]
-        public decimal Cantidad { get; set; }
+        public decimal Stock { get; set; }
 
         [Required]
         public decimal Precio { get; set; }

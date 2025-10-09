@@ -21,9 +21,6 @@ namespace TobacoBackend.Services
         private readonly PricingService _pricingService;
 
         public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService)
-        private readonly AplicationDbContext _context;
-
-        public PedidoService(IPedidoRepository pedidoRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagosService ventaPagosService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, AplicationDbContext context)
         {
             _pedidoRepository = pedidoRepository;
             _mapper = mapper;
@@ -33,7 +30,6 @@ namespace TobacoBackend.Services
             _clienteService = clienteService;
             _httpContextAccessor = httpContextAccessor;
             _pricingService = pricingService;
-            _context = context;
         }
 
         public async Task AddPedido(PedidoDTO pedidoDto)
@@ -334,6 +330,18 @@ namespace TobacoBackend.Services
                 pedidoDto.VentaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoDto.Id);
             }
             
+            return new
+            {
+                pedidos = pedidosDto,
+                totalItems = result.TotalItems,
+                totalPages = result.TotalPages,
+                currentPage = page,
+                pageSize = pageSize,
+                hasNextPage = page < result.TotalPages,
+                hasPreviousPage = page > 1
+            };
+        }
+
         public async Task<object> GetPedidosConCuentaCorrienteByClienteId(int clienteId, int page = 1, int pageSize = 20)
         {
             var result = await _pedidoRepository.GetPedidosConCuentaCorrienteByClienteId(clienteId, page, pageSize);
