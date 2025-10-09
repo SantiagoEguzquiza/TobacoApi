@@ -24,8 +24,8 @@ namespace TobacoBackend.Repositories
             if (producto != null)
             {
                 // Verificar si el producto tiene ventas vinculadas
-                var tieneVentas = await _context.PedidosProductos
-                    .AnyAsync(pp => pp.ProductoId == id);
+                var tieneVentas = await _context.VentasProductos
+                    .AnyAsync(vp => vp.ProductoId == id);
 
                 if (tieneVentas)
                 {

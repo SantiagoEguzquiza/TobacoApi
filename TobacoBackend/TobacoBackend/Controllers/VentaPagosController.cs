@@ -10,27 +10,27 @@ namespace TobacoBackend.Controllers
     [Authorize]
     public class VentaPagosController : ControllerBase
     {
-        private readonly IVentaPagosService _ventaPagosService;
+        private readonly IVentaPagoService _ventaPagoService;
 
-        public VentaPagosController(IVentaPagosService ventaPagosService)
+        public VentaPagosController(IVentaPagoService ventaPagoService)
         {
-            _ventaPagosService = ventaPagosService;
+            _ventaPagoService = ventaPagoService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<VentaPagosDTO>>> GetAllVentaPagos()
+        public async Task<ActionResult<List<VentaPagoDTO>>> GetAllVentaPagos()
         {
-            var ventaPagos = await _ventaPagosService.GetAllVentaPagos();
+            var ventaPagos = await _ventaPagoService.GetAllVentaPagos();
             return Ok(ventaPagos);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<VentaPagosDTO>> GetVentaPagosById(int id)
+        public async Task<ActionResult<VentaPagoDTO>> GetVentaPagoById(int id)
         {
             try
             {
-                var ventaPagos = await _ventaPagosService.GetVentaPagosById(id);
-                return Ok(ventaPagos);
+                var ventaPago = await _ventaPagoService.GetVentaPagoById(id);
+                return Ok(ventaPago);
             }
             catch (Exception)
             {
@@ -38,24 +38,24 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        [HttpGet("pedido/{pedidoId}")]
-        public async Task<ActionResult<List<VentaPagosDTO>>> GetVentaPagosByPedidoId(int pedidoId)
+        [HttpGet("venta/{ventaId}")]
+        public async Task<ActionResult<List<VentaPagoDTO>>> GetVentaPagosByVentaId(int ventaId)
         {
-            var ventaPagos = await _ventaPagosService.GetVentaPagosByPedidoId(pedidoId);
+            var ventaPagos = await _ventaPagoService.GetVentaPagosByVentaId(ventaId);
             return Ok(ventaPagos);
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddVentaPagos([FromBody] VentaPagosDTO ventaPagosDto)
+        public async Task<ActionResult> AddVentaPago([FromBody] VentaPagoDTO ventaPagoDto)
         {
             try
             {
-                if (ventaPagosDto == null)
+                if (ventaPagoDto == null)
                 {
                     return BadRequest(new { message = "El pago no puede ser nulo." });
                 }
 
-                await _ventaPagosService.AddVentaPagos(ventaPagosDto);
+                await _ventaPagoService.AddVentaPago(ventaPagoDto);
                 return Ok(new { message = "Pago agregado exitosamente." });
             }
             catch (Exception ex)
@@ -65,16 +65,16 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateVentaPagos(int id, [FromBody] VentaPagosDTO ventaPagosDto)
+        public async Task<ActionResult> UpdateVentaPago(int id, [FromBody] VentaPagoDTO ventaPagoDto)
         {
-            if (ventaPagosDto == null || id != ventaPagosDto.Id)
+            if (ventaPagoDto == null || id != ventaPagoDto.Id)
             {
                 return BadRequest(new { message = "ID del pago no coincide o el pago es nulo." });
             }
 
             try
             {
-                await _ventaPagosService.UpdateVentaPagos(ventaPagosDto);
+                await _ventaPagoService.UpdateVentaPago(ventaPagoDto);
                 return Ok(new { message = "Pago actualizado exitosamente." });
             }
             catch (Exception)
@@ -84,11 +84,11 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteVentaPagos(int id)
+        public async Task<ActionResult> DeleteVentaPago(int id)
         {
             try
             {
-                var deleteResult = await _ventaPagosService.DeleteVentaPagos(id);
+                var deleteResult = await _ventaPagoService.DeleteVentaPago(id);
                 if (deleteResult)
                 {
                     return Ok(new { message = "Pago eliminado exitosamente." });

@@ -14,13 +14,13 @@ namespace TobacoBackend.Controllers
     {
         private readonly IClienteService _clienteService;
         private readonly IAbonosService _abonosService;
-        private readonly IPedidoService _pedidoService;
+        private readonly IVentaService _ventaService;
 
-        public ClientesController(IClienteService clienteService, IAbonosService abonosService, IPedidoService pedidoService)
+        public ClientesController(IClienteService clienteService, IAbonosService abonosService, IVentaService ventaService)
         {
             _clienteService = clienteService;
             _abonosService = abonosService;
-            _pedidoService = pedidoService;
+            _ventaService = ventaService;
         }
 
         
@@ -196,7 +196,7 @@ namespace TobacoBackend.Controllers
         {
             try
             {
-                var ventas = await _pedidoService.GetPedidosConCuentaCorrienteByClienteId(id, page, pageSize);
+                var ventas = await _ventaService.GetVentasConCuentaCorrienteByClienteId(id, page, pageSize);
                 return Ok(ventas);
             }
             catch (Exception ex)

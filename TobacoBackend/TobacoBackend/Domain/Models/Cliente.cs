@@ -23,7 +23,7 @@ namespace TobacoBackend.Domain.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal DescuentoGlobal { get; set; } = 0;
 
-        public List<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        public List<Venta> Ventas { get; set; } = new List<Venta>();
 
         public List<PrecioEspecial> PreciosEspeciales { get; set; } = new List<PrecioEspecial>();
 

@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
 {
-    public class PedidoProducto
+    public class VentaProducto
     {
-        public int PedidoId { get; set; }
-        public Pedido Pedido { get; set; }
+        public int VentaId { get; set; }
+        public Venta Venta { get; set; }
 
         public int ProductoId { get; set; }
         public Producto Producto { get; set; }
@@ -17,3 +17,4 @@ namespace TobacoBackend.Domain.Models
         public decimal PrecioFinalCalculado { get; set; }
     }
 }
+

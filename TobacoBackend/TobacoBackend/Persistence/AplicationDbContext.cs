@@ -6,11 +6,11 @@ public class AplicationDbContext : DbContext
 {
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Producto> Productos { get; set; }
-    public DbSet<Pedido> Pedidos { get; set; }
-    public DbSet<PedidoProducto> PedidosProductos { get; set; }
+    public DbSet<Venta> Ventas { get; set; }
+    public DbSet<VentaProducto> VentasProductos { get; set; }
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<VentaPagos> VentaPagos { get; set; }
+    public DbSet<VentaPago> VentaPagos { get; set; }
     public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
     public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
     public DbSet<Abonos> Abonos { get; set; }
@@ -33,29 +33,29 @@ public class AplicationDbContext : DbContext
             .HasIndex(c => c.Nombre)
             .IsUnique();
 
-        modelBuilder.Entity<PedidoProducto>()
-            .HasKey(pp => new { pp.PedidoId, pp.ProductoId });
+        modelBuilder.Entity<VentaProducto>()
+            .HasKey(vp => new { vp.VentaId, vp.ProductoId });
 
-        modelBuilder.Entity<PedidoProducto>()
-            .HasOne(pp => pp.Pedido)
-            .WithMany(p => p.PedidoProductos)
-            .HasForeignKey(pp => pp.PedidoId);
+        modelBuilder.Entity<VentaProducto>()
+            .HasOne(vp => vp.Venta)
+            .WithMany(v => v.VentaProductos)
+            .HasForeignKey(vp => vp.VentaId);
 
-        modelBuilder.Entity<PedidoProducto>()
-            .HasOne(pp => pp.Producto)
-            .WithMany(p => p.PedidoProductos)
-            .HasForeignKey(pp => pp.ProductoId);
+        modelBuilder.Entity<VentaProducto>()
+            .HasOne(vp => vp.Producto)
+            .WithMany(p => p.VentaProductos)
+            .HasForeignKey(vp => vp.ProductoId);
 
         modelBuilder.Entity<Producto>()
             .Property(p => p.Precio)
             .HasPrecision(18, 2);
 
-        modelBuilder.Entity<Pedido>()
-            .Property(p => p.Total)
+        modelBuilder.Entity<Venta>()
+            .Property(v => v.Total)
             .HasPrecision(18, 2);
 
-        modelBuilder.Entity<PedidoProducto>()
-            .Property(p => p.Cantidad)
+        modelBuilder.Entity<VentaProducto>()
+            .Property(vp => vp.Cantidad)
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<Producto>()
@@ -97,20 +97,20 @@ public class AplicationDbContext : DbContext
             .Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
 
-        // VentaPagos entity configuration
-        modelBuilder.Entity<VentaPagos>()
+        // VentaPago entity configuration
+        modelBuilder.Entity<VentaPago>()
             .Property(v => v.Monto)
             .HasPrecision(18, 2);
 
-        modelBuilder.Entity<VentaPagos>()
-            .HasOne(v => v.Pedido)
-            .WithMany(p => p.VentaPagos)
-            .HasForeignKey(v => v.PedidoId)
+        modelBuilder.Entity<VentaPago>()
+            .HasOne(v => v.Venta)
+            .WithMany(vt => vt.VentaPagos)
+            .HasForeignKey(v => v.VentaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // PedidoProducto entity configuration
-        modelBuilder.Entity<PedidoProducto>()
-            .Property(pp => pp.PrecioFinalCalculado)
+        // VentaProducto entity configuration
+        modelBuilder.Entity<VentaProducto>()
+            .Property(vp => vp.PrecioFinalCalculado)
             .HasPrecision(18, 2);
 
         // PrecioEspecial entity configuration
@@ -150,17 +150,18 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<ProductQuantityPrice>()
             .HasIndex(pqp => new { pqp.ProductId, pqp.Quantity })
             .IsUnique();
-        // Pedido entity configuration
-        modelBuilder.Entity<Pedido>()
-            .HasOne(p => p.Cliente)
-            .WithMany(c => c.Pedidos)
-            .HasForeignKey(p => p.ClienteId)
+        
+        // Venta entity configuration
+        modelBuilder.Entity<Venta>()
+            .HasOne(v => v.Cliente)
+            .WithMany(c => c.Ventas)
+            .HasForeignKey(v => v.ClienteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Pedido>()
-            .HasOne(p => p.Usuario)
+        modelBuilder.Entity<Venta>()
+            .HasOne(v => v.Usuario)
             .WithMany()
-            .HasForeignKey(p => p.UsuarioId)
+            .HasForeignKey(v => v.UsuarioId)
             .OnDelete(DeleteBehavior.SetNull);
 
         // Abonos entity configuration

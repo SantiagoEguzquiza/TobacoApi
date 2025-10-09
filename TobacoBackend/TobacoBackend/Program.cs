@@ -57,10 +57,10 @@ builder.Services.AddDbContext<AplicationDbContext>(options =>
 //Registrar servicios
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
-builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IVentaPagosService, VentaPagosService>();
+builder.Services.AddScoped<IVentaPagoService, VentaPagoService>();
 builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
 builder.Services.AddScoped<IAbonosService, AbonosService>();
 builder.Services.AddScoped<TokenService>();
@@ -69,10 +69,10 @@ builder.Services.AddScoped<PricingService>();
 //Registrar repositorios
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
-builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IVentaPagosRepository, VentaPagosRepository>();
+builder.Services.AddScoped<IVentaPagoRepository, VentaPagoRepository>();
 builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>();
 builder.Services.AddScoped<IAbonosRepository, AbonosRepository>();
 

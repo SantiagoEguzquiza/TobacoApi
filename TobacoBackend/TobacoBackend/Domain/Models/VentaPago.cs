@@ -3,17 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
 {
-    public class VentaPagos
+    public class VentaPago
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
-        public int PedidoId { get; set; }
+        public int VentaId { get; set; }
 
-        [ForeignKey("PedidoId")]
-        public Pedido Pedido { get; set; }
+        [ForeignKey("VentaId")]
+        public Venta Venta { get; set; }
 
         [Required]
         public MetodoPagoEnum Metodo { get; set; }
@@ -23,3 +23,4 @@ namespace TobacoBackend.Domain.Models
         public decimal Monto { get; set; }
     }
 }
+
