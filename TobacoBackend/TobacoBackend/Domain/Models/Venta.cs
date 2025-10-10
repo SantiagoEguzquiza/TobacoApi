@@ -33,6 +33,9 @@ namespace TobacoBackend.Domain.Models
         [ForeignKey("UsuarioId")]
         public User? Usuario { get; set; }
         
+        // Estado de entrega de la venta
+        [Required]
+        public EstadoEntrega EstadoEntrega { get; set; } = EstadoEntrega.NO_ENTREGADA;
     }
 }
 

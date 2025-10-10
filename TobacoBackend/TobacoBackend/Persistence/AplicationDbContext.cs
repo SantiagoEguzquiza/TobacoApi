@@ -14,6 +14,7 @@ public class AplicationDbContext : DbContext
     public DbSet<PrecioEspecial> PreciosEspeciales { get; set; }
     public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
     public DbSet<Abonos> Abonos { get; set; }
+    public DbSet<ProductoAFavor> ProductosAFavor { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -174,6 +175,52 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<Abonos>()
             .Property(a => a.Fecha)
             .HasDefaultValueSql("GETUTCDATE()");
+
+        // ProductoAFavor entity configuration
+        modelBuilder.Entity<ProductoAFavor>()
+            .Property(p => p.Cantidad)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.Cliente)
+            .WithMany()
+            .HasForeignKey(p => p.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.Producto)
+            .WithMany()
+            .HasForeignKey(p => p.ProductoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.Venta)
+            .WithMany()
+            .HasForeignKey(p => p.VentaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.UsuarioRegistro)
+            .WithMany()
+            .HasForeignKey(p => p.UsuarioRegistroId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.UsuarioEntrega)
+            .WithMany()
+            .HasForeignKey(p => p.UsuarioEntregaId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .Property(p => p.FechaRegistro)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // VentaProducto - Usuario Chequeo relationship
+        modelBuilder.Entity<VentaProducto>()
+            .HasOne(vp => vp.UsuarioChequeo)
+            .WithMany()
+            .HasForeignKey(vp => vp.UsuarioChequeoId)
+            .OnDelete(DeleteBehavior.NoAction);
 
     }
 

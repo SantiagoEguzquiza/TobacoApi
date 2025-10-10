@@ -143,6 +143,26 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // PUT: api/ventas/{id}/estado-entrega
+        [HttpPut("{id}/estado-entrega")]
+        public async Task<ActionResult> UpdateEstadoEntregaItems(int id, [FromBody] List<VentaProductoDTO> items)
+        {
+            try
+            {
+                if (items == null || !items.Any())
+                {
+                    return BadRequest(new { message = "La lista de items no puede estar vacía." });
+                }
+
+                await _ventasService.UpdateEstadoEntregaItems(id, items);
+                return Ok(new { message = "Estado de entrega actualizado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al actualizar el estado de entrega: {ex.Message}" });
+            }
+        }
     }
 }
 
