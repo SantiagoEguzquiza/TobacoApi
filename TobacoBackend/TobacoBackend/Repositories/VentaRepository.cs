@@ -132,6 +132,11 @@ namespace TobacoBackend.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<VentaPaginationResult> GetVentasPaginadas(int page, int pageSize)
         {
             var totalItems = await _context.Ventas.CountAsync();

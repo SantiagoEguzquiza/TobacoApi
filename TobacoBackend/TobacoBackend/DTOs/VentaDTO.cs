@@ -14,7 +14,7 @@ namespace TobacoBackend.DTOs
         public MetodoPagoEnum MetodoPago { get; set; }
         public int? UsuarioId { get; set; }
         public UserDTO? Usuario { get; set; }
- 
+        public EstadoEntrega EstadoEntrega { get; set; } = EstadoEntrega.NO_ENTREGADA;
     }
 }
 

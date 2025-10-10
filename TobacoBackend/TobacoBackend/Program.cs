@@ -63,6 +63,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVentaPagoService, VentaPagoService>();
 builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
 builder.Services.AddScoped<IAbonosService, AbonosService>();
+builder.Services.AddScoped<IProductoAFavorService, ProductoAFavorService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PricingService>();
 
@@ -75,6 +76,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVentaPagoRepository, VentaPagoRepository>();
 builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>();
 builder.Services.AddScoped<IAbonosRepository, AbonosRepository>();
+builder.Services.AddScoped<IProductoAFavorRepository, ProductoAFavorRepository>();
 
 
 // Cors

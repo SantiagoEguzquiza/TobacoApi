@@ -1305,6 +1305,233 @@
         }
       }
     },
+    "/ProductoAFavor": {
+      "get": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ProductoAFavor/{id}": {
+      "get": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoAFavorDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoAFavorDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoAFavorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/ProductoAFavor/cliente/{clienteId}": {
+      "get": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "parameters": [
+          {
+            "name": "clienteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "soloNoEntregados",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ProductoAFavor/venta/{ventaId}": {
+      "get": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "parameters": [
+          {
+            "name": "ventaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductoAFavorDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ProductoAFavor/{id}/marcar-entregado": {
+      "put": {
+        "tags": [
+          "ProductoAFavor"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Productos": {
       "get": {
         "tags": [
@@ -2404,6 +2631,57 @@
           }
         }
       }
+    },
+    "/Ventas/{id}/estado-entrega": {
+      "put": {
+        "tags": [
+          "Ventas"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VentaProductoDTO"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VentaProductoDTO"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VentaProductoDTO"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2538,6 +2816,15 @@
         },
         "additionalProperties": false
       },
+      "EstadoEntrega": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "LoginDTO": {
         "required": [
           "password",
@@ -2658,6 +2945,78 @@
             "type": "number",
             "format": "double",
             "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductoAFavorDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cliente": {
+            "$ref": "#/components/schemas/ClienteDTO"
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "producto": {
+            "$ref": "#/components/schemas/ProductoDTO"
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nota": {
+            "type": "string",
+            "nullable": true
+          },
+          "ventaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ventaProductoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioRegistroId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuarioRegistro": {
+            "$ref": "#/components/schemas/UserDTO"
+          },
+          "entregado": {
+            "type": "boolean"
+          },
+          "fechaEntrega": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "usuarioEntregaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuarioEntrega": {
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false
@@ -2874,6 +3233,9 @@
           },
           "usuario": {
             "$ref": "#/components/schemas/UserDTO"
+          },
+          "estadoEntrega": {
+            "$ref": "#/components/schemas/EstadoEntrega"
           }
         },
         "additionalProperties": false
@@ -2916,6 +3278,30 @@
           "precioFinalCalculado": {
             "type": "number",
             "format": "double"
+          },
+          "entregado": {
+            "type": "boolean"
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nota": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaChequeo": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "usuarioChequeoId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuarioChequeo": {
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
         "additionalProperties": false
