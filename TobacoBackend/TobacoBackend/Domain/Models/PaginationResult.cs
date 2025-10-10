@@ -17,9 +17,9 @@ namespace TobacoBackend.Domain.Models
         public int TotalPages { get; set; }
     }
 
-    public class PedidoPaginationResult
+    public class VentaPaginationResult
     {
-        public List<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        public List<Venta> Ventas { get; set; } = new List<Venta>();
         public int TotalItems { get; set; }
         public int TotalPages { get; set; }
     }

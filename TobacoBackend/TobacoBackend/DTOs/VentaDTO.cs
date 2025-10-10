@@ -1,19 +1,20 @@
-﻿using TobacoBackend.Domain.Models;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.DTOs
 {
-    public class PedidoDTO
+    public class VentaDTO
     {
         public int Id { get; set; }
         public int ClienteId { get; set; }
         public ClienteDTO Cliente { get; set; } 
-        public List<PedidoProductoDTO> PedidoProductos { get; set; }
-        public List<VentaPagosDTO> VentaPagos { get; set; }
+        public List<VentaProductoDTO> VentaProductos { get; set; }
+        public List<VentaPagoDTO> VentaPagos { get; set; }
         public decimal Total { get; set; }
         public DateTime Fecha { get; set; }
         public MetodoPagoEnum MetodoPago { get; set; }
         public int? UsuarioId { get; set; }
         public UserDTO? Usuario { get; set; }
- 
+        public EstadoEntrega EstadoEntrega { get; set; } = EstadoEntrega.NO_ENTREGADA;
     }
 }
+

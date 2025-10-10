@@ -13,7 +13,7 @@ namespace TobacoBackend.Domain.Models
         public string Nombre { get; set; }
 
         [Required]
-        public decimal Cantidad { get; set; }
+        public decimal Stock { get; set; }
 
         [Required]
         public decimal Precio { get; set; }
@@ -24,7 +24,7 @@ namespace TobacoBackend.Domain.Models
         [ForeignKey("CategoriaId")]
         public Categoria Categoria { get; set; }
 
-        public List<PedidoProducto> PedidoProductos { get; set; } = new List<PedidoProducto>();
+        public List<VentaProducto> VentaProductos { get; set; } = new List<VentaProducto>();
         public List<ProductQuantityPrice> QuantityPrices { get; set; } = new List<ProductQuantityPrice>();
 
         public bool Half { get; set; } = false;
