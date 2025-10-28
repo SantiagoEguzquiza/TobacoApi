@@ -52,6 +52,13 @@ namespace TobacoBackend.Mapping
 
             // Mapeo para ProductoAFavor
             CreateMap<ProductoAFavor, ProductoAFavorDTO>().ReverseMap();
+
+            // Mapeo para Asistencia
+            CreateMap<Asistencia, AsistenciaDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+                .ForMember(dest => dest.HorasTrabajadas, opt => opt.MapFrom(src => src.HorasTrabajadas))
+                .ReverseMap()
+                .ForMember(dest => dest.User, opt => opt.Ignore());
         }
     }
 }
