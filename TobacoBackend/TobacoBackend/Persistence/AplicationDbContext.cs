@@ -15,6 +15,7 @@ public class AplicationDbContext : DbContext
     public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
     public DbSet<Abonos> Abonos { get; set; }
     public DbSet<ProductoAFavor> ProductosAFavor { get; set; }
+    public DbSet<Asistencia> Asistencias { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -221,6 +222,17 @@ public class AplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(vp => vp.UsuarioChequeoId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Asistencia entity configuration
+        modelBuilder.Entity<Asistencia>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Asistencia>()
+            .Property(a => a.FechaHoraEntrada)
+            .IsRequired();
 
     }
 
