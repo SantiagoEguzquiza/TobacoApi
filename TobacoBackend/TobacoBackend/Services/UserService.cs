@@ -103,6 +103,7 @@ namespace TobacoBackend.Services
             user.Password = HashPasswordForStorage(createUserDto.Password);
             user.CreatedAt = DateTime.UtcNow;
             user.IsActive = true;
+            user.TipoVendedor = createUserDto.TipoVendedor; // Asegurar que se asigne el tipo de vendedor
 
             var createdUser = await _userRepository.CreateAsync(user);
             return _mapper.Map<UserDTO>(createdUser);
@@ -141,6 +142,12 @@ namespace TobacoBackend.Services
             
             if (updateUserDto.IsActive.HasValue)
                 user.IsActive = updateUserDto.IsActive.Value;
+            
+            if (updateUserDto.TipoVendedor.HasValue)
+                user.TipoVendedor = updateUserDto.TipoVendedor.Value;
+            
+            if (updateUserDto.Zona != null)
+                user.Zona = updateUserDto.Zona;
 
             await _userRepository.UpdateAsync(user);
             return _mapper.Map<UserDTO>(user);

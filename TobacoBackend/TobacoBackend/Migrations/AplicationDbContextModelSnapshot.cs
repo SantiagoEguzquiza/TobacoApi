@@ -148,6 +148,12 @@ namespace TobacoBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("float");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -325,6 +331,44 @@ namespace TobacoBackend.Migrations
                     b.ToTable("ProductosAFavor");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.RecorridoProgramado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VendedorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("VendedorId", "DiaSemana", "ClienteId")
+                        .IsUnique();
+
+                    b.ToTable("RecorridosProgramados");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -360,10 +404,17 @@ namespace TobacoBackend.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("Employee");
 
+                    b.Property<int>("TipoVendedor")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Zona")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -397,14 +448,19 @@ namespace TobacoBackend.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("UsuarioId")
+                    b.Property<int?>("UsuarioIdAsignado")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioIdCreador")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UsuarioIdAsignado");
+
+                    b.HasIndex("UsuarioIdCreador");
 
                     b.ToTable("Ventas");
                 });
@@ -582,6 +638,25 @@ namespace TobacoBackend.Migrations
                     b.Navigation("Venta");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.RecorridoProgramado", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TobacoBackend.Domain.Models.User", "Vendedor")
+                        .WithMany()
+                        .HasForeignKey("VendedorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Vendedor");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.Venta", b =>
                 {
                     b.HasOne("TobacoBackend.Domain.Models.Cliente", "Cliente")
@@ -590,14 +665,21 @@ namespace TobacoBackend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TobacoBackend.Domain.Models.User", "Usuario")
+                    b.HasOne("TobacoBackend.Domain.Models.User", "UsuarioAsignado")
                         .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UsuarioIdAsignado")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TobacoBackend.Domain.Models.User", "UsuarioCreador")
+                        .WithMany()
+                        .HasForeignKey("UsuarioIdCreador")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Cliente");
 
-                    b.Navigation("Usuario");
+                    b.Navigation("UsuarioAsignado");
+
+                    b.Navigation("UsuarioCreador");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.VentaPago", b =>

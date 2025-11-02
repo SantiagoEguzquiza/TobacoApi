@@ -5,8 +5,10 @@
         public int? Id { get; set; }
         public string Nombre { get; set; }
         public string Direccion { get; set; }
-        public string Telefono { get; set; }
-        public string Deuda { get; set; }
+        public string? Telefono { get; set; }
+        public string? Deuda { get; set; }
         public decimal DescuentoGlobal { get; set; } = 0;
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
     }
 }

@@ -20,8 +20,9 @@ namespace TobacoBackend.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PricingService _pricingService;
+        private readonly IUserService _userService;
 
-        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository)
+        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository, IUserService userService)
         {
             _ventaRepository = ventaRepository;
             _mapper = mapper;
@@ -32,16 +33,21 @@ namespace TobacoBackend.Services
             _httpContextAccessor = httpContextAccessor;
             _pricingService = pricingService;
             _productoAFavorRepository = productoAFavorRepository;
+            _userService = userService;
         }
 
-        public async Task AddVenta(VentaDTO ventaDto)
+        public async Task<CreateVentaResponseDTO> AddVenta(VentaDTO ventaDto)
         {
-            // Obtener el ID del usuario actual del contexto de autenticación
+            // Obtener el ID del usuario actual para registrar quién creó la venta
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            int? usuarioId = null;
+            int? usuarioIdCreador = null;
+            int? usuarioIdAsignado = null;
+            string? nombreRepartidorAsignado = null;
+            
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                usuarioId = userId;
+                usuarioIdCreador = userId;
+                // No auto-asignamos. El usuario elegirá en el frontend si quiere asignarse la venta o asignarla a otro repartidor
             }
 
             var venta = new Venta
@@ -50,7 +56,8 @@ namespace TobacoBackend.Services
                 Fecha = DateTime.Now,
                 VentaProductos = new List<VentaProducto>(),
                 MetodoPago = ventaDto.MetodoPago,
-                UsuarioId = usuarioId
+                UsuarioIdCreador = usuarioIdCreador, // Quien creó la venta
+                UsuarioIdAsignado = usuarioIdAsignado // Auto-asignado si es vendedor-repartidor, null si no
             };
 
             decimal total = 0;
@@ -151,6 +158,18 @@ namespace TobacoBackend.Services
                     await _clienteService.AgregarDeuda(venta.ClienteId, montoCuentaCorriente);
                 }
             }
+
+            // Preparar respuesta - nunca auto-asignamos, siempre se pregunta en el frontend
+            var response = new CreateVentaResponseDTO
+            {
+                VentaId = venta.Id,
+                Message = "Venta creada exitosamente",
+                Asignada = false, // Nunca auto-asignamos
+                UsuarioAsignadoId = null,
+                UsuarioAsignadoNombre = null
+            };
+
+            return response;
         }
 
 
@@ -467,6 +486,18 @@ namespace TobacoBackend.Services
             await _ventaRepository.SaveChangesAsync();
         }
 
+        public async Task<bool> UpdateEstadoEntrega(int ventaId, EstadoEntrega nuevoEstado)
+        {
+            var venta = await _ventaRepository.GetVentaById(ventaId);
+            if (venta == null)
+            {
+                return false;
+            }
+            venta.EstadoEntrega = nuevoEstado;
+            await _ventaRepository.UpdateVenta(venta);
+            return true;
+        }
+
         private async Task CrearProductoAFavor(Venta venta, VentaProducto ventaProducto, VentaProductoDTO itemDto, int? usuarioId)
         {
             Console.WriteLine($"=== CrearProductoAFavor - VentaId: {venta.Id}, ProductoId: {ventaProducto.ProductoId} ===");
@@ -557,6 +588,42 @@ namespace TobacoBackend.Services
             {
                 return EstadoEntrega.PARCIAL;
             }
+        }
+
+        public async Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId)
+        {
+            return await _ventaRepository.AsignarVentaAUsuario(ventaId, usuarioId);
+        }
+
+        public async Task<AsignarVentaAutomaticaResponseDTO> AsignarVentaAutomaticamente(int ventaId, int usuarioIdExcluir)
+        {
+            // Buscar un repartidor disponible (empleado activo, excluyendo al usuario actual)
+            var repartidores = await _userService.GetAllUsersAsync();
+            var repartidorDisponible = repartidores
+                .FirstOrDefault(u => u.Role == "Employee" 
+                    && u.Id != usuarioIdExcluir
+                    && u.IsActive);
+
+            if (repartidorDisponible == null)
+            {
+                return new AsignarVentaAutomaticaResponseDTO
+                {
+                    Asignada = false,
+                    Message = "No hay repartidores disponibles para asignar la venta."
+                };
+            }
+
+            var asignado = await _ventaRepository.AsignarVentaAUsuario(ventaId, repartidorDisponible.Id);
+
+            return new AsignarVentaAutomaticaResponseDTO
+            {
+                Asignada = asignado,
+                UsuarioAsignadoId = repartidorDisponible.Id,
+                UsuarioAsignadoNombre = repartidorDisponible.UserName,
+                Message = asignado 
+                    ? $"Venta asignada exitosamente a {repartidorDisponible.UserName}"
+                    : "Error al asignar la venta."
+            };
         }
     }
 }
