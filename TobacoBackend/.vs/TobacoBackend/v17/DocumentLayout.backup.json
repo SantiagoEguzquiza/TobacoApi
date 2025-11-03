@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102134921_UserZona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:TobacoBackend\\Migrations\\20251102134921_UserZona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\entregascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\entregascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102135627_UserZona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:TobacoBackend\\Migrations\\20251102135627_UserZona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -23,44 +19,12 @@
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\healthcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\migrations\\20251101155500_agregarzonaauser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\migrations\\20251101155500_agregarzonaauser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\migrations\\20251101152735_agregarrecorridosprogramados.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\migrations\\20251101152735_agregarrecorridosprogramados.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\migrations\\20251101154104_crearrecorridosprogramados.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\migrations\\20251101154104_crearrecorridosprogramados.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\recorridosprogramadoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\recorridosprogramadoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\entregascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\entregascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\ventadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\ventadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\migrations\\aplicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\migrations\\aplicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\migrations\\20251029181402_latitudlongitudcliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\migrations\\20251029181402_latitudlongitudcliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\entregadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\entregadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\dtos\\actualizarestadoentregadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\dtos\\actualizarestadoentregadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\asistenciacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -77,7 +41,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -97,15 +61,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "20251102135627_UserZona.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102135627_UserZona.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251102135627_UserZona.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102135627_UserZona.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251102135627_UserZona.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAABgAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "EntregasController.cs",
+              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\EntregasController.cs",
+              "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\EntregasController.cs",
+              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\EntregasController.cs",
+              "RelativeToolTip": "TobacoBackend\\Controllers\\EntregasController.cs",
+              "ViewState": "AgIAAFwAAAAAAAAAAADwv24AAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-02T13:56:27.512Z",
+              "WhenOpened": "2025-11-03T16:51:50.403Z",
               "EditorCaption": ""
             },
             {
@@ -116,66 +80,14 @@
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "TobacoBackend\\Controllers\\UserController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-02T13:52:16.382Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "20251101154104_CrearRecorridosProgramados.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101154104_CrearRecorridosProgramados.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251101154104_CrearRecorridosProgramados.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101154104_CrearRecorridosProgramados.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251101154104_CrearRecorridosProgramados.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-02T13:49:51.911Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20251102134921_UserZona.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102134921_UserZona.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251102134921_UserZona.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251102134921_UserZona.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251102134921_UserZona.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-02T13:49:21.556Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "20251101155500_AgregarZonaAUser.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101155500_AgregarZonaAUser.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251101155500_AgregarZonaAUser.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101155500_AgregarZonaAUser.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251101155500_AgregarZonaAUser.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-02T13:49:06.698Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "RecorridosProgramadosController.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\RecorridosProgramadosController.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\RecorridosProgramadosController.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\RecorridosProgramadosController.cs",
-              "RelativeToolTip": "TobacoBackend\\Controllers\\RecorridosProgramadosController.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAQwCEAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-01T16:54:26.923Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 4,
               "Title": "VentaDTO.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\VentaDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\VentaDTO.cs",
@@ -187,20 +99,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "UserDTO.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\UserDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\UserDTO.cs",
               "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\UserDTO.cs",
               "RelativeToolTip": "TobacoBackend\\DTOs\\UserDTO.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAiwBUAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAiwBUAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T15:54:54.398Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-31T15:54:54.398Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "HealthController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\HealthController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\HealthController.cs",
@@ -208,25 +119,11 @@
               "RelativeToolTip": "TobacoBackend\\Controllers\\HealthController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-29T18:25:40.444Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-29T18:25:40.444Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "20251101152735_AgregarRecorridosProgramados.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101152735_AgregarRecorridosProgramados.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251101152735_AgregarRecorridosProgramados.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251101152735_AgregarRecorridosProgramados.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251101152735_AgregarRecorridosProgramados.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-02T13:49:55.476Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 5,
               "Title": "AplicationDbContextModelSnapshot.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\AplicationDbContextModelSnapshot.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\AplicationDbContextModelSnapshot.cs",
@@ -238,55 +135,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "EntregaDTO.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\EntregaDTO.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\EntregaDTO.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\EntregaDTO.cs",
-              "RelativeToolTip": "TobacoBackend\\DTOs\\EntregaDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-30T15:14:17.036Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "ActualizarEstadoEntregaDTO.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\ActualizarEstadoEntregaDTO.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\ActualizarEstadoEntregaDTO.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\ActualizarEstadoEntregaDTO.cs",
-              "RelativeToolTip": "TobacoBackend\\DTOs\\ActualizarEstadoEntregaDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-30T15:14:10.331Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "EntregasController.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\EntregasController.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\EntregasController.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\EntregasController.cs",
-              "RelativeToolTip": "TobacoBackend\\Controllers\\EntregasController.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAUwCkAAABUAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-29T18:25:50.693Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "20251029181402_LatitudLongitudCliente.cs",
-              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251029181402_LatitudLongitudCliente.cs",
-              "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251029181402_LatitudLongitudCliente.cs",
-              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251029181402_LatitudLongitudCliente.cs",
-              "RelativeToolTip": "TobacoBackend\\Migrations\\20251029181402_LatitudLongitudCliente.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-29T18:14:03.219Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 7,
               "Title": "Microsoft.NET.Sdk.StaticWebAssets.JSModules.targets",
               "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\9.0.305\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.JSModules.targets",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.305\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.JSModules.targets",
@@ -298,7 +147,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 6,
               "Title": "AsistenciaController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\AsistenciaController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\AsistenciaController.cs",
