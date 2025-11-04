@@ -52,8 +52,45 @@ namespace TobacoBackend.Controllers
                     return Unauthorized(new { message = "Usuario no encontrado" });
                 }
 
-                // Admin y RepartidorVendedor: mostrar recorridos programados del día de la semana
+                // Admin y RepartidorVendedor: mostrar recorridos programados del día Y entregas asignadas
                 if (usuario.Role == "Admin" || (usuario.Role == "Employee" && usuario.TipoVendedor == TipoVendedor.RepartidorVendedor))
+                {
+                    var recorridosResult = await GetRecorridosProgramadosDelDia(usuarioId);
+                    var entregasAsignadasResult = await GetEntregasAsignadas(usuarioId);
+                    
+                    // Combinar ambas listas, pero eliminar recorridos programados que ya tienen venta asignada
+                    var todasLasEntregas = new List<EntregaDTO>();
+                    
+                    // Obtener entregas asignadas primero
+                    var entregasList = new List<EntregaDTO>();
+                    if (entregasAsignadasResult.Result is OkObjectResult entregasOk && entregasOk.Value is List<EntregaDTO> entregas)
+                    {
+                        entregasList = entregas;
+                        todasLasEntregas.AddRange(entregasList);
+                    }
+                    
+                    // Obtener recorridos programados y filtrar los que ya tienen venta asignada
+                    if (recorridosResult.Result is OkObjectResult recorridosOk && recorridosOk.Value is List<EntregaDTO> recorridosList)
+                    {
+                        // Obtener IDs de clientes que ya tienen ventas asignadas
+                        var clientesConVentaAsignada = entregasList
+                            .Where(e => e.ClienteId > 0)
+                            .Select(e => e.ClienteId)
+                            .ToHashSet();
+                        
+                        // Filtrar recorridos programados: solo agregar los que NO tienen venta asignada al mismo cliente
+                        var recorridosFiltrados = recorridosList
+                            .Where(r => !clientesConVentaAsignada.Contains(r.ClienteId))
+                            .ToList();
+                        
+                        todasLasEntregas.AddRange(recorridosFiltrados);
+                    }
+                    
+                    return Ok(todasLasEntregas);
+                }
+                
+                // Vendedor: solo mostrar recorridos programados del día (NO entregas asignadas)
+                if (usuario.Role == "Employee" && usuario.TipoVendedor == TipoVendedor.Vendedor)
                 {
                     return await GetRecorridosProgramadosDelDia(usuarioId);
                 }
@@ -123,15 +160,27 @@ namespace TobacoBackend.Controllers
 
         /// <summary>
         /// Obtiene las entregas asignadas a un Repartidor
+        /// Incluye entregas pendientes, parciales y completadas del día actual
         /// </summary>
         private async Task<ActionResult<List<EntregaDTO>>> GetEntregasAsignadas(int vendedorId)
         {
             var hoy = DateTime.Today;
             var todasLasVentas = await _ventasService.GetAllVentas();
             
+            // Filtrar ventas asignadas al repartidor del día actual
+            // O ventas completadas del día actual (aunque la fecha de asignación no sea hoy)
             var ventasDelDia = todasLasVentas
-                .Where(v => v.Fecha.Date == hoy && 
-                            v.UsuarioIdAsignado == vendedorId)
+                .Where(v => 
+                    // Ventas asignadas hoy
+                    (v.Fecha.Date == hoy && v.UsuarioIdAsignado == vendedorId) ||
+                    // O ventas completadas hoy (aunque se hayan asignado antes)
+                    (v.EstadoEntrega == EstadoEntrega.ENTREGADA && 
+                     v.Fecha.Date == hoy && 
+                     v.UsuarioIdAsignado == vendedorId) ||
+                    // O ventas parciales asignadas hoy
+                    (v.EstadoEntrega == EstadoEntrega.PARCIAL && 
+                     v.Fecha.Date == hoy && 
+                     v.UsuarioIdAsignado == vendedorId))
                 .ToList();
 
             var entregas = ventasDelDia.Select(v => new EntregaDTO
