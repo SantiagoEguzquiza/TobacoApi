@@ -14,7 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Los enums se serializan como números (int) por defecto
+        // También permitir números directamente
+        options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -65,6 +71,7 @@ builder.Services.AddScoped<IPrecioEspecialService, PrecioEspecialService>();
 builder.Services.AddScoped<IAbonosService, AbonosService>();
 builder.Services.AddScoped<IProductoAFavorService, ProductoAFavorService>();
 builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
+builder.Services.AddScoped<IRecorridoProgramadoService, RecorridoProgramadoService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PricingService>();
 
@@ -79,6 +86,7 @@ builder.Services.AddScoped<IPrecioEspecialRepository, PrecioEspecialRepository>(
 builder.Services.AddScoped<IAbonosRepository, AbonosRepository>();
 builder.Services.AddScoped<IProductoAFavorRepository, ProductoAFavorRepository>();
 builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
+builder.Services.AddScoped<IRecorridoProgramadoRepository, RecorridoProgramadoRepository>();
 
 
 // Cors

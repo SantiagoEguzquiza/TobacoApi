@@ -16,6 +16,7 @@ public class AplicationDbContext : DbContext
     public DbSet<Abonos> Abonos { get; set; }
     public DbSet<ProductoAFavor> ProductosAFavor { get; set; }
     public DbSet<Asistencia> Asistencias { get; set; }
+    public DbSet<RecorridoProgramado> RecorridosProgramados { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -161,10 +162,16 @@ public class AplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Venta>()
-            .HasOne(v => v.Usuario)
+            .HasOne(v => v.UsuarioCreador)
             .WithMany()
-            .HasForeignKey(v => v.UsuarioId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(v => v.UsuarioIdCreador)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Venta>()
+            .HasOne(v => v.UsuarioAsignado)
+            .WithMany()
+            .HasForeignKey(v => v.UsuarioIdAsignado)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Abonos entity configuration
         modelBuilder.Entity<Abonos>()
@@ -233,6 +240,27 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<Asistencia>()
             .Property(a => a.FechaHoraEntrada)
             .IsRequired();
+
+        // RecorridoProgramado entity configuration
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasOne(r => r.Vendedor)
+            .WithMany()
+            .HasForeignKey(r => r.VendedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasOne(r => r.Cliente)
+            .WithMany()
+            .HasForeignKey(r => r.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasIndex(r => new { r.VendedorId, r.DiaSemana, r.ClienteId })
+            .IsUnique();
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .Property(r => r.FechaCreacion)
+            .HasDefaultValueSql("GETUTCDATE()");
 
     }
 

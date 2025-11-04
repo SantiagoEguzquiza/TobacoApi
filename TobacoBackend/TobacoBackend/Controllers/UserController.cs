@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
+using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
 using System.Security.Claims;
@@ -142,12 +143,29 @@ namespace TobacoBackend.Controllers
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                     return Unauthorized(new { message = "Token inválido. No se pudo extraer el ID del usuario." });
 
-                // Check if user is admin
-                var isAdmin = await _userService.IsAdminAsync(userId);
-                if (!isAdmin)
-                    return Forbid("Solo los administradores pueden acceder a esta funcionalidad.");
+                // Get current user to check role and tipoVendedor
+                var currentUser = await _userService.GetUserByIdAsync(userId);
+                if (currentUser == null)
+                    return Unauthorized(new { message = "Usuario no encontrado." });
+
+                // Check if user is admin or vendedor
+                var isAdmin = currentUser.Role == "Admin";
+                var isVendedor = currentUser.Role == "Employee" && currentUser.TipoVendedor == TipoVendedor.Vendedor;
+                
+                if (!isAdmin && !isVendedor)
+                    return Forbid("Solo los administradores y vendedores pueden acceder a esta funcionalidad.");
 
                 var users = await _userService.GetAllUsersAsync();
+                
+                // Si es Vendedor, filtrar solo los repartidores (Repartidor o RepartidorVendedor)
+                if (isVendedor)
+                {
+                    users = users.Where(u => 
+                        u.IsActive && 
+                        u.Role == "Employee" && 
+                        (u.TipoVendedor == TipoVendedor.Repartidor || u.TipoVendedor == TipoVendedor.RepartidorVendedor)
+                    ).ToList();
+                }
                 
                 return Ok(users);
             }

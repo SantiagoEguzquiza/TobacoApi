@@ -10,7 +10,8 @@ namespace TobacoBackend.Mapping
         {
             CreateMap<Cliente, ClienteDTO>().ReverseMap();
             CreateMap<Venta, VentaDTO>()
-                .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.Usuario))
+                .ForMember(dest => dest.UsuarioCreador, opt => opt.MapFrom(src => src.UsuarioCreador))
+                .ForMember(dest => dest.UsuarioAsignado, opt => opt.MapFrom(src => src.UsuarioAsignado))
                 .ReverseMap();
             CreateMap<VentaProducto, VentaProductoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
@@ -36,7 +37,9 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.LastLogin, opt => opt.MapFrom(src => src.LastLogin))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.TipoVendedor, opt => opt.MapFrom(src => src.TipoVendedor))
+                .ForMember(dest => dest.Zona, opt => opt.MapFrom(src => src.Zona));
 
             CreateMap<CreateUserDTO, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

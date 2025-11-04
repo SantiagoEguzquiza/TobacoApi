@@ -45,7 +45,7 @@ namespace TobacoBackend.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> AddVenta([FromBody] VentaDTO ventaDto)
+        public async Task<ActionResult<CreateVentaResponseDTO>> AddVenta([FromBody] VentaDTO ventaDto)
         {
             try
             {
@@ -54,13 +54,13 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "La venta no puede ser nula." });
                 }
 
-                await _ventasService.AddVenta(ventaDto);
+                var response = await _ventasService.AddVenta(ventaDto);
 
-                return Ok(new { message = "Venta agregada exitosamente." });
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -163,6 +163,67 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al actualizar el estado de entrega: {ex.Message}" });
             }
         }
+
+        // POST: api/Ventas/asignar
+        [HttpPost("asignar")]
+        public async Task<ActionResult> AsignarVentaAUsuario([FromBody] AsignarVentaDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                {
+                    return BadRequest(new { message = "La solicitud no puede ser nula." });
+                }
+
+                var asignado = await _ventasService.AsignarVentaAUsuario(dto.VentaId, dto.UsuarioId);
+                if (asignado)
+                {
+                    return Ok(new { message = "Venta asignada exitosamente." });
+                }
+                else
+                {
+                    return NotFound(new { message = "Venta no encontrada." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al asignar la venta: {ex.Message}" });
+            }
+        }
+
+        // POST: api/Ventas/asignar-automaticamente
+        [HttpPost("asignar-automaticamente")]
+        public async Task<ActionResult> AsignarVentaAutomaticamente([FromBody] AsignarVentaAutomaticaDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                {
+                    return BadRequest(new { message = "La solicitud no puede ser nula." });
+                }
+
+                var resultado = await _ventasService.AsignarVentaAutomaticamente(dto.VentaId, dto.UsuarioIdExcluir);
+                
+                if (resultado.Asignada)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest(resultado);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al asignar la venta automáticamente: {ex.Message}" });
+            }
+        }
+    }
+
+    public class AsignarVentaAutomaticaDTO
+    {
+        public int VentaId { get; set; }
+        public int UsuarioIdExcluir { get; set; }
     }
 }
 

@@ -7,13 +7,16 @@ namespace TobacoBackend.Domain.IServices
     {
         Task<List<VentaDTO>> GetAllVentas();
         Task<VentaDTO> GetVentaById(int id);
-        Task AddVenta(VentaDTO ventaDto);
+        Task<CreateVentaResponseDTO> AddVenta(VentaDTO ventaDto);
         Task UpdateVenta(int id, VentaDTO ventaDto);
         Task<bool> DeleteVenta(int id);
         Task<object> GetVentasPaginadas(int page, int pageSize);
         Task<object> GetVentasPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null);
         Task<object> GetVentasConCuentaCorrienteByClienteId(int clienteId, int page = 1, int pageSize = 20);
         Task UpdateEstadoEntregaItems(int ventaId, List<VentaProductoDTO> items);
+        Task<bool> UpdateEstadoEntrega(int ventaId, EstadoEntrega nuevoEstado);
+        Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId);
+        Task<AsignarVentaAutomaticaResponseDTO> AsignarVentaAutomaticamente(int ventaId, int usuarioIdExcluir);
     }
 }
 

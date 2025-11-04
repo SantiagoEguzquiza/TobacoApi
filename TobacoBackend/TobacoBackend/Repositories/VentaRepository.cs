@@ -62,7 +62,8 @@ namespace TobacoBackend.Repositories
                 .AsNoTracking()
                 .OrderByDescending(v => v.Id)
                 .Include(v => v.Cliente)
-                .Include(v => v.Usuario)
+                .Include(v => v.UsuarioCreador)
+                .Include(v => v.UsuarioAsignado)
                 .Include(v => v.VentaProductos)
                     .ThenInclude(vp => vp.Producto)
                 .AsSplitQuery()
@@ -75,7 +76,8 @@ namespace TobacoBackend.Repositories
         {
             var venta = await _context.Ventas
                 .Include(v => v.Cliente)
-                .Include(v => v.Usuario)
+                .Include(v => v.UsuarioCreador)
+                .Include(v => v.UsuarioAsignado)
                 .Include(v => v.VentaProductos)
                     .ThenInclude(vp => vp.Producto)
                 .FirstOrDefaultAsync(v => v.Id == id);
@@ -145,7 +147,8 @@ namespace TobacoBackend.Repositories
                 .AsNoTracking()
                 .OrderByDescending(v => v.Id)
                 .Include(v => v.Cliente)
-                .Include(v => v.Usuario)
+                .Include(v => v.UsuarioCreador)
+                .Include(v => v.UsuarioAsignado)
                 .Include(v => v.VentaProductos)
                     .ThenInclude(vp => vp.Producto)
                 .AsSplitQuery()
@@ -185,7 +188,8 @@ namespace TobacoBackend.Repositories
             var ventas = await query
                 .OrderByDescending(v => v.Fecha)
                 .Include(v => v.Cliente)
-                .Include(v => v.Usuario)
+                .Include(v => v.UsuarioCreador)
+                .Include(v => v.UsuarioAsignado)
                 .Include(v => v.VentaProductos)
                     .ThenInclude(vp => vp.Producto)
                 .Include(v => v.VentaPagos)
@@ -208,7 +212,8 @@ namespace TobacoBackend.Repositories
         {
             var query = _context.Ventas
                 .Include(v => v.Cliente)
-                .Include(v => v.Usuario)
+                .Include(v => v.UsuarioCreador)
+                .Include(v => v.UsuarioAsignado)
                 .Include(v => v.VentaProductos)
                     .ThenInclude(vp => vp.Producto)
                 .AsSplitQuery()
@@ -233,6 +238,18 @@ namespace TobacoBackend.Repositories
             };
         }
 
+        public async Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId)
+        {
+            var venta = await _context.Ventas.FirstOrDefaultAsync(v => v.Id == ventaId);
+            if (venta == null)
+            {
+                return false;
+            }
+
+            venta.UsuarioIdAsignado = usuarioId;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
 

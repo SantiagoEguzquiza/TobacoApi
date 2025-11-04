@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.DTOs
 {
@@ -11,6 +12,8 @@ namespace TobacoBackend.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
         public bool IsActive { get; set; }
+        public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
+        public string? Zona { get; set; }
     }
 
     public class LoginDTO
@@ -45,6 +48,11 @@ namespace TobacoBackend.DTOs
         [Required]
         [StringLength(20)]
         public string Role { get; set; }
+
+        public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
+        
+        [StringLength(100)]
+        public string? Zona { get; set; }
     }
 
     public class UpdateUserDTO
@@ -62,5 +70,10 @@ namespace TobacoBackend.DTOs
         public string? Role { get; set; }
 
         public bool? IsActive { get; set; }
+
+        public TipoVendedor? TipoVendedor { get; set; }
+        
+        [StringLength(100)]
+        public string? Zona { get; set; }
     }
 }

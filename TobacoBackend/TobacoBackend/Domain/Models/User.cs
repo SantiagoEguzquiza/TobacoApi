@@ -29,5 +29,17 @@ namespace TobacoBackend.Domain.Models
         public DateTime? LastLogin { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Tipo de vendedor/distribuidor. Solo aplica para empleados (Role = "Employee")
+        /// Por defecto es Repartidor
+        /// </summary>
+        public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
+
+        /// <summary>
+        /// Zona asignada al repartidor/vendedor
+        /// </summary>
+        [StringLength(100)]
+        public string? Zona { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace TobacoBackend.Domain.IRepositories
         Task<VentaPaginationResult> GetVentasPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null);
         Task<VentaPaginationResult> GetVentasConCuentaCorrienteByClienteId(int clienteId, int page, int pageSize);
         Task SaveChangesAsync();
+        Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId);
     }
 }
 

@@ -23,6 +23,10 @@ namespace TobacoBackend.Domain.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal DescuentoGlobal { get; set; } = 0;
 
+        // Coordenadas GPS para entregas
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
+
         public List<Venta> Ventas { get; set; } = new List<Venta>();
 
         public List<PrecioEspecial> PreciosEspeciales { get; set; } = new List<PrecioEspecial>();
