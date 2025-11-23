@@ -4101,6 +4101,24 @@
             "type": "string",
             "nullable": true
           },
+          "marca": {
+            "type": "string",
+            "nullable": true
+          },
+          "descuento": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "fechaExpiracionDescuento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descuentoIndefinido": {
+            "type": "boolean"
+          },
           "half": {
             "type": "boolean"
           },
