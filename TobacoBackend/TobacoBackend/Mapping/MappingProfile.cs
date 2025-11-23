@@ -23,12 +23,14 @@ namespace TobacoBackend.Mapping
             CreateMap<ProductoDTO, Producto>()
                 .ForMember(dest => dest.Categoria, opt => opt.Ignore())
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
-                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => src.Marca));
 
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
                 .ForMember(dest => dest.CategoriaNombre, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nombre : string.Empty))
-                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => src.Marca));
 
             CreateMap<User, UserDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

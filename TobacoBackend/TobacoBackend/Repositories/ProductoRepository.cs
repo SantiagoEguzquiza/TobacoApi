@@ -120,6 +120,7 @@ namespace TobacoBackend.Repositories
             existingProduct.CategoriaId = producto.CategoriaId;
             existingProduct.Half = producto.Half;
             existingProduct.IsActive = producto.IsActive;
+            existingProduct.Marca = producto.Marca;
 
             // Remove existing quantity prices
             _context.ProductQuantityPrices.RemoveRange(existingProduct.QuantityPrices);
