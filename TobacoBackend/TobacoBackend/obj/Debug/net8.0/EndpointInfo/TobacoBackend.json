@@ -3678,6 +3678,9 @@
             "type": "number",
             "format": "double"
           },
+          "visible": {
+            "type": "boolean"
+          },
           "latitud": {
             "type": "number",
             "format": "double",

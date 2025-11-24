@@ -8,6 +8,7 @@
         public string? Telefono { get; set; }
         public string? Deuda { get; set; }
         public decimal DescuentoGlobal { get; set; } = 0;
+        public bool Visible { get; set; } = true;
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
     }
