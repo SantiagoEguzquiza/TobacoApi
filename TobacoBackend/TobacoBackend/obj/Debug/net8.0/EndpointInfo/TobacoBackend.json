@@ -4101,6 +4101,10 @@
             "type": "string",
             "nullable": true
           },
+          "marca": {
+            "type": "string",
+            "nullable": true
+          },
           "half": {
             "type": "boolean"
           },
