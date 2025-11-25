@@ -24,7 +24,7 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.Categoria, opt => opt.Ignore())
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
                 .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
-                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => src.Marca));
+                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Marca) ? null : src.Marca));
 
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))

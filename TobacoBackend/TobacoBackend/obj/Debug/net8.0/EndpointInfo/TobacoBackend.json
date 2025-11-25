@@ -3678,6 +3678,9 @@
             "type": "number",
             "format": "double"
           },
+          "visible": {
+            "type": "boolean"
+          },
           "latitud": {
             "type": "number",
             "format": "double",
@@ -4105,6 +4108,23 @@
             "type": "string",
             "nullable": true
           },
+<<<<<<< HEAD
+=======
+          "descuento": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "fechaExpiracionDescuento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descuentoIndefinido": {
+            "type": "boolean"
+          },
+>>>>>>> origin/Lautaro
           "half": {
             "type": "boolean"
           },
