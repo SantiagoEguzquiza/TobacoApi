@@ -70,6 +70,9 @@ namespace TobacoBackend.Services
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
 
+                // Aplicar lógica de expiración de descuentos antes de calcular el precio
+                await AplicarLogicaExpiracionDescuento(producto);
+
                 // Obtener el precio especial si existe
                 decimal? specialPrice = null;
                 try
@@ -89,14 +92,22 @@ namespace TobacoBackend.Services
                     null // Global discount will be applied later
                 );
 
+                // Aplicar descuento del producto si está activo
+                decimal precioConDescuentoProducto = pricingResult.TotalPrice;
+                if (TieneDescuentoActivo(producto))
+                {
+                    // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                    precioConDescuentoProducto = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                }
+
                 var ventaProducto = new VentaProducto
                 {
                     ProductoId = producto.Id,
                     Cantidad = productoDto.Cantidad,
-                    PrecioFinalCalculado = pricingResult.TotalPrice // Precio después de descuentos por cantidad
+                    PrecioFinalCalculado = precioConDescuentoProducto // Precio después de descuentos por cantidad y descuento del producto
                 };
 
-                total += pricingResult.TotalPrice;
+                total += precioConDescuentoProducto;
 
                 venta.VentaProductos.Add(ventaProducto);
             }
@@ -266,7 +277,7 @@ namespace TobacoBackend.Services
             // Get the existing venta to compare changes
             var ventaExistente = await _ventaRepository.GetVentaById(id);
 
-            // Calculate the new total
+            // Calculate the new total and update PrecioFinalCalculado for each product
             decimal nuevoTotal = 0;
             if (ventaDto.VentaProductos != null)
             {
@@ -275,18 +286,66 @@ namespace TobacoBackend.Services
                     var producto = await _productoRepository.GetProductoById(productoDto.ProductoId);
                     if (producto != null)
                     {
-                        var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(ventaDto.ClienteId, producto.Id);
-                        nuevoTotal += precioFinal * productoDto.Cantidad;
+                        // Aplicar lógica de expiración de descuentos antes de calcular el precio
+                        await AplicarLogicaExpiracionDescuento(producto);
+
+                        // Obtener el precio especial si existe
+                        decimal? specialPrice = null;
+                        try
+                        {
+                            specialPrice = await _precioEspecialService.GetPrecioFinalProductoAsync(ventaDto.ClienteId, producto.Id);
+                        }
+                        catch
+                        {
+                            // No special price available, use regular pricing
+                        }
+
+                        // Calculate optimal pricing using quantity-based pricing
+                        var pricingResult = _pricingService.CalculateOptimalPricing(
+                            producto, 
+                            (int)productoDto.Cantidad, 
+                            specialPrice, 
+                            null // Global discount will be applied later
+                        );
+
+                        // Aplicar descuento del producto si está activo
+                        decimal precioConDescuentoProducto = pricingResult.TotalPrice;
+                        if (TieneDescuentoActivo(producto))
+                        {
+                            // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                            precioConDescuentoProducto = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                        }
+
+                        // Actualizar el PrecioFinalCalculado en el DTO
+                        productoDto.PrecioFinalCalculado = precioConDescuentoProducto;
+
+                        nuevoTotal += precioConDescuentoProducto;
                     }
                 }
             }
 
             // Apply global discount if exists
             var cliente = await _clienteService.GetClienteById(ventaDto.ClienteId);
+            decimal descuentoGlobal = 0;
             if (cliente != null && cliente.DescuentoGlobal > 0)
             {
-                var descuento = nuevoTotal * (cliente.DescuentoGlobal / 100);
-                nuevoTotal = nuevoTotal - descuento;
+                descuentoGlobal = nuevoTotal * (cliente.DescuentoGlobal / 100);
+                nuevoTotal = nuevoTotal - descuentoGlobal;
+            }
+
+            // Aplicar descuento global proporcionalmente a cada producto
+            if (descuentoGlobal > 0 && ventaDto.VentaProductos != null)
+            {
+                foreach (var productoDto in ventaDto.VentaProductos)
+                {
+                    // Calcular la proporción de este producto en el total antes del descuento global
+                    var precioAntesDescuentoGlobal = productoDto.PrecioFinalCalculado;
+                    var proporcionProducto = precioAntesDescuentoGlobal / (nuevoTotal + descuentoGlobal);
+                    
+                    // Aplicar el descuento global proporcionalmente a este producto
+                    var descuentoProducto = descuentoGlobal * proporcionProducto;
+                    productoDto.PrecioFinalCalculado = precioAntesDescuentoGlobal - descuentoProducto;
+                }
             }
 
             // Calculate the current debt amount from the existing venta
@@ -624,6 +683,62 @@ namespace TobacoBackend.Services
                     ? $"Venta asignada exitosamente a {repartidorDisponible.UserName}"
                     : "Error al asignar la venta."
             };
+        }
+
+        /// <summary>
+        /// Aplica la lógica de expiración de descuentos (similar a ProductoService)
+        /// </summary>
+        private async Task AplicarLogicaExpiracionDescuento(Producto producto)
+        {
+            // Si el descuento es indefinido, no hacer nada
+            if (producto.descuentoIndefinido)
+            {
+                return;
+            }
+
+            // Si el descuento no es indefinido y tiene fecha de expiración
+            if (producto.fechaExpiracionDescuento.HasValue)
+            {
+                // Si la fecha ya venció, poner descuento en 0 y guardar
+                if (producto.fechaExpiracionDescuento.Value < DateTime.UtcNow)
+                {
+                    // Guardar el cambio en la base de datos
+                    await _productoRepository.UpdateProductoDiscount(producto.Id, 0, null, false);
+                    // Actualizar el objeto en memoria
+                    producto.Descuento = 0;
+                    producto.fechaExpiracionDescuento = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verifica si un producto tiene un descuento activo (no vencido)
+        /// </summary>
+        private bool TieneDescuentoActivo(Producto producto)
+        {
+            // Si no hay descuento, retornar false
+            if (producto.Descuento <= 0)
+            {
+                return false;
+            }
+
+            // Si el descuento es indefinido, está activo
+            if (producto.descuentoIndefinido)
+            {
+                return true;
+            }
+
+            // Si tiene fecha de expiración, verificar si no venció
+            if (producto.fechaExpiracionDescuento.HasValue)
+            {
+                var ahora = DateTime.UtcNow;
+                var fechaExpiracion = producto.fechaExpiracionDescuento.Value;
+                return fechaExpiracion > ahora;
+            }
+
+            // Si tiene descuento pero no es indefinido y no tiene fecha, considerar activo
+            // (aunque esto no debería pasar según la lógica del backend)
+            return true;
         }
     }
 }

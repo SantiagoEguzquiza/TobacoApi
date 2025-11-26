@@ -27,7 +27,13 @@ namespace TobacoBackend.Domain.Models
         public List<VentaProducto> VentaProductos { get; set; } = new List<VentaProducto>();
         public List<ProductQuantityPrice> QuantityPrices { get; set; } = new List<ProductQuantityPrice>();
 
-        public string Marca { get; set; }
+        public string? Marca { get; set; }
+
+        public decimal Descuento { get; set; } = 0;
+
+        public DateTime? fechaExpiracionDescuento { get; set; }
+
+        public bool descuentoIndefinido { get; set; } = false;
 
         public bool Half { get; set; } = false;
 

@@ -121,6 +121,9 @@ namespace TobacoBackend.Repositories
             existingProduct.Half = producto.Half;
             existingProduct.IsActive = producto.IsActive;
             existingProduct.Marca = producto.Marca;
+            existingProduct.Descuento = producto.Descuento;
+            existingProduct.fechaExpiracionDescuento = producto.fechaExpiracionDescuento;
+            existingProduct.descuentoIndefinido = producto.descuentoIndefinido;
 
             // Remove existing quantity prices
             _context.ProductQuantityPrices.RemoveRange(existingProduct.QuantityPrices);
@@ -160,6 +163,18 @@ namespace TobacoBackend.Repositories
                 TotalItems = totalItems,
                 TotalPages = totalPages
             };
+        }
+
+        public async Task UpdateProductoDiscount(int id, decimal descuento, DateTime? fechaExpiracionDescuento, bool descuentoIndefinido)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto != null)
+            {
+                producto.Descuento = descuento;
+                producto.fechaExpiracionDescuento = fechaExpiracionDescuento;
+                producto.descuentoIndefinido = descuentoIndefinido;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

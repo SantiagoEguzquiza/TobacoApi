@@ -23,6 +23,8 @@ namespace TobacoBackend.Domain.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal DescuentoGlobal { get; set; } = 0;
 
+        public bool Visible { get; set; } = true;
+
         // Coordenadas GPS para entregas
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
