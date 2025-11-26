@@ -4108,8 +4108,6 @@
             "type": "string",
             "nullable": true
           },
-<<<<<<< HEAD
-=======
           "descuento": {
             "maximum": 100,
             "minimum": 0,
@@ -4124,7 +4122,6 @@
           "descuentoIndefinido": {
             "type": "boolean"
           },
->>>>>>> origin/Lautaro
           "half": {
             "type": "boolean"
           },
