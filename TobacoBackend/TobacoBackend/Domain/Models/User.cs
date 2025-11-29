@@ -41,5 +41,22 @@ namespace TobacoBackend.Domain.Models
         /// </summary>
         [StringLength(100)]
         public string? Zona { get; set; }
+
+        /// <summary>
+        /// Plan contratado por el usuario. Los sub-usuarios heredan el plan de su admin.
+        /// </summary>
+        public PlanType Plan { get; set; } = PlanType.FREE;
+
+        /// <summary>
+        /// ID del usuario administrador que creó este usuario (si es un sub-usuario).
+        /// Null si el usuario fue creado directamente por un desarrollador.
+        /// </summary>
+        public int? CreatedById { get; set; }
+
+        /// <summary>
+        /// Navegación al usuario administrador que creó este usuario
+        /// </summary>
+        [ForeignKey("CreatedById")]
+        public User? CreatedBy { get; set; }
     }
 }

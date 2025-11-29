@@ -3755,6 +3755,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false
@@ -3913,6 +3916,15 @@
           1,
           2,
           3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "PlanType": {
+        "enum": [
+          0,
+          1,
+          2
         ],
         "type": "integer",
         "format": "int32"
@@ -4331,6 +4343,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false
@@ -4390,6 +4405,9 @@
           "zona": {
             "type": "string",
             "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false

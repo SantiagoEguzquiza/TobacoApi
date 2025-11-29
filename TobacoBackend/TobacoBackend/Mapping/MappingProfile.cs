@@ -41,13 +41,17 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.LastLogin, opt => opt.MapFrom(src => src.LastLogin))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.TipoVendedor, opt => opt.MapFrom(src => src.TipoVendedor))
-                .ForMember(dest => dest.Zona, opt => opt.MapFrom(src => src.Zona));
+                .ForMember(dest => dest.Zona, opt => opt.MapFrom(src => src.Zona))
+                .ForMember(dest => dest.Plan, opt => opt.MapFrom(src => src.Plan));
 
             CreateMap<CreateUserDTO, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.LastLogin, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+                .ForMember(dest => dest.IsActive, opt => opt.Ignore())
+                .ForMember(dest => dest.Plan, opt => opt.Ignore()) // Se manejará en el servicio
+                .ForMember(dest => dest.CreatedById, opt => opt.Ignore()) // Se manejará en el servicio
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
             // Mapeo para Abonos
             CreateMap<Abonos, AbonoDTO>()

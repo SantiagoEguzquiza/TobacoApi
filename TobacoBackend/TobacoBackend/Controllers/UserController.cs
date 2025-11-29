@@ -218,7 +218,7 @@ namespace TobacoBackend.Controllers
                 if (createUserDto == null)
                     return BadRequest(new { message = "Los datos del usuario no pueden ser nulos." });
 
-                var user = await _userService.CreateUserAsync(createUserDto);
+                var user = await _userService.CreateUserAsync(createUserDto, userId);
                 return CreatedAtAction(nameof(GetUserProfile), new { id = user.Id }, user);
             }
             catch (InvalidOperationException ex)

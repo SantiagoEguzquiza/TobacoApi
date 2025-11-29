@@ -100,6 +100,17 @@ public class AplicationDbContext : DbContext
             .Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
 
+        modelBuilder.Entity<User>()
+            .Property(u => u.Plan)
+            .IsRequired()
+            .HasDefaultValue(PlanType.FREE);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.CreatedBy)
+            .WithMany()
+            .HasForeignKey(u => u.CreatedById)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // VentaPago entity configuration
         modelBuilder.Entity<VentaPago>()
             .Property(v => v.Monto)

@@ -66,5 +66,29 @@ namespace TobacoBackend.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<User>> GetSubUsersByCreatedByIdAsync(int createdById)
+        {
+            return await _context.Users
+                .Where(u => u.CreatedById == createdById)
+                .ToListAsync();
+        }
+
+        public async Task UpdateSubUsersPlanAsync(int createdById, PlanType newPlan)
+        {
+            var subUsers = await _context.Users
+                .Where(u => u.CreatedById == createdById)
+                .ToListAsync();
+
+            foreach (var subUser in subUsers)
+            {
+                subUser.Plan = newPlan;
+            }
+
+            if (subUsers.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

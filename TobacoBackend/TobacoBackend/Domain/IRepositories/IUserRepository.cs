@@ -12,5 +12,7 @@ namespace TobacoBackend.Domain.IRepositories
         Task<bool> ExistsAsync(string userName);
         Task<IEnumerable<User>> GetAllAsync();
         Task DeleteAsync(int id);
+        Task<IEnumerable<User>> GetSubUsersByCreatedByIdAsync(int createdById);
+        Task UpdateSubUsersPlanAsync(int createdById, PlanType newPlan);
     }
 }
