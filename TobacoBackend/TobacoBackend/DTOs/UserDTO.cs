@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using TobacoBackend.Domain.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.DTOs
 {
@@ -14,6 +15,7 @@ namespace TobacoBackend.DTOs
         public bool IsActive { get; set; }
         public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
         public string? Zona { get; set; }
+        public PlanType Plan { get; set; } = PlanType.FREE;
     }
 
     public class LoginDTO
@@ -53,6 +55,11 @@ namespace TobacoBackend.DTOs
         
         [StringLength(100)]
         public string? Zona { get; set; }
+
+        /// <summary>
+        /// Plan del usuario. Opcional en la creación - si no se especifica y el creador es admin, heredará el plan del admin.
+        /// </summary>
+        public PlanType? Plan { get; set; }
     }
 
     public class UpdateUserDTO
@@ -75,5 +82,11 @@ namespace TobacoBackend.DTOs
         
         [StringLength(100)]
         public string? Zona { get; set; }
+
+        /// <summary>
+        /// Plan del usuario. Solo puede ser modificado por desarrolladores.
+        /// Si un admin cambia su plan, los sub-usuarios deberían actualizarse (lógica futura).
+        /// </summary>
+        public PlanType? Plan { get; set; }
     }
 }

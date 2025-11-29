@@ -90,11 +90,11 @@ namespace TobacoBackend.Services
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public async Task<UserDTO> CreateUserAsync(CreateUserDTO createUserDto)
+        public async Task<UserDTO> CreateUserAsync(CreateUserDTO createUserDto, int? creatorId = null)
         {
-            // Check if username already exists
-            var existingUser = await _userRepository.GetByUserNameAsync(createUserDto.UserName);
-            if (existingUser != null)
+            // Check if username already exists (checking all users, not just active ones)
+            var usernameExists = await _userRepository.ExistsAsync(createUserDto.UserName);
+            if (usernameExists)
             {
                 throw new InvalidOperationException("El nombre de usuario ya existe.");
             }
@@ -104,6 +104,38 @@ namespace TobacoBackend.Services
             user.CreatedAt = DateTime.UtcNow;
             user.IsActive = true;
             user.TipoVendedor = createUserDto.TipoVendedor; // Asegurar que se asigne el tipo de vendedor
+
+            // Manejo del Plan y CreatedById
+            if (creatorId.HasValue)
+            {
+                // Verificar si el creador es un admin
+                var creator = await _userRepository.GetByIdAsync(creatorId.Value);
+                if (creator != null && creator.Role == "Admin")
+                {
+                    // Si el creador es admin, el sub-usuario hereda su plan
+                    user.Plan = creator.Plan;
+                    user.CreatedById = creatorId.Value;
+                    
+                    // Validar que no se intente asignar un plan diferente al del admin
+                    if (createUserDto.Plan.HasValue && createUserDto.Plan.Value != creator.Plan)
+                    {
+                        throw new InvalidOperationException($"Los sub-usuarios deben heredar el plan del administrador. El plan '{creator.Plan}' será asignado automáticamente.");
+                    }
+                }
+                else if (creator != null)
+                {
+                    // Si el creador no es admin, solo puede asignar plan si es desarrollador (por ahora permitimos)
+                    // Por defecto, usar el plan especificado o FREE
+                    user.Plan = createUserDto.Plan ?? PlanType.FREE;
+                    user.CreatedById = creatorId.Value;
+                }
+            }
+            else
+            {
+                // Si no hay creador (creación directa por desarrollador), usar el plan especificado o FREE por defecto
+                user.Plan = createUserDto.Plan ?? PlanType.FREE;
+                user.CreatedById = null;
+            }
 
             var createdUser = await _userRepository.CreateAsync(user);
             return _mapper.Map<UserDTO>(createdUser);
@@ -120,8 +152,8 @@ namespace TobacoBackend.Services
             // Check if username is being changed and if it already exists
             if (!string.IsNullOrEmpty(updateUserDto.UserName) && updateUserDto.UserName != user.UserName)
             {
-                var existingUser = await _userRepository.GetByUserNameAsync(updateUserDto.UserName);
-                if (existingUser != null)
+                var usernameExists = await _userRepository.ExistsAsync(updateUserDto.UserName);
+                if (usernameExists)
                 {
                     throw new InvalidOperationException("El nombre de usuario ya existe.");
                 }
@@ -148,6 +180,19 @@ namespace TobacoBackend.Services
             
             if (updateUserDto.Zona != null)
                 user.Zona = updateUserDto.Zona;
+
+            // Actualización del Plan
+            if (updateUserDto.Plan.HasValue && updateUserDto.Plan.Value != user.Plan)
+            {
+                var oldPlan = user.Plan;
+                user.Plan = updateUserDto.Plan.Value;
+
+                // Si el usuario es un Admin y cambia su plan, actualizar automáticamente todos sus sub-usuarios
+                if (user.Role == "Admin")
+                {
+                    await _userRepository.UpdateSubUsersPlanAsync(user.Id, updateUserDto.Plan.Value);
+                }
+            }
 
             await _userRepository.UpdateAsync(user);
             return _mapper.Map<UserDTO>(user);
