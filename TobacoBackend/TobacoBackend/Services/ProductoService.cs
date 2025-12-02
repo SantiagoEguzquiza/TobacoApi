@@ -18,7 +18,7 @@ namespace TobacoBackend.Services
             _mapper = mapper;
         }
 
-        public async Task AddProducto(ProductoDTO productoDto)
+        public async Task<ProductoDTO> AddProducto(ProductoDTO productoDto)
         {
             // Validar lógica de descuento
             ValidateDiscountLogic(productoDto);
@@ -32,6 +32,9 @@ namespace TobacoBackend.Services
             }
             
             await _productoRepository.AddProducto(producto);
+            
+            // Retornar el producto creado mapeado a DTO
+            return _mapper.Map<ProductoDTO>(producto);
         }
 
         private void ValidateDiscountLogic(ProductoDTO productoDto)

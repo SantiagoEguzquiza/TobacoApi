@@ -20,11 +20,14 @@ namespace TobacoBackend.DTOs
 
     public class LoginDTO
     {
-        [Required]
-        public string UserName { get; set; }
+        [Required(ErrorMessage = "El nombre de usuario es requerido")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "El nombre de usuario debe tener entre 3 y 50 caracteres")]
+        [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números, guiones y guiones bajos")]
+        public string UserName { get; set; } = string.Empty;
 
-        [Required]
-        public string Password { get; set; }
+        [Required(ErrorMessage = "La contraseña es requerida")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "La contraseña debe tener entre 6 y 100 caracteres")]
+        public string Password { get; set; } = string.Empty;
     }
 
     public class LoginResponseDTO
@@ -36,20 +39,24 @@ namespace TobacoBackend.DTOs
 
     public class CreateUserDTO
     {
-        [Required]
-        [StringLength(50)]
-        public string UserName { get; set; }
+        [Required(ErrorMessage = "El nombre de usuario es requerido")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "El nombre de usuario debe tener entre 3 y 50 caracteres")]
+        [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números, guiones y guiones bajos")]
+        public string UserName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(255)]
-        public string Password { get; set; }
+        [Required(ErrorMessage = "La contraseña es requerida")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 100 caracteres")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", ErrorMessage = "La contraseña debe contener al menos una letra mayúscula, una minúscula y un número")]
+        public string Password { get; set; } = string.Empty;
 
         [StringLength(100)]
+        [EmailAddress(ErrorMessage = "El email no es válido")]
         public string? Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El rol es requerido")]
         [StringLength(20)]
-        public string Role { get; set; }
+        [RegularExpression(@"^(Admin|Employee)$", ErrorMessage = "El rol debe ser Admin o Employee")]
+        public string Role { get; set; } = string.Empty;
 
         public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
         
@@ -64,16 +71,20 @@ namespace TobacoBackend.DTOs
 
     public class UpdateUserDTO
     {
-        [StringLength(50)]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "El nombre de usuario debe tener entre 3 y 50 caracteres")]
+        [RegularExpression(@"^[a-zA-Z0-9_-]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números, guiones y guiones bajos")]
         public string? UserName { get; set; }
 
-        [StringLength(255)]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 100 caracteres")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", ErrorMessage = "La contraseña debe contener al menos una letra mayúscula, una minúscula y un número")]
         public string? Password { get; set; }
 
         [StringLength(100)]
+        [EmailAddress(ErrorMessage = "El email no es válido")]
         public string? Email { get; set; }
 
         [StringLength(20)]
+        [RegularExpression(@"^(Admin|Employee)$", ErrorMessage = "El rol debe ser Admin o Employee")]
         public string? Role { get; set; }
 
         public bool? IsActive { get; set; }

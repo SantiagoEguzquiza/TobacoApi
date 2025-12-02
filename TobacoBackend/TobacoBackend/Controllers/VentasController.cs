@@ -3,25 +3,39 @@ using Microsoft.AspNetCore.Mvc;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
+using TobacoBackend.Helpers;
+using System.Security.Claims;
+using TobacoBackend.Authorization;
+using TobacoBackend.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthorizationPolicies.CanViewVentas)] // Solo Admin, Vendedor o RepartidorVendedor pueden ver ventas (NO Repartidor)
     public class VentasController : ControllerBase
     {
         private readonly IVentaService _ventasService;
+        private readonly AuditService _auditService;
 
-        public VentasController(IVentaService ventasService)
+        public VentasController(IVentaService ventasService, AuditService auditService)
         {
             _ventasService = ventasService;
+            _auditService = auditService;
         }
 
 
         [HttpGet]
         public async Task<ActionResult<List<VentaDTO>>> GetAllVentas()
         {
+            // Validar permiso de visualizar ventas
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Ventas");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar ventas.");
+            }
+
             var ventas = await _ventasService.GetAllVentas();
             return Ok(ventas);
         }
@@ -31,6 +45,13 @@ namespace TobacoBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<VentaDTO>> GetVentaById(int id)
         {
+            // Validar permiso de visualizar ventas
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Ventas");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar ventas.");
+            }
+
             try
             {
                 var venta = await _ventasService.GetVentaById(id);
@@ -45,8 +66,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult<CreateVentaResponseDTO>> AddVenta([FromBody] VentaDTO ventaDto)
         {
+            // Validar permiso de crear ventas
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Ventas_Crear");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para crear ventas.");
+            }
+
             try
             {
                 if (ventaDto == null)
@@ -54,7 +83,34 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "La venta no puede ser nula." });
                 }
 
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos de la venta inválidos.", errors = ModelState });
+                }
+
+                // Validar IDs
+                if (ventaDto.ClienteId <= 0)
+                {
+                    return BadRequest(new { message = "ID de cliente inválido." });
+                }
+
+                if (ventaDto.VentaProductos == null || !ventaDto.VentaProductos.Any())
+                {
+                    return BadRequest(new { message = "La venta debe contener al menos un producto." });
+                }
+
+                // Validar que los totales sean positivos
+                if (ventaDto.Total <= 0)
+                {
+                    return BadRequest(new { message = "El total de la venta debe ser mayor a 0." });
+                }
+
                 var response = await _ventasService.AddVenta(ventaDto);
+
+                // Auditoría
+                _auditService.LogCreate("Venta", response.VentaId, User,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
 
                 return Ok(response);
             }
@@ -68,8 +124,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> UpdateVenta(int id, [FromBody] VentaDTO ventaDto)
         {
+            // Validar permiso de editar ventas
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Ventas_EditarBorrador");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para editar ventas.");
+            }
+
             if (ventaDto == null || id != ventaDto.Id)
             {
                 return BadRequest(new { message = "ID de la venta no coincide o la venta es nula." });
@@ -89,8 +153,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> DeleteVenta(int id)
         {
+            // Validar permiso de eliminar ventas
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Ventas_Eliminar");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para eliminar ventas.");
+            }
+
             try
             {
                 var deleteResult = await _ventasService.DeleteVenta(id);
@@ -113,6 +185,13 @@ namespace TobacoBackend.Controllers
         [HttpGet("paginados")]
         public async Task<ActionResult<object>> GetVentasPaginadas([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
+            // Validar permiso de visualizar ventas
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Ventas");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar ventas.");
+            }
+
             try
             {
                 var result = await _ventasService.GetVentasPaginadas(page, pageSize);

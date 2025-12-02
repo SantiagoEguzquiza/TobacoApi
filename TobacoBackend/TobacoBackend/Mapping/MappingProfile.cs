@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.Mapping
 {
@@ -68,6 +69,9 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.HorasTrabajadas, opt => opt.MapFrom(src => src.HorasTrabajadas))
                 .ReverseMap()
                 .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            // Mapeo de PermisosEmpleado
+            CreateMap<PermisosEmpleado, PermisosEmpleadoDTO>().ReverseMap();
         }
     }
 }

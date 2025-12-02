@@ -17,6 +17,7 @@ public class AplicationDbContext : DbContext
     public DbSet<ProductoAFavor> ProductosAFavor { get; set; }
     public DbSet<Asistencia> Asistencias { get; set; }
     public DbSet<RecorridoProgramado> RecorridosProgramados { get; set; }
+    public DbSet<PermisosEmpleado> PermisosEmpleados { get; set; }
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
@@ -271,6 +272,21 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<RecorridoProgramado>()
             .Property(r => r.FechaCreacion)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // PermisosEmpleado entity configuration
+        modelBuilder.Entity<PermisosEmpleado>()
+            .HasOne(p => p.User)
+            .WithOne()
+            .HasForeignKey<PermisosEmpleado>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PermisosEmpleado>()
+            .HasIndex(p => p.UserId)
+            .IsUnique();
+
+        modelBuilder.Entity<PermisosEmpleado>()
+            .Property(p => p.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
 
     }

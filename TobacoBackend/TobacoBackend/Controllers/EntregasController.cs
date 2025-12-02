@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Domain.Models;
+using TobacoBackend.Helpers;
 using System.Security.Claims;
 
 namespace TobacoBackend.Controllers
@@ -36,6 +37,13 @@ namespace TobacoBackend.Controllers
         {
             try
             {
+                // Validar permiso de visualización
+                var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Entregas_Visualizar");
+                if (!hasPermission)
+                {
+                    return Forbid("No tiene permiso para visualizar entregas");
+                }
+
                 // Obtener el ID del usuario actual desde el token
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -213,6 +221,13 @@ namespace TobacoBackend.Controllers
         {
             try
             {
+                // Validar permiso de visualización
+                var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Entregas_Visualizar");
+                if (!hasPermission)
+                {
+                    return Forbid("No tiene permiso para visualizar entregas");
+                }
+
                 // Obtener el ID del usuario actual desde el token
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -281,6 +296,13 @@ namespace TobacoBackend.Controllers
         {
             try
             {
+                // Validar permiso de actualización
+                var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Entregas_ActualizarEstado");
+                if (!hasPermission)
+                {
+                    return Forbid("No tiene permiso para actualizar el estado de entregas");
+                }
+
                 var ok = await _ventasService.UpdateEstadoEntrega(id, (EstadoEntrega)dto.Estado);
                 if (!ok)
                 {

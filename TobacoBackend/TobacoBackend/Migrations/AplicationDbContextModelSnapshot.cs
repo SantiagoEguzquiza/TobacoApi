@@ -170,6 +170,81 @@ namespace TobacoBackend.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.PermisosEmpleado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Clientes_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Editar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("CuentaCorriente_RegistrarAbonos")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CuentaCorriente_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Entregas_ActualizarEstado")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Entregas_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Editar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Ventas_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_EditarBorrador")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("PermisosEmpleados");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.PrecioEspecial", b =>
                 {
                     b.Property<int>("Id")
@@ -572,6 +647,17 @@ namespace TobacoBackend.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.PermisosEmpleado", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.User", "User")
+                        .WithOne()
+                        .HasForeignKey("TobacoBackend.Domain.Models.PermisosEmpleado", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
