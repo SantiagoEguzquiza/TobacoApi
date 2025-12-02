@@ -7,7 +7,7 @@ namespace TobacoBackend.Domain.IServices
     {
         Task<List<ProductoDTO>> GetAllProductos();
         Task<ProductoDTO> GetProductoById(int id);
-        Task AddProducto(ProductoDTO productoDto);
+        Task<ProductoDTO> AddProducto(ProductoDTO productoDto);
         Task UpdateProducto(int id, ProductoDTO productoDto);
         Task<bool> DeleteProducto(int id);
         Task<bool> SoftDeleteProducto(int id);
