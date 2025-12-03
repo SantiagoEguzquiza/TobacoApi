@@ -597,6 +597,13 @@ namespace TobacoBackend.Services
             {
                 try
                 {
+                    // Set TenantId from current context
+                    var tenantId = _context.GetCurrentTenantId();
+                    if (tenantId == null)
+                    {
+                        throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+                    }
+
                     var productoAFavor = new ProductoAFavor
                     {
                         ClienteId = venta.ClienteId,
@@ -608,10 +615,11 @@ namespace TobacoBackend.Services
                         VentaId = venta.Id,
                         VentaProductoId = ventaProducto.ProductoId, // Como VentaProducto no tiene ID propio, usamos ProductoId
                         UsuarioRegistroId = usuarioId,
-                        Entregado = false
+                        Entregado = false,
+                        TenantId = tenantId.Value
                     };
 
-                    Console.WriteLine($"Creando ProductoAFavor: ClienteId={productoAFavor.ClienteId}, ProductoId={productoAFavor.ProductoId}, Cantidad={productoAFavor.Cantidad}, Motivo={productoAFavor.Motivo}");
+                    Console.WriteLine($"Creando ProductoAFavor: ClienteId={productoAFavor.ClienteId}, ProductoId={productoAFavor.ProductoId}, Cantidad={productoAFavor.Cantidad}, Motivo={productoAFavor.Motivo}, TenantId={productoAFavor.TenantId}");
                     
                     await _productoAFavorRepository.AddProductoAFavor(productoAFavor);
                     Console.WriteLine("ProductoAFavor creado exitosamente");

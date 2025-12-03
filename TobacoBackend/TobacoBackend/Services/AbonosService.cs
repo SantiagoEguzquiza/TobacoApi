@@ -39,6 +39,15 @@ namespace TobacoBackend.Services
             }
 
             var abono = _mapper.Map<Abonos>(abonoDto);
+            
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+            abono.TenantId = tenantId.Value;
+            
             var abonoCreado = await _abonosRepository.AddAbono(abono);
             
             // Reducir la deuda del cliente

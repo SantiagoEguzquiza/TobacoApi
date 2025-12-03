@@ -3,6 +3,7 @@ using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
@@ -10,11 +11,13 @@ namespace TobacoBackend.Services
     {
         private readonly IProductoAFavorRepository _productoAFavorRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
-        public ProductoAFavorService(IProductoAFavorRepository productoAFavorRepository, IMapper mapper)
+        public ProductoAFavorService(IProductoAFavorRepository productoAFavorRepository, IMapper mapper, AplicationDbContext context)
         {
             _productoAFavorRepository = productoAFavorRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<List<ProductoAFavorDTO>> GetAllProductosAFavor()
@@ -44,7 +47,16 @@ namespace TobacoBackend.Services
         public async Task AddProductoAFavor(ProductoAFavorDTO productoAFavorDto)
         {
             var productoAFavor = _mapper.Map<ProductoAFavor>(productoAFavorDto);
+            
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+            productoAFavor.TenantId = tenantId.Value;
             productoAFavor.FechaRegistro = DateTime.Now;
+            
             await _productoAFavorRepository.AddProductoAFavor(productoAFavor);
         }
 
