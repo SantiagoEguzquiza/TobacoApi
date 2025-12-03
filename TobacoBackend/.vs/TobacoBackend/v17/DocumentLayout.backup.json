@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\services\\ventapagoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\services\\ventapagoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|c:\\users\\rodri\\onedrive\\escritorio\\tobaco 2\\tobacoapi\\tobacobackend\\tobacobackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FD5AA81-8B69-4486-A1E7-846069B60EE2}|TobacoBackend\\TobacoBackend.csproj|solutionrelative:tobacobackend\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -98,11 +102,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "ClientesController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\ClientesController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\ClientesController.cs",
@@ -112,6 +116,19 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-02T23:23:42.351Z",
               "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "VentaPagoService.cs",
+              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Services\\VentaPagoService.cs",
+              "RelativeDocumentMoniker": "TobacoBackend\\Services\\VentaPagoService.cs",
+              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Services\\VentaPagoService.cs",
+              "RelativeToolTip": "TobacoBackend\\Services\\VentaPagoService.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAASwC4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-03T01:22:19.118Z",
               "EditorCaption": ""
             },
             {
@@ -132,7 +149,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "20251129180330_AddPermisosEmpleado.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251129180330_AddPermisosEmpleado.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251129180330_AddPermisosEmpleado.cs",
@@ -144,7 +161,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Program.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Program.cs",
@@ -156,7 +173,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "ProductosController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\ProductosController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\ProductosController.cs",
@@ -168,7 +185,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "HealthCheckService.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Services\\HealthCheckService.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Services\\HealthCheckService.cs",
@@ -180,7 +197,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "BackupService.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Services\\BackupService.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Services\\BackupService.cs",
@@ -192,7 +209,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "RequestLoggingMiddleware.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Middleware\\RequestLoggingMiddleware.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Middleware\\RequestLoggingMiddleware.cs",
@@ -204,20 +221,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "TobacoBackend\\Controllers\\UserController.cs",
-              "ViewState": "AgIAAOYAAAAAAAAAAAAUwPMAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAOYAAAAAAAAAAAAUwPEAAAA8AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-02T13:52:16.382Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "UserDTO.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\UserDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\UserDTO.cs",
@@ -230,7 +247,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "OnboardingDTO.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\OnboardingDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\OnboardingDTO.cs",
@@ -243,7 +260,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "SuperAdminController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\SuperAdminController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\SuperAdminController.cs",
@@ -256,7 +273,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "PasswordService.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Services\\PasswordService.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Services\\PasswordService.cs",
@@ -269,7 +286,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "PermisosEmpleadoController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\PermisosEmpleadoController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\PermisosEmpleadoController.cs",
@@ -281,7 +298,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "20251202015756_AddEntregasPermisos.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251202015756_AddEntregasPermisos.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251202015756_AddEntregasPermisos.cs",
@@ -293,7 +310,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\appsettings.json",
               "RelativeDocumentMoniker": "TobacoBackend\\appsettings.json",
@@ -305,7 +322,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "PlanType.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Domain\\Models\\PlanType.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Domain\\Models\\PlanType.cs",
@@ -317,7 +334,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "20251129151345_AddPlanUser.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\20251129151345_AddPlanUser.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\20251129151345_AddPlanUser.cs",
@@ -329,7 +346,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "VentasController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\VentasController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\VentasController.cs",
@@ -341,7 +358,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "EntregasController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\EntregasController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\EntregasController.cs",
@@ -353,7 +370,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "VentaDTO.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\DTOs\\VentaDTO.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\DTOs\\VentaDTO.cs",
@@ -365,7 +382,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "HealthController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\HealthController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\HealthController.cs",
@@ -377,7 +394,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "AplicationDbContextModelSnapshot.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Tobaco 2\\TobacoApi\\TobacoBackend\\TobacoBackend\\Migrations\\AplicationDbContextModelSnapshot.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Migrations\\AplicationDbContextModelSnapshot.cs",

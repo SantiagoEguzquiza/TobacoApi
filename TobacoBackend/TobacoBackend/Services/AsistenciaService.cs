@@ -3,6 +3,7 @@ using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
@@ -10,11 +11,13 @@ namespace TobacoBackend.Services
     {
         private readonly IAsistenciaRepository _asistenciaRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
-        public AsistenciaService(IAsistenciaRepository asistenciaRepository, IMapper mapper)
+        public AsistenciaService(IAsistenciaRepository asistenciaRepository, IMapper mapper, AplicationDbContext context)
         {
             _asistenciaRepository = asistenciaRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<AsistenciaDTO> RegistrarEntradaAsync(RegistrarEntradaDTO registrarEntradaDto)
@@ -26,13 +29,21 @@ namespace TobacoBackend.Services
                 throw new InvalidOperationException("El usuario ya tiene una asistencia activa. Debe registrar la salida primero.");
             }
 
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+
             var asistencia = new Asistencia
             {
                 UserId = registrarEntradaDto.UserId,
                 FechaHoraEntrada = DateTime.UtcNow,
                 UbicacionEntrada = registrarEntradaDto.UbicacionEntrada,
                 LatitudEntrada = registrarEntradaDto.LatitudEntrada,
-                LongitudEntrada = registrarEntradaDto.LongitudEntrada
+                LongitudEntrada = registrarEntradaDto.LongitudEntrada,
+                TenantId = tenantId.Value
             };
 
             var asistenciaCreada = await _asistenciaRepository.RegistrarEntradaAsync(asistencia);
