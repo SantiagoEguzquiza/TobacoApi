@@ -58,5 +58,17 @@ namespace TobacoBackend.Domain.Models
         /// </summary>
         [ForeignKey("CreatedById")]
         public User? CreatedBy { get; set; }
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este usuario
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este usuario
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

@@ -24,21 +24,38 @@ namespace TobacoBackend.Services
         public void RecordFailedAttempt(string userName, string? ipAddress = null)
         {
             var cacheKey = GetCacheKey(userName);
-            var attempts = _cache.Get<int?>(cacheKey) ?? 0;
-            attempts++;
+            var lockoutKey = GetLockoutKey(userName);
+            
+            // Usar TryGetValue para evitar problemas de concurrencia
+            if (!_cache.TryGetValue(cacheKey, out int? currentAttempts))
+            {
+                currentAttempts = 0;
+            }
+            
+            var attempts = (currentAttempts ?? 0) + 1;
 
-            _cache.Set(cacheKey, attempts, TimeSpan.FromMinutes(LockoutDurationMinutes));
-
-            _logger.LogWarning(
-                "Intento de login fallido #{Attempt} para usuario: {UserName}, IP: {IpAddress}",
-                attempts, userName, ipAddress ?? "Desconocida");
-
+            // Si alcanza el máximo, guardar el tiempo de bloqueo
             if (attempts >= MaxFailedAttempts)
             {
+                var lockoutTime = DateTime.UtcNow;
+                _cache.Set(lockoutKey, lockoutTime, TimeSpan.FromMinutes(LockoutDurationMinutes));
+                
                 _logger.LogError(
                     "Cuenta bloqueada por {Duration} minutos - Usuario: {UserName}, IP: {IpAddress}",
                     LockoutDurationMinutes, userName, ipAddress ?? "Desconocida");
             }
+
+            // Guardar intentos con expiración - usar opciones de cache para asegurar consistencia
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LockoutDurationMinutes),
+                SlidingExpiration = null // No usar sliding expiration para evitar que se resetee
+            };
+            _cache.Set(cacheKey, attempts, cacheOptions);
+
+            _logger.LogWarning(
+                "Intento de login fallido #{Attempt}/{MaxAttempts} para usuario: {UserName}, IP: {IpAddress}. Intentos restantes: {Remaining}",
+                attempts, MaxFailedAttempts, userName, ipAddress ?? "Desconocida", Math.Max(0, MaxFailedAttempts - attempts));
         }
 
         /// <summary>
@@ -47,7 +64,9 @@ namespace TobacoBackend.Services
         public void ClearFailedAttempts(string userName)
         {
             var cacheKey = GetCacheKey(userName);
+            var lockoutKey = GetLockoutKey(userName);
             _cache.Remove(cacheKey);
+            _cache.Remove(lockoutKey);
         }
 
         /// <summary>
@@ -56,8 +75,13 @@ namespace TobacoBackend.Services
         public bool IsAccountLocked(string userName)
         {
             var cacheKey = GetCacheKey(userName);
-            var attempts = _cache.Get<int?>(cacheKey) ?? 0;
-            return attempts >= MaxFailedAttempts;
+            
+            if (!_cache.TryGetValue(cacheKey, out int? attempts))
+            {
+                return false;
+            }
+            
+            return (attempts ?? 0) >= MaxFailedAttempts;
         }
 
         /// <summary>
@@ -66,8 +90,26 @@ namespace TobacoBackend.Services
         public int GetRemainingAttempts(string userName)
         {
             var cacheKey = GetCacheKey(userName);
-            var attempts = _cache.Get<int?>(cacheKey) ?? 0;
-            return Math.Max(0, MaxFailedAttempts - attempts);
+            
+            // Si la cuenta está bloqueada, retornar 0
+            if (IsAccountLocked(userName))
+            {
+                return 0;
+            }
+            
+            // Obtener intentos actuales
+            if (!_cache.TryGetValue(cacheKey, out int? attempts))
+            {
+                attempts = 0;
+            }
+            
+            var remaining = Math.Max(0, MaxFailedAttempts - (attempts ?? 0));
+            
+            _logger.LogDebug(
+                "Intentos restantes para usuario {UserName}: {Remaining} (Intentos fallidos: {Attempts}/{MaxAttempts})",
+                userName, remaining, attempts ?? 0, MaxFailedAttempts);
+            
+            return remaining;
         }
 
         /// <summary>
@@ -78,11 +120,12 @@ namespace TobacoBackend.Services
             if (!IsAccountLocked(userName))
                 return null;
 
-            var cacheKey = GetCacheKey(userName);
-            if (_cache.TryGetValue(cacheKey, out _))
+            var lockoutKey = GetLockoutKey(userName);
+            if (_cache.TryGetValue(lockoutKey, out DateTime? lockoutTime) && lockoutTime.HasValue)
             {
-                // El cache expira en LockoutDurationMinutes, así que retornamos ese tiempo
-                return LockoutDurationMinutes;
+                var elapsed = DateTime.UtcNow - lockoutTime.Value;
+                var remaining = LockoutDurationMinutes - (int)elapsed.TotalMinutes;
+                return Math.Max(0, remaining);
             }
 
             return null;
@@ -91,6 +134,11 @@ namespace TobacoBackend.Services
         private string GetCacheKey(string userName)
         {
             return $"failed_login_attempts_{userName.ToLowerInvariant()}";
+        }
+
+        private string GetLockoutKey(string userName)
+        {
+            return $"lockout_time_{userName.ToLowerInvariant()}";
         }
     }
 }

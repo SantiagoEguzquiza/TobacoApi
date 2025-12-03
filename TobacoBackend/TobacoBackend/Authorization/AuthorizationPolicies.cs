@@ -8,9 +8,12 @@ namespace TobacoBackend.Authorization
     public static class AuthorizationPolicies
     {
         // Roles principales
+        public const string SuperAdminOnly = "SuperAdminOnly";
         public const string AdminOnly = "AdminOnly";
         public const string EmployeeOnly = "EmployeeOnly";
         public const string AdminOrEmployee = "AdminOrEmployee";
+        public const string AdminOrEmployeeOnly = "AdminOrEmployeeOnly"; // Admin o Employee, NO SuperAdmin
+        public const string SuperAdminOrAdmin = "SuperAdminOrAdmin";
 
         // Tipos de vendedor (para Employees)
         public const string VendedorOnly = "VendedorOnly";

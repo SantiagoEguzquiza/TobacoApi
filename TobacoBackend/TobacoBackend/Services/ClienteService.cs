@@ -10,15 +10,26 @@ namespace TobacoBackend.Services
     {
         private readonly IClienteRepository _clienteRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
-        public ClienteService(IClienteRepository clienteRepository, IMapper mapper)
+        public ClienteService(IClienteRepository clienteRepository, IMapper mapper, AplicationDbContext context)
         {
             _clienteRepository = clienteRepository;
             _mapper = mapper;
+            _context = context;
         }
         public async Task<ClienteDTO> AddCliente(ClienteDTO clienteDto)
         {
             var cliente = _mapper.Map<Cliente>(clienteDto);
+            
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+            cliente.TenantId = tenantId.Value;
+            
             var clienteCreado = await _clienteRepository.AddCliente(cliente);
             return _mapper.Map<ClienteDTO>(clienteCreado);
         }
@@ -42,8 +53,17 @@ namespace TobacoBackend.Services
 
         public async Task UpdateCliente(int id, ClienteDTO clienteDto)
         {
+            // Obtener el cliente existente para preservar el TenantId
+            var clienteExistente = await _clienteRepository.GetClienteById(id);
+            if (clienteExistente == null)
+            {
+                throw new Exception($"Cliente con ID {id} no encontrado");
+            }
+
             var cliente = _mapper.Map<Cliente>(clienteDto);
             cliente.Id = id;
+            // Preservar el TenantId del cliente existente
+            cliente.TenantId = clienteExistente.TenantId;
             await _clienteRepository.UpdateCliente(cliente);
         }
 

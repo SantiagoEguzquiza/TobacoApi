@@ -3,6 +3,7 @@ using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
@@ -11,15 +12,18 @@ namespace TobacoBackend.Services
         private readonly IPermisosEmpleadoRepository _repository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
         public PermisosEmpleadoService(
             IPermisosEmpleadoRepository repository,
             IUserRepository userRepository,
-            IMapper mapper)
+            IMapper mapper,
+            AplicationDbContext context)
         {
             _repository = repository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<PermisosEmpleadoDTO?> GetPermisosByUserIdAsync(int userId)
@@ -126,9 +130,17 @@ namespace TobacoBackend.Services
 
         private async Task<PermisosEmpleado> CreateDefaultPermisosForUser(int userId)
         {
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+
             var permisos = new PermisosEmpleado
             {
                 UserId = userId,
+                TenantId = tenantId.Value,
                 // Todos los permisos comienzan en false por defecto
             };
             return await _repository.CreateAsync(permisos);

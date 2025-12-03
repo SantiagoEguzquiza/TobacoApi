@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
+using TobacoBackend.Helpers;
 using System.Text.RegularExpressions;
 
 namespace TobacoBackend.Controllers
@@ -127,6 +128,13 @@ namespace TobacoBackend.Controllers
         {
             try
             {
+                // Verificar permiso de eliminar productos (requerido para eliminar categorías)
+                var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Eliminar");
+                if (!hasPermission)
+                {
+                    return Forbid("No tiene permisos para eliminar categorías. Se requiere el permiso de eliminar productos.");
+                }
+
                 await _categoriaService.DeleteAsync(id);
                 return Ok(new { message = "Categoría eliminada exitosamente." });
             }

@@ -65,9 +65,13 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
-// Database
-builder.Services.AddDbContext<AplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Database - Usar factory para inyectar IHttpContextAccessor
+builder.Services.AddDbContext<AplicationDbContext>((serviceProvider, options) =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+    // El DbContext se crea con el constructor que acepta IHttpContextAccessor
+}, ServiceLifetime.Scoped);
 
 // Registrar servicios
 builder.Services.AddScoped<IClienteService, ClienteService>();
@@ -82,12 +86,14 @@ builder.Services.AddScoped<IProductoAFavorService, ProductoAFavorService>();
 builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
 builder.Services.AddScoped<IRecorridoProgramadoService, RecorridoProgramadoService>();
 builder.Services.AddScoped<IPermisosEmpleadoService, PermisosEmpleadoService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PricingService>();
 builder.Services.AddScoped<SecurityLoggingService>();
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<AccountLockoutService>();
 builder.Services.AddSingleton<MetricsService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
 
 // Backup Service (Hosted Service para backups automáticos)
 var backupEnabled = builder.Configuration.GetValue<bool>("BackupSettings:Enabled", true);
@@ -114,6 +120,7 @@ builder.Services.AddScoped<IProductoAFavorRepository, ProductoAFavorRepository>(
 builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
 builder.Services.AddScoped<IRecorridoProgramadoRepository, RecorridoProgramadoRepository>();
 builder.Services.AddScoped<IPermisosEmpleadoRepository, PermisosEmpleadoRepository>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
 // CORS - Configuración restrictiva
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
@@ -232,16 +239,28 @@ builder.Services.AddAuthentication(options =>
 // Configurar políticas de autorización basadas en roles
 builder.Services.AddAuthorization(options =>
 {
+    // Solo SuperAdmin
+    options.AddPolicy(AuthorizationPolicies.SuperAdminOnly, policy =>
+        policy.Requirements.Add(new RoleRequirement(new[] { "SuperAdmin" })));
+
     // Solo Admin
     options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
         policy.Requirements.Add(new RoleRequirement(new[] { "Admin" })));
+
+    // SuperAdmin o Admin
+    options.AddPolicy(AuthorizationPolicies.SuperAdminOrAdmin, policy =>
+        policy.Requirements.Add(new RoleRequirement(new[] { "SuperAdmin", "Admin" })));
 
     // Solo Employee
     options.AddPolicy(AuthorizationPolicies.EmployeeOnly, policy =>
         policy.Requirements.Add(new RoleRequirement(new[] { "Employee" })));
 
-    // Admin o Employee (cualquiera)
+    // Admin o Employee (cualquiera) - permite SuperAdmin también
     options.AddPolicy(AuthorizationPolicies.AdminOrEmployee, policy =>
+        policy.Requirements.Add(new RoleRequirement(new[] { "SuperAdmin", "Admin", "Employee" })));
+
+    // Admin o Employee SOLO - EXCLUYE SuperAdmin (para datos de clientes)
+    options.AddPolicy(AuthorizationPolicies.AdminOrEmployeeOnly, policy =>
         policy.Requirements.Add(new RoleRequirement(new[] { "Admin", "Employee" })));
 
     // Solo Vendedor (Employee con TipoVendedor = Vendedor)

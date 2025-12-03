@@ -19,7 +19,7 @@ namespace TobacoBackend.DTOs
         public string? Telefono { get; set; }
         
         [StringLength(50, ErrorMessage = "La deuda no puede exceder 50 caracteres")]
-        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "La deuda debe ser un número válido")]
+        [RegularExpression(@"^$|^0$|^\d+(\.\d{1,2})?$", ErrorMessage = "La deuda debe ser un número válido o estar vacía")]
         public string? Deuda { get; set; }
         
         [Range(0, 100, ErrorMessage = "El descuento global debe estar entre 0 y 100")]

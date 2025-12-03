@@ -13,6 +13,19 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<Asistencia> FilterByTenant(IQueryable<Asistencia> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(a => a.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<Asistencia> RegistrarEntradaAsync(Asistencia asistencia)
         {
             _context.Asistencias.Add(asistencia);
@@ -22,7 +35,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<Asistencia?> RegistrarSalidaAsync(int asistenciaId, DateTime fechaHoraSalida, string? ubicacionSalida, string? latitudSalida, string? longitudSalida)
         {
-            var asistencia = await _context.Asistencias
+            var asistencia = await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.Id == asistenciaId);
 
@@ -42,14 +55,14 @@ namespace TobacoBackend.Repositories
 
         public async Task<Asistencia?> GetByIdAsync(int id)
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Asistencia?> GetAsistenciaActivaByUserIdAsync(int userId)
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .Where(a => a.UserId == userId && a.FechaHoraSalida == null)
                 .OrderByDescending(a => a.FechaHoraEntrada)
@@ -58,7 +71,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<IEnumerable<Asistencia>> GetAsistenciasByUserIdAsync(int userId)
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.FechaHoraEntrada)
@@ -67,7 +80,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<IEnumerable<Asistencia>> GetAsistenciasByUserIdAndDateRangeAsync(int userId, DateTime fechaInicio, DateTime fechaFin)
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .Where(a => a.UserId == userId && a.FechaHoraEntrada >= fechaInicio && a.FechaHoraEntrada <= fechaFin)
                 .OrderByDescending(a => a.FechaHoraEntrada)
@@ -76,7 +89,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<IEnumerable<Asistencia>> GetAllAsistenciasAsync()
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .OrderByDescending(a => a.FechaHoraEntrada)
                 .ToListAsync();
@@ -84,7 +97,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<IEnumerable<Asistencia>> GetAsistenciasByDateRangeAsync(DateTime fechaInicio, DateTime fechaFin)
         {
-            return await _context.Asistencias
+            return await FilterByTenant(_context.Asistencias)
                 .Include(a => a.User)
                 .Where(a => a.FechaHoraEntrada >= fechaInicio && a.FechaHoraEntrada <= fechaFin)
                 .OrderByDescending(a => a.FechaHoraEntrada)

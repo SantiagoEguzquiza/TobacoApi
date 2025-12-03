@@ -13,9 +13,22 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<RecorridoProgramado> FilterByTenant(IQueryable<RecorridoProgramado> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(r => r.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<List<RecorridoProgramado>> GetRecorridosByVendedorAndDia(int vendedorId, DiaSemana diaSemana)
         {
-            return await _context.RecorridosProgramados
+            return await FilterByTenant(_context.RecorridosProgramados)
                 .Include(r => r.Cliente)
                 .Include(r => r.Vendedor)
                 .Where(r => r.VendedorId == vendedorId 
@@ -27,7 +40,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<RecorridoProgramado>> GetRecorridosByVendedor(int vendedorId)
         {
-            return await _context.RecorridosProgramados
+            return await FilterByTenant(_context.RecorridosProgramados)
                 .Include(r => r.Cliente)
                 .Include(r => r.Vendedor)
                 .Where(r => r.VendedorId == vendedorId && r.Activo)
@@ -38,7 +51,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<RecorridoProgramado?> GetById(int id)
         {
-            return await _context.RecorridosProgramados
+            return await FilterByTenant(_context.RecorridosProgramados)
                 .Include(r => r.Cliente)
                 .Include(r => r.Vendedor)
                 .FirstOrDefaultAsync(r => r.Id == id);

@@ -2,16 +2,19 @@ using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
     public class RecorridoProgramadoService : IRecorridoProgramadoService
     {
         private readonly IRecorridoProgramadoRepository _repository;
+        private readonly AplicationDbContext _context;
 
-        public RecorridoProgramadoService(IRecorridoProgramadoRepository repository)
+        public RecorridoProgramadoService(IRecorridoProgramadoRepository repository, AplicationDbContext context)
         {
             _repository = repository;
+            _context = context;
         }
 
         public async Task<List<RecorridoProgramadoDTO>> GetRecorridosByVendedorAndDia(int vendedorId, int diaSemana)
@@ -47,6 +50,13 @@ namespace TobacoBackend.Services
                 throw new ArgumentException($"Día de la semana inválido: {dto.DiaSemana}");
             }
 
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+
             var recorrido = new RecorridoProgramado
             {
                 VendedorId = dto.VendedorId,
@@ -54,7 +64,8 @@ namespace TobacoBackend.Services
                 DiaSemana = dto.DiaSemana,
                 Orden = dto.Orden,
                 Activo = true,
-                FechaCreacion = DateTime.UtcNow
+                FechaCreacion = DateTime.UtcNow,
+                TenantId = tenantId.Value
             };
 
             await _repository.Add(recorrido);

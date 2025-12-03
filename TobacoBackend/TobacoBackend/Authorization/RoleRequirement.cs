@@ -94,7 +94,30 @@ namespace TobacoBackend.Authorization
                     return;
                 }
 
-                // Si es Admin, tiene acceso completo
+                // Si es SuperAdmin, verificar si está explícitamente excluido
+                // Si la política es "AdminOrEmployeeOnly", SuperAdmin NO debe tener acceso
+                if (user.Role.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Verificar si SuperAdmin está explícitamente en los roles permitidos
+                    // Si solo están "Admin" y "Employee", SuperAdmin no debe pasar
+                    var onlyAdminEmployee = requirement.AllowedRoles.Length == 2 &&
+                        requirement.AllowedRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) &&
+                        requirement.AllowedRoles.Contains("Employee", StringComparer.OrdinalIgnoreCase) &&
+                        !requirement.AllowedRoles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase);
+                    
+                    if (onlyAdminEmployee)
+                    {
+                        _logger?.LogWarning("SuperAdmin {UserId} ({UserName}) no tiene acceso a este recurso (solo para Admin/Employee).", userId, user.UserName);
+                        context.Fail();
+                        return;
+                    }
+
+                    _logger?.LogDebug("Usuario SuperAdmin {UserId} ({UserName}) autorizado.", userId, user.UserName);
+                    context.Succeed(requirement);
+                    return;
+                }
+
+                // Si es Admin, tiene acceso completo (excepto funciones de SuperAdmin)
                 if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger?.LogDebug("Usuario Admin {UserId} ({UserName}) autorizado.", userId, user.UserName);

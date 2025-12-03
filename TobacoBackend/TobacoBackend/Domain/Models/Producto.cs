@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
 {
-    public class Producto
+    public class Producto : IMustHaveTenant
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -38,5 +38,17 @@ namespace TobacoBackend.Domain.Models
         public bool Half { get; set; } = false;
 
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este producto
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este producto
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }
