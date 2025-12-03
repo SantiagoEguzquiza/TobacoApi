@@ -5,6 +5,7 @@ using TobacoBackend.DTOs;
 using TobacoBackend.Mapping;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
@@ -13,21 +14,21 @@ namespace TobacoBackend.Services
         private readonly IUserRepository _userRepository;
         private readonly TokenService _tokenService;
         private readonly IMapper _mapper;
-        private readonly AccountLockoutService _lockoutService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly AplicationDbContext _context;
 
         public UserService(
             IUserRepository userRepository, 
             TokenService tokenService, 
             IMapper mapper, 
-            AccountLockoutService lockoutService,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            AplicationDbContext context)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
             _mapper = mapper;
-            _lockoutService = lockoutService;
             _serviceProvider = serviceProvider;
+            _context = context;
         }
 
         public async Task<LoginResponseDTO?> LoginAsync(LoginDTO loginDto)
@@ -38,13 +39,6 @@ namespace TobacoBackend.Services
             {
                 // No revelar si el usuario existe o no (seguridad)
                 return null;
-            }
-
-            // Verificar si la cuenta está bloqueada
-            if (_lockoutService.IsAccountLocked(loginDto.UserName))
-            {
-                throw new InvalidOperationException(
-                    $"Cuenta bloqueada temporalmente. Intenta nuevamente en {_lockoutService.GetLockoutRemainingMinutes(loginDto.UserName)} minutos.");
             }
 
             // Validar contraseña
@@ -63,13 +57,8 @@ namespace TobacoBackend.Services
 
             if (!isValid)
             {
-                // Registrar intento fallido
-                _lockoutService.RecordFailedAttempt(loginDto.UserName);
                 return null;
             }
-
-            // Login exitoso - limpiar intentos fallidos
-            _lockoutService.ClearFailedAttempts(loginDto.UserName);
 
             // Si se migró la contraseña, guardar el cambio
             if (PasswordService.IsOldPasswordHash(user.Password) == false && 
@@ -83,8 +72,8 @@ namespace TobacoBackend.Services
             user.LastLogin = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
 
-            // Generate token
-            var token = _tokenService.GenerateToken(user.Id.ToString(), user.UserName);
+            // Generate token with TenantId
+            var token = _tokenService.GenerateToken(user.Id.ToString(), user.UserName, user.TenantId);
             var expiresAt = _tokenService.GetTokenExpiration(token);
 
             return new LoginResponseDTO
@@ -151,6 +140,14 @@ namespace TobacoBackend.Services
             user.CreatedAt = DateTime.UtcNow;
             user.IsActive = true;
             user.TipoVendedor = createUserDto.TipoVendedor; // Asegurar que se asigne el tipo de vendedor
+
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+            user.TenantId = tenantId.Value;
 
             // Manejo del Plan y CreatedById
             if (creatorId.HasValue)

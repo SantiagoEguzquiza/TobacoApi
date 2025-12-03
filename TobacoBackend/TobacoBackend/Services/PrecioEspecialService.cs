@@ -3,6 +3,7 @@ using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
 
 namespace TobacoBackend.Services
 {
@@ -11,15 +12,18 @@ namespace TobacoBackend.Services
         private readonly IPrecioEspecialRepository _precioEspecialRepository;
         private readonly IProductoRepository _productoRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
         public PrecioEspecialService(
             IPrecioEspecialRepository precioEspecialRepository,
             IProductoRepository productoRepository,
-            IMapper mapper)
+            IMapper mapper,
+            AplicationDbContext context)
         {
             _precioEspecialRepository = precioEspecialRepository;
             _productoRepository = productoRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<List<PrecioEspecialDTO>> GetAllPreciosEspecialesAsync()
@@ -147,6 +151,13 @@ namespace TobacoBackend.Services
 
         public async Task<bool> UpsertPrecioEspecialAsync(int clienteId, int productoId, decimal precio)
         {
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+
             var precioEstandar = await _productoRepository.GetProductoById(productoId);
             if (precioEstandar == null)
                 return false;
@@ -175,7 +186,8 @@ namespace TobacoBackend.Services
                     ClienteId = clienteId,
                     ProductoId = productoId,
                     Precio = precio,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    TenantId = tenantId.Value
                 };
                 await _precioEspecialRepository.AddPrecioEspecialAsync(nuevoPrecioEspecial);
             }

@@ -7,7 +7,7 @@ namespace TobacoBackend.Domain.Models
     /// Representa un recorrido programado para un vendedor-repartidor
     /// Define qué clientes debe visitar cada día de la semana
     /// </summary>
-    public class RecorridoProgramado
+    public class RecorridoProgramado : IMustHaveTenant
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -39,6 +39,18 @@ namespace TobacoBackend.Domain.Models
         public bool Activo { get; set; } = true;
 
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este recorrido programado
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este recorrido programado
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }
 

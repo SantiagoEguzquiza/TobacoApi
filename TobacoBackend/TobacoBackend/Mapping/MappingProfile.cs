@@ -72,6 +72,15 @@ namespace TobacoBackend.Mapping
 
             // Mapeo de PermisosEmpleado
             CreateMap<PermisosEmpleado, PermisosEmpleadoDTO>().ReverseMap();
+
+            // Mapeo de Tenant
+            CreateMap<Tenant, TenantDTO>().ReverseMap();
+            CreateMap<CreateTenantDTO, Tenant>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.Ignore())
+                .ForMember(dest => dest.Users, opt => opt.Ignore());
         }
     }
 }

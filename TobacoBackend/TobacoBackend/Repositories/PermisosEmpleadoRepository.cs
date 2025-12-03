@@ -13,9 +13,22 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<PermisosEmpleado> FilterByTenant(IQueryable<PermisosEmpleado> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(p => p.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<PermisosEmpleado?> GetByUserIdAsync(int userId)
         {
-            return await _context.PermisosEmpleados
+            return await FilterByTenant(_context.PermisosEmpleados)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
 
@@ -36,7 +49,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var permisos = await _context.PermisosEmpleados.FindAsync(id);
+            var permisos = await FilterByTenant(_context.PermisosEmpleados).FirstOrDefaultAsync(p => p.Id == id);
             if (permisos == null)
                 return false;
 

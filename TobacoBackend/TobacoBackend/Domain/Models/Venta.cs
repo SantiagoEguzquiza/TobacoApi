@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
 {
-    public class Venta
+    public class Venta : IMustHaveTenant
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -42,6 +42,18 @@ namespace TobacoBackend.Domain.Models
         // Estado de entrega de la venta
         [Required]
         public EstadoEntrega EstadoEntrega { get; set; } = EstadoEntrega.NO_ENTREGADA;
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece esta venta
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece esta venta
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }
 

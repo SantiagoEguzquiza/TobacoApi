@@ -15,7 +15,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Cualquier usuario autenticado puede ver clientes
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)] // Admin o Employee, NO SuperAdmin
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;

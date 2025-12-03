@@ -13,7 +13,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Cualquier usuario autenticado puede ver productos
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)] // Admin o Employee, NO SuperAdmin
     public class ProductosController : ControllerBase
     {
         private readonly IProductoService _productoService;

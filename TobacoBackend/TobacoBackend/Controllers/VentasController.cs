@@ -13,7 +13,7 @@ namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = AuthorizationPolicies.CanViewVentas)] // Solo Admin, Vendedor o RepartidorVendedor pueden ver ventas (NO Repartidor)
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)] // Admin o Employee, NO SuperAdmin
     public class VentasController : ControllerBase
     {
         private readonly IVentaService _ventasService;

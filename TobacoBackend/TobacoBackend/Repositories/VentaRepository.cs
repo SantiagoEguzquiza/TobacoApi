@@ -13,6 +13,19 @@ namespace TobacoBackend.Repositories
             this._context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<Venta> FilterByTenant(IQueryable<Venta> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(v => v.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task AddVenta(Venta venta)
         {
             await _context.Ventas.AddAsync(venta);
@@ -44,7 +57,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteVenta(int id)
         {
-            var venta = await _context.Ventas.FirstOrDefaultAsync(v => v.Id == id);
+            var venta = await FilterByTenant(_context.Ventas).FirstOrDefaultAsync(v => v.Id == id);
 
             if (venta != null)
             {
@@ -58,7 +71,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<Venta>> GetAllVentas()
         {
-            return await _context.Ventas
+            return await FilterByTenant(_context.Ventas)
                 .AsNoTracking()
                 .OrderByDescending(v => v.Id)
                 .Include(v => v.Cliente)
@@ -74,7 +87,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<Venta> GetVentaById(int id)
         {
-            var venta = await _context.Ventas
+            var venta = await FilterByTenant(_context.Ventas)
                 .Include(v => v.Cliente)
                 .Include(v => v.UsuarioCreador)
                 .Include(v => v.UsuarioAsignado)
@@ -91,7 +104,7 @@ namespace TobacoBackend.Repositories
 
         public async Task UpdateVenta(Venta venta)
         {
-            var ventaExistente = await _context.Ventas
+            var ventaExistente = await FilterByTenant(_context.Ventas)
                 .Include(v => v.VentaProductos)
                 .FirstOrDefaultAsync(v => v.Id == venta.Id);
 
@@ -141,9 +154,10 @@ namespace TobacoBackend.Repositories
 
         public async Task<VentaPaginationResult> GetVentasPaginadas(int page, int pageSize)
         {
-            var totalItems = await _context.Ventas.CountAsync();
+            var filteredQuery = FilterByTenant(_context.Ventas);
+            var totalItems = await filteredQuery.CountAsync();
 
-            var ventas = await _context.Ventas
+            var ventas = await filteredQuery
                 .AsNoTracking()
                 .OrderByDescending(v => v.Id)
                 .Include(v => v.Cliente)
@@ -168,7 +182,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<VentaPaginationResult> GetVentasPorCliente(int clienteId, int page, int pageSize, DateTime? dateFrom = null, DateTime? dateTo = null)
         {
-            var query = _context.Ventas
+            var query = FilterByTenant(_context.Ventas)
                 .AsNoTracking()
                 .Where(v => v.ClienteId == clienteId);
 
@@ -210,7 +224,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<VentaPaginationResult> GetVentasConCuentaCorrienteByClienteId(int clienteId, int page, int pageSize)
         {
-            var query = _context.Ventas
+            var query = FilterByTenant(_context.Ventas)
                 .Include(v => v.Cliente)
                 .Include(v => v.UsuarioCreador)
                 .Include(v => v.UsuarioAsignado)
@@ -240,7 +254,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId)
         {
-            var venta = await _context.Ventas.FirstOrDefaultAsync(v => v.Id == ventaId);
+            var venta = await FilterByTenant(_context.Ventas).FirstOrDefaultAsync(v => v.Id == ventaId);
             if (venta == null)
             {
                 return false;

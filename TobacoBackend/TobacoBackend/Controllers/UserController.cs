@@ -61,21 +61,8 @@ namespace TobacoBackend.Controllers
                     var ipAddress = SecurityLoggingService.GetClientIpAddress(HttpContext);
                     _securityLogger.LogFailedLoginAttempt(loginDto.UserName, ipAddress);
                     
-                    // Verificar si la cuenta está bloqueada para dar mensaje más específico
-                    var lockoutService = HttpContext.RequestServices.GetRequiredService<AccountLockoutService>();
-                    if (lockoutService.IsAccountLocked(loginDto.UserName))
-                    {
-                        var remainingMinutes = lockoutService.GetLockoutRemainingMinutes(loginDto.UserName);
-                        return Unauthorized(new { 
-                            message = $"Cuenta bloqueada temporalmente. Intenta nuevamente en {remainingMinutes} minutos.",
-                            accountLocked = true
-                        });
-                    }
-                    
-                    var remainingAttempts = lockoutService.GetRemainingAttempts(loginDto.UserName);
                     return Unauthorized(new { 
-                        message = $"Usuario o contraseña incorrectos. Intentos restantes: {remainingAttempts}",
-                        remainingAttempts = remainingAttempts
+                        message = "Usuario o contraseña incorrectos."
                     });
                 }
 

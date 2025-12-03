@@ -16,7 +16,7 @@ namespace TobacoBackend.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateToken(string userId, string userName = null)
+        public string GenerateToken(string userId, string? userName = null, int? tenantId = null)
         {
             var claims = new List<Claim>
             {
@@ -29,6 +29,11 @@ namespace TobacoBackend.Services
             {
                 claims.Add(new Claim(ClaimTypes.Name, userName));
                 claims.Add(new Claim("username", userName));
+            }
+
+            if (tenantId.HasValue)
+            {
+                claims.Add(new Claim("tenant_id", tenantId.Value.ToString()));
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));

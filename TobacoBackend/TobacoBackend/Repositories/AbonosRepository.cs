@@ -11,6 +11,19 @@ namespace TobacoBackend.Repositories
         {
             this._context = context;
         }
+
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<Abonos> FilterByTenant(IQueryable<Abonos> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(a => a.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
         public async  Task<Abonos> AddAbono(Abonos abono)
         {
             _context.Abonos.Add(abono);
@@ -20,7 +33,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteAbono(int id)
         {
-            var abono = await _context.Abonos.Where(c => c.Id == id).FirstOrDefaultAsync();
+            var abono = await FilterByTenant(_context.Abonos).Where(c => c.Id == id).FirstOrDefaultAsync();
 
             if (abono != null)
             {
@@ -34,7 +47,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<Abonos> GetAbonoById(int id)
         {
-            var abono = await _context.Abonos
+            var abono = await FilterByTenant(_context.Abonos)
                 .Include(a => a.Cliente)
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (abono == null)
@@ -47,14 +60,14 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<Abonos>> GetAllAbonos()
         {
-            return await _context.Abonos
+            return await FilterByTenant(_context.Abonos)
                 .Include(a => a.Cliente)
                 .ToListAsync(); 
         }
 
         public async Task<List<Abonos>> GetAbonosByClienteId(int clienteId)
         {
-            return await _context.Abonos
+            return await FilterByTenant(_context.Abonos)
                 .Include(a => a.Cliente)
                 .Where(a => a.ClienteId == clienteId)
                 .OrderByDescending(a => a.Fecha)

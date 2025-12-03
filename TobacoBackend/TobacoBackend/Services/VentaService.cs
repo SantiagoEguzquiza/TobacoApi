@@ -21,8 +21,9 @@ namespace TobacoBackend.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PricingService _pricingService;
         private readonly IUserService _userService;
+        private readonly AplicationDbContext _context;
 
-        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository, IUserService userService)
+        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository, IUserService userService, AplicationDbContext context)
         {
             _ventaRepository = ventaRepository;
             _mapper = mapper;
@@ -34,6 +35,7 @@ namespace TobacoBackend.Services
             _pricingService = pricingService;
             _productoAFavorRepository = productoAFavorRepository;
             _userService = userService;
+            _context = context;
         }
 
         public async Task<CreateVentaResponseDTO> AddVenta(VentaDTO ventaDto)
@@ -47,7 +49,27 @@ namespace TobacoBackend.Services
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
                 usuarioIdCreador = userId;
-                // No auto-asignamos. El usuario elegirá en el frontend si quiere asignarse la venta o asignarla a otro repartidor
+                
+                // Obtener el usuario actual para verificar su rol y tipo
+                var usuarioActual = await _userService.GetUserByIdAsync(userId);
+                
+                // Solo auto-asignar si es vendedor-repartidor (RepartidorVendedor)
+                if (usuarioActual != null && 
+                    usuarioActual.Role == "Employee" && 
+                    usuarioActual.TipoVendedor == TipoVendedor.RepartidorVendedor)
+                {
+                    // Auto-asignar la venta a sí mismo
+                    usuarioIdAsignado = userId;
+                    nombreRepartidorAsignado = usuarioActual.UserName;
+                }
+                // Si es Admin, no auto-asignar (usuarioIdAsignado queda null)
+            }
+
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
             }
 
             var venta = new Venta
@@ -57,7 +79,8 @@ namespace TobacoBackend.Services
                 VentaProductos = new List<VentaProducto>(),
                 MetodoPago = ventaDto.MetodoPago,
                 UsuarioIdCreador = usuarioIdCreador, // Quien creó la venta
-                UsuarioIdAsignado = usuarioIdAsignado // Auto-asignado si es vendedor-repartidor, null si no
+                UsuarioIdAsignado = usuarioIdAsignado, // Auto-asignado si es vendedor-repartidor, null si no
+                TenantId = tenantId.Value
             };
 
             decimal total = 0;
@@ -170,14 +193,14 @@ namespace TobacoBackend.Services
                 }
             }
 
-            // Preparar respuesta - nunca auto-asignamos, siempre se pregunta en el frontend
+            // Preparar respuesta
             var response = new CreateVentaResponseDTO
             {
                 VentaId = venta.Id,
                 Message = "Venta creada exitosamente",
-                Asignada = false, // Nunca auto-asignamos
-                UsuarioAsignadoId = null,
-                UsuarioAsignadoNombre = null
+                Asignada = usuarioIdAsignado.HasValue, // True si se auto-asignó (vendedor-repartidor)
+                UsuarioAsignadoId = usuarioIdAsignado,
+                UsuarioAsignadoNombre = nombreRepartidorAsignado
             };
 
             return response;

@@ -11,11 +11,13 @@ namespace TobacoBackend.Services
     {
         private readonly IProductoRepository _productoRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
-        public ProductoService(IProductoRepository productoRepository, IMapper mapper)
+        public ProductoService(IProductoRepository productoRepository, IMapper mapper, AplicationDbContext context)
         {
             _productoRepository = productoRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ProductoDTO> AddProducto(ProductoDTO productoDto)
@@ -24,6 +26,23 @@ namespace TobacoBackend.Services
             ValidateDiscountLogic(productoDto);
             
             var producto = _mapper.Map<Producto>(productoDto);
+            
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            }
+            producto.TenantId = tenantId.Value;
+            
+            // Set TenantId for all QuantityPrices
+            if (producto.QuantityPrices != null && producto.QuantityPrices.Any())
+            {
+                foreach (var qp in producto.QuantityPrices)
+                {
+                    qp.TenantId = tenantId.Value;
+                }
+            }
             
             // Si es indefinido, limpiar la fecha
             if (producto.descuentoIndefinido)
@@ -128,6 +147,16 @@ namespace TobacoBackend.Services
             
             var producto = _mapper.Map<Producto>(productoDto);
             producto.Id = id;
+            
+            // Set TenantId from current context for QuantityPrices
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue && producto.QuantityPrices != null && producto.QuantityPrices.Any())
+            {
+                foreach (var qp in producto.QuantityPrices)
+                {
+                    qp.TenantId = tenantId.Value;
+                }
+            }
             
             // Si es indefinido, limpiar la fecha
             if (producto.descuentoIndefinido)
