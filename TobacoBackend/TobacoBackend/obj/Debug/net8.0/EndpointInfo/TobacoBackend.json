@@ -1270,6 +1270,35 @@
         }
       }
     },
+    "/Clientes/consumidor-final": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Entregas/mis-entregas": {
       "get": {
         "tags": [
