@@ -225,15 +225,23 @@ namespace TobacoBackend.Controllers
                     return NotFound(new { message = "Tenant no encontrado." });
                 }
 
-                var users = await _userRepository.GetAllAsync();
-                var admins = users
-                    .Where(u => u.TenantId == tenantId && u.Role == "Admin")
+                // Para SuperAdmin, obtener usuarios directamente del tenant específico
+                // sin usar el filtro automático del contexto
+                var users = await _userRepository.GetUsersByTenantIdAsync(tenantId);
+                var allUsers = users.ToList();
+                var admins = allUsers
+                    .Where(u => u.Role == "Admin")
                     .ToList();
+
+                // Log para debugging
+                Console.WriteLine($"SuperAdminController: TenantId={tenantId}, Total usuarios={allUsers.Count}, Admins={admins.Count}");
 
                 return Ok(_mapper.Map<List<UserDTO>>(admins));
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"SuperAdminController: Error al obtener administradores: {ex.Message}");
+                Console.WriteLine($"SuperAdminController: Stack trace: {ex.StackTrace}");
                 return BadRequest(new { message = $"Error al obtener los administradores: {ex.Message}" });
             }
         }
@@ -320,7 +328,8 @@ namespace TobacoBackend.Controllers
                     return NotFound(new { message = "Tenant no encontrado." });
                 }
 
-                var user = await _userRepository.GetByIdAsync(adminId);
+                // Para SuperAdmin, obtener el usuario directamente sin filtro de tenant
+                var user = await _userRepository.GetByIdWithoutTenantFilterAsync(adminId);
                 if (user == null || user.TenantId != tenantId || user.Role != "Admin")
                 {
                     return NotFound(new { message = "Administrador no encontrado en este tenant." });
@@ -398,23 +407,23 @@ namespace TobacoBackend.Controllers
                     return NotFound(new { message = "Tenant no encontrado." });
                 }
 
-                var user = await _userRepository.GetByIdAsync(adminId);
+                // Para SuperAdmin, obtener el usuario directamente sin filtro de tenant
+                var user = await _userRepository.GetByIdWithoutTenantFilterAsync(adminId);
                 if (user == null || user.TenantId != tenantId || user.Role != "Admin")
                 {
                     return NotFound(new { message = "Administrador no encontrado en este tenant." });
                 }
 
                 // Verificar que no sea el último admin del tenant
-                var admins = await _userRepository.GetAllAsync();
-                var tenantAdmins = admins.Where(u => u.TenantId == tenantId && u.Role == "Admin" && u.IsActive).ToList();
+                var users = await _userRepository.GetUsersByTenantIdAsync(tenantId);
+                var tenantAdmins = users.Where(u => u.Role == "Admin" && u.IsActive).ToList();
                 if (tenantAdmins.Count <= 1)
                 {
                     return BadRequest(new { message = "No se puede eliminar el último administrador activo del tenant." });
                 }
 
-                var success = await _userService.DeleteUserAsync(adminId);
-                if (!success)
-                    return NotFound(new { message = "Administrador no encontrado." });
+                // Para SuperAdmin, eliminar directamente sin filtro de tenant
+                await _userRepository.DeleteAsyncWithoutTenantFilter(adminId);
 
                 _auditService.LogDelete("Admin (SuperAdmin)", adminId, User,
                     SecurityLoggingService.GetClientIpAddress(HttpContext));

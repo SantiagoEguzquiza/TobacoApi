@@ -327,6 +327,38 @@ namespace TobacoBackend.Controllers
                     }
                 }
 
+                // Check if trying to update a SuperAdmin - only SuperAdmins can update other SuperAdmins
+                var userToUpdate = await _userService.GetUserByIdAsync(id);
+                if (userToUpdate == null)
+                {
+                    return NotFound(new { message = "Usuario no encontrado." });
+                }
+
+                // Prevent deactivating SuperAdmins unless the current user is also a SuperAdmin
+                if (userToUpdate.Role == "SuperAdmin" && updateUserDto.IsActive.HasValue && !updateUserDto.IsActive.Value)
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        return Forbid("No se puede desactivar un usuario SuperAdmin. Solo los SuperAdmins pueden desactivar otros SuperAdmins.");
+                    }
+                }
+
+                // Prevent changing SuperAdmin role or other SuperAdmin properties unless current user is SuperAdmin
+                if (userToUpdate.Role == "SuperAdmin" && currentUserId != id)
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        // Allow only isActive changes if current user is not SuperAdmin
+                        if (updateUserDto.Role != null || updateUserDto.UserName != null || 
+                            updateUserDto.Password != null || updateUserDto.Email != null)
+                        {
+                            return Forbid("No se pueden modificar las propiedades de un usuario SuperAdmin. Solo los SuperAdmins pueden modificar otros SuperAdmins.");
+                        }
+                    }
+                }
+
                 var user = await _userService.UpdateUserAsync(id, updateUserDto);
                 if (user == null)
                     return NotFound(new { message = "Usuario no encontrado." });
@@ -384,6 +416,23 @@ namespace TobacoBackend.Controllers
                 if (id <= 0)
                 {
                     return BadRequest(new { message = "ID de usuario inválido." });
+                }
+
+                // Check if trying to delete a SuperAdmin - only SuperAdmins can delete other SuperAdmins
+                var userToDelete = await _userService.GetUserByIdAsync(id);
+                if (userToDelete == null)
+                {
+                    return NotFound(new { message = "Usuario no encontrado." });
+                }
+
+                // Prevent deleting SuperAdmins unless the current user is also a SuperAdmin
+                if (userToDelete.Role == "SuperAdmin")
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        return Forbid("No se puede eliminar un usuario SuperAdmin. Solo los SuperAdmins pueden eliminar otros SuperAdmins.");
+                    }
                 }
 
                 var success = await _userService.DeleteUserAsync(id);

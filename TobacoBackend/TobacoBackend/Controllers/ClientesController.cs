@@ -328,5 +328,22 @@ namespace TobacoBackend.Controllers
                 return BadRequest(new { message = $"Error al saldar deuda: {ex.Message}" });
             }
         }
+
+        /// <summary>
+        /// Obtiene o crea el cliente "Consumidor Final" compartido entre todos los tenants
+        /// </summary>
+        [HttpGet("consumidor-final")]
+        public async Task<ActionResult<ClienteDTO>> ObtenerOCrearConsumidorFinal()
+        {
+            try
+            {
+                var consumidorFinal = await _clienteService.ObtenerOCrearConsumidorFinal();
+                return Ok(consumidorFinal);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener o crear Consumidor Final: {ex.Message}" });
+            }
+        }
     }
 }
