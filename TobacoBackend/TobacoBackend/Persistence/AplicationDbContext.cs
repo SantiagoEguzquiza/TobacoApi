@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.Models;
 using Microsoft.AspNetCore.Http;
@@ -163,7 +163,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Producto>()
             .HasOne(p => p.Categoria)
-            .WithMany()
+            .WithMany(c => c.Productos)
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
 
