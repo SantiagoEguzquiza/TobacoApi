@@ -4,29 +4,44 @@ using System.Diagnostics.Contracts;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Services;
+using TobacoBackend.Helpers;
+using System.Security.Claims;
+using TobacoBackend.Authorization;
+using TobacoBackend.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)] // Admin o Employee, NO SuperAdmin
     public class ClientesController : ControllerBase
     {
         private readonly IClienteService _clienteService;
         private readonly IAbonosService _abonosService;
         private readonly IVentaService _ventaService;
+        private readonly AuditService _auditService;
 
-        public ClientesController(IClienteService clienteService, IAbonosService abonosService, IVentaService ventaService)
+        public ClientesController(IClienteService clienteService, IAbonosService abonosService, IVentaService ventaService, AuditService auditService)
         {
             _clienteService = clienteService;
             _abonosService = abonosService;
             _ventaService = ventaService;
+            _auditService = auditService;
         }
 
         
         [HttpGet]
         public async Task<ActionResult<List<ClienteDTO>>> GetAllClientes()
         {
+            // Validar permiso de visualizar clientes
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Clientes");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar clientes.");
+            }
+
             var clientes = await _clienteService.GetAllClientes();
             return Ok(clientes);
         }
@@ -48,8 +63,16 @@ namespace TobacoBackend.Controllers
 
        
         [HttpPost]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult<ClienteDTO>> AddCliente([FromBody] ClienteDTO clienteDto)
         {
+            // Validar permiso de crear clientes
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Clientes_Crear");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para crear clientes.");
+            }
+
             try
             {
                 if (clienteDto == null)
@@ -57,22 +80,70 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El cliente no puede ser nulo." });
                 }
 
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos del cliente inválidos.", errors = ModelState });
+                }
+
+                // Sanitizar y validar entrada
+                clienteDto.Nombre = InputSanitizer.SanitizeString(clienteDto.Nombre, 100);
+                clienteDto.Direccion = InputSanitizer.SanitizeString(clienteDto.Direccion, 200);
+                
+                if (InputSanitizer.ContainsSqlInjection(clienteDto.Nombre) || 
+                    InputSanitizer.ContainsXss(clienteDto.Nombre) ||
+                    InputSanitizer.ContainsSqlInjection(clienteDto.Direccion) ||
+                    InputSanitizer.ContainsXss(clienteDto.Direccion))
+                {
+                    return BadRequest(new { message = "Entrada inválida detectada." });
+                }
+
                 var clienteCreado = await _clienteService.AddCliente(clienteDto);
+
+                // Auditoría
+                _auditService.LogCreate("Cliente", clienteCreado.Id ?? 0, User, 
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
 
                 return Ok(clienteCreado);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> UpdateCliente(int id, [FromBody] ClienteDTO clienteDto)
         {
+            // Validar permiso de editar clientes
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Clientes_Editar");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para editar clientes.");
+            }
+
             if (clienteDto == null || (clienteDto.Id.HasValue && id != clienteDto.Id))
             {
                 return BadRequest(new { message = "ID del cliente no coincide o el cliente es nulo." });
+            }
+
+            // Validar modelo
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Datos del cliente inválidos.", errors = ModelState });
+            }
+
+            // Sanitizar y validar entrada
+            clienteDto.Nombre = InputSanitizer.SanitizeString(clienteDto.Nombre, 100);
+            clienteDto.Direccion = InputSanitizer.SanitizeString(clienteDto.Direccion, 200);
+            
+            if (InputSanitizer.ContainsSqlInjection(clienteDto.Nombre) || 
+                InputSanitizer.ContainsXss(clienteDto.Nombre) ||
+                InputSanitizer.ContainsSqlInjection(clienteDto.Direccion) ||
+                InputSanitizer.ContainsXss(clienteDto.Direccion))
+            {
+                return BadRequest(new { message = "Entrada inválida detectada." });
             }
 
             try
@@ -80,6 +151,11 @@ namespace TobacoBackend.Controllers
                 // Asegurar que el ID del DTO coincida con el ID de la ruta
                 clienteDto.Id = id;
                 await _clienteService.UpdateCliente(id, clienteDto);
+                
+                // Auditoría
+                _auditService.LogUpdate("Cliente", id, User, null,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
+
                 return Ok(new { message = "Cliente actualizado exitosamente." });
             }
             catch (Exception)
@@ -90,8 +166,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> DeleteCliente(int id)
         {
+            // Validar permiso de eliminar clientes
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Clientes_Eliminar");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para eliminar clientes.");
+            }
+
             try
             {
                 var deleteResult = await _clienteService.DeleteCliente(id);
@@ -242,6 +326,23 @@ namespace TobacoBackend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Error al saldar deuda: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene o crea el cliente "Consumidor Final" compartido entre todos los tenants
+        /// </summary>
+        [HttpGet("consumidor-final")]
+        public async Task<ActionResult<ClienteDTO>> ObtenerOCrearConsumidorFinal()
+        {
+            try
+            {
+                var consumidorFinal = await _clienteService.ObtenerOCrearConsumidorFinal();
+                return Ok(consumidorFinal);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener o crear Consumidor Final: {ex.Message}" });
             }
         }
     }

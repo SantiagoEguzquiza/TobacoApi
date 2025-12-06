@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
+using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
+using TobacoBackend.Helpers;
 using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
+using TobacoBackend.Authorization;
 
 namespace TobacoBackend.Controllers
 {
@@ -13,11 +17,15 @@ namespace TobacoBackend.Controllers
     {
         private readonly IUserService _userService;
         private readonly TokenService _tokenService;
+        private readonly SecurityLoggingService _securityLogger;
+        private readonly AuditService _auditService;
 
-        public UserController(IUserService userService, TokenService tokenService)
+        public UserController(IUserService userService, TokenService tokenService, SecurityLoggingService securityLogger, AuditService auditService)
         {
             _userService = userService;
             _tokenService = tokenService;
+            _securityLogger = securityLogger;
+            _auditService = auditService;
         }
 
         [HttpPost("login")]
@@ -28,13 +36,42 @@ namespace TobacoBackend.Controllers
                 if (loginDto == null)
                     return BadRequest(new { message = "Los datos de login no pueden ser nulos." });
 
-                if (string.IsNullOrWhiteSpace(loginDto.UserName) || string.IsNullOrWhiteSpace(loginDto.Password))
-                    return BadRequest(new { message = "El nombre de usuario y la contraseña son requeridos." });
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos de login inválidos.", errors = ModelState });
+                }
+
+                // Sanitizar y validar entrada
+                loginDto.UserName = InputSanitizer.SanitizeUserName(loginDto.UserName);
+                
+                if (InputSanitizer.ContainsSqlInjection(loginDto.UserName) || 
+                    InputSanitizer.ContainsXss(loginDto.UserName))
+                {
+                    _securityLogger.LogUnauthorizedAccess(loginDto.UserName, "POST:/api/User/login",
+                        SecurityLoggingService.GetClientIpAddress(HttpContext));
+                    return BadRequest(new { message = "Entrada inválida detectada." });
+                }
 
                 var result = await _userService.LoginAsync(loginDto);
 
                 if (result == null)
-                    return Unauthorized(new { message = "Usuario o contraseña incorrectos. Verifica tus datos e intenta nuevamente." });
+                {
+                    // Log intento de login fallido
+                    var ipAddress = SecurityLoggingService.GetClientIpAddress(HttpContext);
+                    _securityLogger.LogFailedLoginAttempt(loginDto.UserName, ipAddress);
+                    
+                    return Unauthorized(new { 
+                        message = "Usuario o contraseña incorrectos."
+                    });
+                }
+
+                // Log login exitoso
+                _securityLogger.LogSuccessfulLogin(
+                    result.User.UserName, 
+                    result.User.Id,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext)
+                );
 
                 return Ok(result);
             }
@@ -142,12 +179,29 @@ namespace TobacoBackend.Controllers
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                     return Unauthorized(new { message = "Token inválido. No se pudo extraer el ID del usuario." });
 
-                // Check if user is admin
-                var isAdmin = await _userService.IsAdminAsync(userId);
-                if (!isAdmin)
-                    return Forbid("Solo los administradores pueden acceder a esta funcionalidad.");
+                // Get current user to check role and tipoVendedor
+                var currentUser = await _userService.GetUserByIdAsync(userId);
+                if (currentUser == null)
+                    return Unauthorized(new { message = "Usuario no encontrado." });
+
+                // Check if user is admin or vendedor
+                var isAdmin = currentUser.Role == "Admin";
+                var isVendedor = currentUser.Role == "Employee" && currentUser.TipoVendedor == TipoVendedor.Vendedor;
+                
+                if (!isAdmin && !isVendedor)
+                    return Forbid("Solo los administradores y vendedores pueden acceder a esta funcionalidad.");
 
                 var users = await _userService.GetAllUsersAsync();
+                
+                // Si es Vendedor, filtrar solo los repartidores (Repartidor o RepartidorVendedor)
+                if (isVendedor)
+                {
+                    users = users.Where(u => 
+                        u.IsActive && 
+                        u.Role == "Employee" && 
+                        (u.TipoVendedor == TipoVendedor.Repartidor || u.TipoVendedor == TipoVendedor.RepartidorVendedor)
+                    ).ToList();
+                }
                 
                 return Ok(users);
             }
@@ -179,7 +233,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Solo Admin puede crear usuarios
         [HttpPost("create")]
         public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO createUserDto)
         {
@@ -200,7 +254,27 @@ namespace TobacoBackend.Controllers
                 if (createUserDto == null)
                     return BadRequest(new { message = "Los datos del usuario no pueden ser nulos." });
 
-                var user = await _userService.CreateUserAsync(createUserDto);
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos del usuario inválidos.", errors = ModelState });
+                }
+
+                // Sanitizar nombre de usuario
+                createUserDto.UserName = InputSanitizer.SanitizeUserName(createUserDto.UserName);
+                
+                if (InputSanitizer.ContainsSqlInjection(createUserDto.UserName) || 
+                    InputSanitizer.ContainsXss(createUserDto.UserName))
+                {
+                    return BadRequest(new { message = "Entrada inválida detectada." });
+                }
+
+                var user = await _userService.CreateUserAsync(createUserDto, userId);
+                
+                // Auditoría
+                _auditService.LogCreate("Usuario", user.Id, User,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
+
                 return CreatedAtAction(nameof(GetUserProfile), new { id = user.Id }, user);
             }
             catch (InvalidOperationException ex)
@@ -213,7 +287,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Solo Admin puede actualizar usuarios
         [HttpPut("update/{id}")]
         public async Task<ActionResult<object>> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDto)
         {
@@ -235,9 +309,63 @@ namespace TobacoBackend.Controllers
                 if (updateUserDto == null)
                     return BadRequest(new { message = "Los datos de actualización no pueden ser nulos." });
 
+                // Validar modelo
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos de actualización inválidos.", errors = ModelState });
+                }
+
+                // Sanitizar si se actualiza el nombre de usuario
+                if (!string.IsNullOrEmpty(updateUserDto.UserName))
+                {
+                    updateUserDto.UserName = InputSanitizer.SanitizeUserName(updateUserDto.UserName);
+                    
+                    if (InputSanitizer.ContainsSqlInjection(updateUserDto.UserName) || 
+                        InputSanitizer.ContainsXss(updateUserDto.UserName))
+                    {
+                        return BadRequest(new { message = "Entrada inválida detectada." });
+                    }
+                }
+
+                // Check if trying to update a SuperAdmin - only SuperAdmins can update other SuperAdmins
+                var userToUpdate = await _userService.GetUserByIdAsync(id);
+                if (userToUpdate == null)
+                {
+                    return NotFound(new { message = "Usuario no encontrado." });
+                }
+
+                // Prevent deactivating SuperAdmins unless the current user is also a SuperAdmin
+                if (userToUpdate.Role == "SuperAdmin" && updateUserDto.IsActive.HasValue && !updateUserDto.IsActive.Value)
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        return Forbid("No se puede desactivar un usuario SuperAdmin. Solo los SuperAdmins pueden desactivar otros SuperAdmins.");
+                    }
+                }
+
+                // Prevent changing SuperAdmin role or other SuperAdmin properties unless current user is SuperAdmin
+                if (userToUpdate.Role == "SuperAdmin" && currentUserId != id)
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        // Allow only isActive changes if current user is not SuperAdmin
+                        if (updateUserDto.Role != null || updateUserDto.UserName != null || 
+                            updateUserDto.Password != null || updateUserDto.Email != null)
+                        {
+                            return Forbid("No se pueden modificar las propiedades de un usuario SuperAdmin. Solo los SuperAdmins pueden modificar otros SuperAdmins.");
+                        }
+                    }
+                }
+
                 var user = await _userService.UpdateUserAsync(id, updateUserDto);
                 if (user == null)
                     return NotFound(new { message = "Usuario no encontrado." });
+
+                // Auditoría
+                _auditService.LogUpdate("Usuario", id, User, null,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
 
                 // Check if the current user was deactivated
                 bool currentUserAffected = false;
@@ -262,7 +390,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Solo Admin puede eliminar usuarios
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<object>> DeleteUser(int id)
         {
@@ -284,9 +412,36 @@ namespace TobacoBackend.Controllers
                 // Check if trying to delete themselves
                 bool currentUserAffected = (currentUserId == id);
 
+                // Validar ID
+                if (id <= 0)
+                {
+                    return BadRequest(new { message = "ID de usuario inválido." });
+                }
+
+                // Check if trying to delete a SuperAdmin - only SuperAdmins can delete other SuperAdmins
+                var userToDelete = await _userService.GetUserByIdAsync(id);
+                if (userToDelete == null)
+                {
+                    return NotFound(new { message = "Usuario no encontrado." });
+                }
+
+                // Prevent deleting SuperAdmins unless the current user is also a SuperAdmin
+                if (userToDelete.Role == "SuperAdmin")
+                {
+                    var currentUser = await _userService.GetUserByIdAsync(currentUserId);
+                    if (currentUser == null || currentUser.Role != "SuperAdmin")
+                    {
+                        return Forbid("No se puede eliminar un usuario SuperAdmin. Solo los SuperAdmins pueden eliminar otros SuperAdmins.");
+                    }
+                }
+
                 var success = await _userService.DeleteUserAsync(id);
                 if (!success)
                     return NotFound(new { message = "Usuario no encontrado." });
+
+                // Auditoría
+                _auditService.LogDelete("Usuario", id, User,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
 
                 return Ok(new { 
                     currentUserAffected = currentUserAffected,

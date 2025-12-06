@@ -29,5 +29,46 @@ namespace TobacoBackend.Domain.Models
         public DateTime? LastLogin { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Tipo de vendedor/distribuidor. Solo aplica para empleados (Role = "Employee")
+        /// Por defecto es Repartidor
+        /// </summary>
+        public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
+
+        /// <summary>
+        /// Zona asignada al repartidor/vendedor
+        /// </summary>
+        [StringLength(100)]
+        public string? Zona { get; set; }
+
+        /// <summary>
+        /// Plan contratado por el usuario. Los sub-usuarios heredan el plan de su admin.
+        /// </summary>
+        public PlanType Plan { get; set; } = PlanType.FREE;
+
+        /// <summary>
+        /// ID del usuario administrador que creó este usuario (si es un sub-usuario).
+        /// Null si el usuario fue creado directamente por un desarrollador.
+        /// </summary>
+        public int? CreatedById { get; set; }
+
+        /// <summary>
+        /// Navegación al usuario administrador que creó este usuario
+        /// </summary>
+        [ForeignKey("CreatedById")]
+        public User? CreatedBy { get; set; }
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este usuario
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este usuario
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

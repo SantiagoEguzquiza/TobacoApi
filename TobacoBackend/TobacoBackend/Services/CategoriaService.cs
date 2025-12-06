@@ -7,11 +7,13 @@ public class CategoriaService : ICategoriaService
 {
     private readonly ICategoriaRepository _repository;
     private readonly IMapper _mapper;
+    private readonly AplicationDbContext _context;
 
-    public CategoriaService(ICategoriaRepository repository, IMapper mapper)
+    public CategoriaService(ICategoriaRepository repository, IMapper mapper, AplicationDbContext context)
     {
         _repository = repository;
         _mapper = mapper;
+        _context = context;
     }
 
     public async Task<List<CategoriaDTO>> GetAllAsync()
@@ -29,6 +31,14 @@ public class CategoriaService : ICategoriaService
     public async Task AddAsync(CategoriaDTO categoriaDto)
     {
         var categoria = _mapper.Map<Categoria>(categoriaDto);
+        
+        // Set TenantId from current context
+        var tenantId = _context.GetCurrentTenantId();
+        if (!tenantId.HasValue)
+        {
+            throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+        }
+        categoria.TenantId = tenantId.Value;
         
         // Set SortOrder to the next available value (highest + 1)
         var allCategorias = await _repository.GetAllAsync();

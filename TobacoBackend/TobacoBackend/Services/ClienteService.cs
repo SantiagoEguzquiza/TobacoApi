@@ -10,17 +10,65 @@ namespace TobacoBackend.Services
     {
         private readonly IClienteRepository _clienteRepository;
         private readonly IMapper _mapper;
+        private readonly AplicationDbContext _context;
 
-        public ClienteService(IClienteRepository clienteRepository, IMapper mapper)
+        public ClienteService(IClienteRepository clienteRepository, IMapper mapper, AplicationDbContext context)
         {
             _clienteRepository = clienteRepository;
             _mapper = mapper;
+            _context = context;
         }
         public async Task<ClienteDTO> AddCliente(ClienteDTO clienteDto)
         {
             var cliente = _mapper.Map<Cliente>(clienteDto);
+            
+            // Si es "Consumidor Final", usar TenantId = 0 para que sea compartido entre todos los tenants
+            if (cliente.Nombre.Trim().Equals("Consumidor Final", StringComparison.OrdinalIgnoreCase))
+            {
+                cliente.TenantId = 0; // TenantId especial para Consumidor Final compartido
+            }
+            else
+            {
+                // Set TenantId from current context
+                var tenantId = _context.GetCurrentTenantId();
+                if (!tenantId.HasValue)
+                {
+                    throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+                }
+                cliente.TenantId = tenantId.Value;
+            }
+            
             var clienteCreado = await _clienteRepository.AddCliente(cliente);
             return _mapper.Map<ClienteDTO>(clienteCreado);
+        }
+
+        /// <summary>
+        /// Obtiene o crea el cliente "Consumidor Final" compartido entre todos los tenants
+        /// </summary>
+        public async Task<ClienteDTO> ObtenerOCrearConsumidorFinal()
+        {
+            // Buscar Consumidor Final con TenantId = 0 (compartido)
+            var consumidorFinal = await _clienteRepository.BuscarConsumidorFinal();
+            
+            if (consumidorFinal != null)
+            {
+                return _mapper.Map<ClienteDTO>(consumidorFinal);
+            }
+
+            // Si no existe, crearlo con TenantId = 0
+            var nuevoConsumidorFinal = new Cliente
+            {
+                Nombre = "Consumidor Final",
+                Direccion = "Sin dirección especificada",
+                Telefono = "0",
+                Deuda = "0",
+                DescuentoGlobal = 0,
+                Visible = true,
+                TenantId = 0 // Compartido entre todos los tenants
+            };
+
+            var consumidorCreado = await _clienteRepository.AddCliente(nuevoConsumidorFinal);
+            return _mapper.Map<ClienteDTO>(consumidorCreado);
         }
 
         public async Task<bool> DeleteCliente(int id)
@@ -42,8 +90,17 @@ namespace TobacoBackend.Services
 
         public async Task UpdateCliente(int id, ClienteDTO clienteDto)
         {
+            // Obtener el cliente existente para preservar el TenantId
+            var clienteExistente = await _clienteRepository.GetClienteById(id);
+            if (clienteExistente == null)
+            {
+                throw new Exception($"Cliente con ID {id} no encontrado");
+            }
+
             var cliente = _mapper.Map<Cliente>(clienteDto);
             cliente.Id = id;
+            // Preservar el TenantId del cliente existente
+            cliente.TenantId = clienteExistente.TenantId;
             await _clienteRepository.UpdateCliente(cliente);
         }
 

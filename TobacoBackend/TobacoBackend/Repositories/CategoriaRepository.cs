@@ -10,11 +10,24 @@ public class CategoriaRepository : ICategoriaRepository
         this._context = context;
     }
 
+    /// <summary>
+    /// Obtiene el TenantId actual del contexto para filtrar las consultas
+    /// </summary>
+    private IQueryable<Categoria> FilterByTenant(IQueryable<Categoria> query)
+    {
+        var tenantId = _context.GetCurrentTenantId();
+        if (tenantId.HasValue)
+        {
+            return query.Where(c => c.TenantId == tenantId.Value);
+        }
+        return query; // Si no hay TenantId (SuperAdmin), no filtrar
+    }
+
     public async Task<List<Categoria>> GetAllAsync() =>
-        await _context.Categorias.OrderBy(c => c.SortOrder).ToListAsync();
+        await FilterByTenant(_context.Categorias).OrderBy(c => c.SortOrder).ToListAsync();
 
     public async Task<Categoria?> GetByIdAsync(int id) =>
-        await _context.Categorias.FindAsync(id);
+        await FilterByTenant(_context.Categorias).FirstOrDefaultAsync(c => c.Id == id);
 
     public async Task AddAsync(Categoria categoria)
     {
@@ -30,7 +43,7 @@ public class CategoriaRepository : ICategoriaRepository
 
     public async Task DeleteAsync(int id)
     {
-        var categoria = await _context.Categorias.FindAsync(id);
+        var categoria = await FilterByTenant(_context.Categorias).FirstOrDefaultAsync(c => c.Id == id);
         if (categoria != null)
         {
             _context.Categorias.Remove(categoria);
@@ -45,7 +58,7 @@ public class CategoriaRepository : ICategoriaRepository
         {
             foreach (var (id, sortOrder) in categoriaOrders)
             {
-                var categoria = await _context.Categorias.FindAsync(id);
+                var categoria = await FilterByTenant(_context.Categorias).FirstOrDefaultAsync(c => c.Id == id);
                 if (categoria != null)
                 {
                     categoria.SortOrder = sortOrder;

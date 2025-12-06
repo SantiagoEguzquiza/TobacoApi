@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.Models;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 public class AplicationDbContext : DbContext
 {
+    public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Producto> Productos { get; set; }
     public DbSet<Venta> Ventas { get; set; }
@@ -15,9 +18,20 @@ public class AplicationDbContext : DbContext
     public DbSet<ProductQuantityPrice> ProductQuantityPrices { get; set; }
     public DbSet<Abonos> Abonos { get; set; }
     public DbSet<ProductoAFavor> ProductosAFavor { get; set; }
+    public DbSet<Asistencia> Asistencias { get; set; }
+    public DbSet<RecorridoProgramado> RecorridosProgramados { get; set; }
+    public DbSet<PermisosEmpleado> PermisosEmpleados { get; set; }
+
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+    private const string TenantIdClaim = "tenant_id";
 
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
+    }
+
+    public AplicationDbContext(DbContextOptions<AplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+    {
+        _httpContextAccessor = httpContextAccessor;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,8 +44,92 @@ public class AplicationDbContext : DbContext
             .IsRequired()
             .HasMaxLength(100);
 
+        // Tenant entity configuration
+        modelBuilder.Entity<Tenant>()
+            .Property(t => t.Nombre)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<Tenant>()
+            .Property(t => t.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // Configurar relaciones con Tenant
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Tenant)
+            .WithMany(t => t.Users)
+            .HasForeignKey(u => u.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Cliente>()
+            .HasOne(c => c.Tenant)
+            .WithMany()
+            .HasForeignKey(c => c.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Producto>()
+            .HasOne(p => p.Tenant)
+            .WithMany()
+            .HasForeignKey(p => p.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<Categoria>()
-            .HasIndex(c => c.Nombre)
+            .HasOne(c => c.Tenant)
+            .WithMany()
+            .HasForeignKey(c => c.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Venta>()
+            .HasOne(v => v.Tenant)
+            .WithMany()
+            .HasForeignKey(v => v.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Abonos>()
+            .HasOne(a => a.Tenant)
+            .WithMany()
+            .HasForeignKey(a => a.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PrecioEspecial>()
+            .HasOne(pe => pe.Tenant)
+            .WithMany()
+            .HasForeignKey(pe => pe.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductoAFavor>()
+            .HasOne(p => p.Tenant)
+            .WithMany()
+            .HasForeignKey(p => p.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Asistencia>()
+            .HasOne(a => a.Tenant)
+            .WithMany()
+            .HasForeignKey(a => a.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasOne(r => r.Tenant)
+            .WithMany()
+            .HasForeignKey(r => r.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PermisosEmpleado>()
+            .HasOne(p => p.Tenant)
+            .WithMany()
+            .HasForeignKey(p => p.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ProductQuantityPrice>()
+            .HasOne(pqp => pqp.Tenant)
+            .WithMany()
+            .HasForeignKey(pqp => pqp.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Modificar índice único de Categoria para incluir TenantId
+        modelBuilder.Entity<Categoria>()
+            .HasIndex(c => new { c.TenantId, c.Nombre })
             .IsUnique();
 
         modelBuilder.Entity<VentaProducto>()
@@ -65,7 +163,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Producto>()
             .HasOne(p => p.Categoria)
-            .WithMany()
+            .WithMany(c => c.Productos)
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -90,13 +188,25 @@ public class AplicationDbContext : DbContext
             .HasMaxLength(20)
             .HasDefaultValue("Employee");
 
+        // Índice único de UserName incluyendo TenantId (permite mismo username en diferentes tenants)
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.UserName)
+            .HasIndex(u => new { u.TenantId, u.UserName })
             .IsUnique();
 
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.Plan)
+            .IsRequired()
+            .HasDefaultValue(PlanType.FREE);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.CreatedBy)
+            .WithMany()
+            .HasForeignKey(u => u.CreatedById)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // VentaPago entity configuration
         modelBuilder.Entity<VentaPago>()
@@ -131,9 +241,9 @@ public class AplicationDbContext : DbContext
             .HasForeignKey(pe => pe.ProductoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Índice único para evitar duplicados de cliente-producto
+        // Índice único para evitar duplicados de cliente-producto (incluyendo TenantId)
         modelBuilder.Entity<PrecioEspecial>()
-            .HasIndex(pe => new { pe.ClienteId, pe.ProductoId })
+            .HasIndex(pe => new { pe.TenantId, pe.ClienteId, pe.ProductoId })
             .IsUnique();
 
         // ProductQuantityPrice entity configuration
@@ -147,9 +257,9 @@ public class AplicationDbContext : DbContext
             .HasForeignKey(pqp => pqp.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Índice único compuesto para evitar cantidades duplicadas por producto
+        // Índice único compuesto para evitar cantidades duplicadas por producto (incluyendo TenantId)
         modelBuilder.Entity<ProductQuantityPrice>()
-            .HasIndex(pqp => new { pqp.ProductId, pqp.Quantity })
+            .HasIndex(pqp => new { pqp.TenantId, pqp.ProductId, pqp.Quantity })
             .IsUnique();
         
         // Venta entity configuration
@@ -160,10 +270,16 @@ public class AplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Venta>()
-            .HasOne(v => v.Usuario)
+            .HasOne(v => v.UsuarioCreador)
             .WithMany()
-            .HasForeignKey(v => v.UsuarioId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(v => v.UsuarioIdCreador)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Venta>()
+            .HasOne(v => v.UsuarioAsignado)
+            .WithMany()
+            .HasForeignKey(v => v.UsuarioIdAsignado)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Abonos entity configuration
         modelBuilder.Entity<Abonos>()
@@ -222,6 +338,74 @@ public class AplicationDbContext : DbContext
             .HasForeignKey(vp => vp.UsuarioChequeoId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // Asistencia entity configuration
+        modelBuilder.Entity<Asistencia>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Asistencia>()
+            .Property(a => a.FechaHoraEntrada)
+            .IsRequired();
+
+        // RecorridoProgramado entity configuration
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasOne(r => r.Vendedor)
+            .WithMany()
+            .HasForeignKey(r => r.VendedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasOne(r => r.Cliente)
+            .WithMany()
+            .HasForeignKey(r => r.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .HasIndex(r => new { r.TenantId, r.VendedorId, r.DiaSemana, r.ClienteId })
+            .IsUnique();
+
+        modelBuilder.Entity<RecorridoProgramado>()
+            .Property(r => r.FechaCreacion)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // PermisosEmpleado entity configuration
+        modelBuilder.Entity<PermisosEmpleado>()
+            .HasOne(p => p.User)
+            .WithOne()
+            .HasForeignKey<PermisosEmpleado>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PermisosEmpleado>()
+            .HasIndex(p => p.UserId)
+            .IsUnique();
+
+        modelBuilder.Entity<PermisosEmpleado>()
+            .Property(p => p.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // NOTA: Los filtros por TenantId se aplican manualmente en los repositorios
+        // porque EF Core no puede traducir expresiones que acceden a HttpContext a SQL
+        // Los repositorios deben filtrar por TenantId obtenido del token JWT
+
+    }
+
+    /// <summary>
+    /// Obtiene el TenantId del token JWT actual
+    /// </summary>
+    public int? GetCurrentTenantId()
+    {
+        if (_httpContextAccessor?.HttpContext == null)
+            return null;
+
+        var tenantIdClaim = _httpContextAccessor.HttpContext.User?.FindFirst(TenantIdClaim)?.Value;
+        if (!string.IsNullOrEmpty(tenantIdClaim) && int.TryParse(tenantIdClaim, out int tenantId))
+        {
+            return tenantId;
+        }
+
+        return null;
     }
 
 }

@@ -11,6 +11,19 @@ namespace TobacoBackend.Repositories
         {
             _context = context;
         }
+
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<Producto> FilterByTenant(IQueryable<Producto> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(p => p.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
         public async Task AddProducto(Producto producto)
         {
             _context.Productos.Add(producto);
@@ -19,7 +32,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteProducto(int id)
         {
-            var producto = await _context.Productos.Where(c => c.Id == id).FirstOrDefaultAsync();
+            var producto = await FilterByTenant(_context.Productos).Where(c => c.Id == id).FirstOrDefaultAsync();
 
             if (producto != null)
             {
@@ -51,7 +64,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> SoftDeleteProducto(int id)
         {
-            var producto = await _context.Productos.Where(c => c.Id == id).FirstOrDefaultAsync();
+            var producto = await FilterByTenant(_context.Productos).Where(c => c.Id == id).FirstOrDefaultAsync();
 
             if (producto != null)
             {
@@ -66,7 +79,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> ActivateProducto(int id)
         {
-            var producto = await _context.Productos.Where(c => c.Id == id).FirstOrDefaultAsync();
+            var producto = await FilterByTenant(_context.Productos).Where(c => c.Id == id).FirstOrDefaultAsync();
 
             if (producto != null)
             {
@@ -81,7 +94,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<Producto>> GetAllProductos()
         {
-            return await _context.Productos
+            return await FilterByTenant(_context.Productos)
                 .Where(p => p.IsActive)
                 .Include(p => p.Categoria)
                 .Include(p => p.QuantityPrices)
@@ -91,7 +104,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<Producto> GetProductoById(int id)
         {
-            var producto = await _context.Productos
+            var producto = await FilterByTenant(_context.Productos)
                 .Include(p => p.Categoria)
                 .Include(p => p.QuantityPrices)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -106,7 +119,7 @@ namespace TobacoBackend.Repositories
         public async Task UpdateProducto(Producto producto)
         {
             // Get the existing product with quantity prices
-            var existingProduct = await _context.Productos
+            var existingProduct = await FilterByTenant(_context.Productos)
                 .Include(p => p.QuantityPrices)
                 .FirstOrDefaultAsync(p => p.Id == producto.Id);
 
@@ -120,6 +133,10 @@ namespace TobacoBackend.Repositories
             existingProduct.CategoriaId = producto.CategoriaId;
             existingProduct.Half = producto.Half;
             existingProduct.IsActive = producto.IsActive;
+            existingProduct.Marca = producto.Marca;
+            existingProduct.Descuento = producto.Descuento;
+            existingProduct.fechaExpiracionDescuento = producto.fechaExpiracionDescuento;
+            existingProduct.descuentoIndefinido = producto.descuentoIndefinido;
 
             // Remove existing quantity prices
             _context.ProductQuantityPrices.RemoveRange(existingProduct.QuantityPrices);
@@ -138,12 +155,10 @@ namespace TobacoBackend.Repositories
 
         public async Task<ProductoPaginationResult> GetProductosPaginados(int page, int pageSize)
         {
-            var totalItems = await _context.Productos
-                .Where(p => p.IsActive)
-                .CountAsync();
+            var filteredQuery = FilterByTenant(_context.Productos).Where(p => p.IsActive);
+            var totalItems = await filteredQuery.CountAsync();
 
-            var productos = await _context.Productos
-                .Where(p => p.IsActive)
+            var productos = await filteredQuery
                 .Include(p => p.Categoria)
                 .Include(p => p.QuantityPrices)
                 .OrderBy(p => p.Nombre)
@@ -159,6 +174,18 @@ namespace TobacoBackend.Repositories
                 TotalItems = totalItems,
                 TotalPages = totalPages
             };
+        }
+
+        public async Task UpdateProductoDiscount(int id, decimal descuento, DateTime? fechaExpiracionDescuento, bool descuentoIndefinido)
+        {
+            var producto = await FilterByTenant(_context.Productos).FirstOrDefaultAsync(p => p.Id == id);
+            if (producto != null)
+            {
+                producto.Descuento = descuento;
+                producto.fechaExpiracionDescuento = fechaExpiracionDescuento;
+                producto.descuentoIndefinido = descuentoIndefinido;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

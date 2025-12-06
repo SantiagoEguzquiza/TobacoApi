@@ -3,27 +3,41 @@ using Microsoft.AspNetCore.Mvc;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
+using TobacoBackend.Helpers;
+using System.Security.Claims;
+using TobacoBackend.Authorization;
+using TobacoBackend.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)] // Admin o Employee, NO SuperAdmin
     public class ProductosController : ControllerBase
     {
         private readonly IProductoService _productoService;
         private readonly PricingService _pricingService;
+        private readonly AuditService _auditService;
 
-        public ProductosController(IProductoService productoService, PricingService pricingService)
+        public ProductosController(IProductoService productoService, PricingService pricingService, AuditService auditService)
         {
             _productoService = productoService;
             _pricingService = pricingService;
+            _auditService = auditService;
         }
 
 
         [HttpGet]
         public async Task<ActionResult<List<ProductoDTO>>> GetAllProductos()
         {
+            // Validar permiso de visualizar productos
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Productos");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar productos.");
+            }
+
             var productos = await _productoService.GetAllProductos();
             return Ok(productos);
         }
@@ -32,6 +46,13 @@ namespace TobacoBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductoDTO>> GetProductoById(int id)
         {
+            // Validar permiso de visualizar productos
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "Productos");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar productos.");
+            }
+
             try
             {
                 var producto = await _productoService.GetProductoById(id);
@@ -46,8 +67,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> AddProducto([FromBody] ProductoDTO productoDto)
         {
+            // Validar permiso de crear productos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Crear");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para crear productos.");
+            }
+
             try
             {
                 Console.WriteLine("=== ADD PRODUCTO ENDPOINT CALLED ===");
@@ -59,19 +88,7 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El producto no puede ser nulo." });
                 }
 
-                Console.WriteLine($"Nombre: {productoDto.Nombre}");
-                Console.WriteLine($"Precio: {productoDto.Precio}");
-                Console.WriteLine($"QuantityPrices count: {productoDto.QuantityPrices?.Count ?? 0}");
-                
-                if (productoDto.QuantityPrices != null && productoDto.QuantityPrices.Any())
-                {
-                    foreach (var qp in productoDto.QuantityPrices)
-                    {
-                        Console.WriteLine($"  - Quantity: {qp.Quantity}, TotalPrice: {qp.TotalPrice}, ProductId: {qp.ProductId}");
-                    }
-                }
-
-                // Validar el modelo
+                // Validar modelo
                 if (!ModelState.IsValid)
                 {
                     Console.WriteLine("ERROR: ModelState no es válido");
@@ -94,6 +111,19 @@ namespace TobacoBackend.Controllers
                     });
                 }
 
+                // Sanitizar entrada
+                productoDto.Nombre = InputSanitizer.SanitizeString(productoDto.Nombre, 100);
+                if (!string.IsNullOrEmpty(productoDto.Marca))
+                {
+                    productoDto.Marca = InputSanitizer.SanitizeString(productoDto.Marca, 50);
+                }
+                
+                if (InputSanitizer.ContainsSqlInjection(productoDto.Nombre) || 
+                    InputSanitizer.ContainsXss(productoDto.Nombre))
+                {
+                    return BadRequest(new { message = "Entrada inválida detectada." });
+                }
+
                 // Validar precios por cantidad
                 if (productoDto.QuantityPrices != null && productoDto.QuantityPrices.Any())
                 {
@@ -106,9 +136,13 @@ namespace TobacoBackend.Controllers
                     }
                 }
 
-                await _productoService.AddProducto(productoDto);
+                var producto = await _productoService.AddProducto(productoDto);
 
-                return CreatedAtAction(nameof(GetProductoById), new { id = productoDto.Id }, new { message = "Producto agregado exitosamente." });
+                // Auditoría
+                _auditService.LogCreate("Producto", producto.Id, User,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
+
+                return CreatedAtAction(nameof(GetProductoById), new { id = producto.Id }, new { message = "Producto agregado exitosamente." });
             }
             catch (Exception ex)
             {
@@ -125,8 +159,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> UpdateProducto(int id, [FromBody] ProductoDTO productoDto)
         {
+            // Validar permiso de editar productos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Editar");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para editar productos.");
+            }
+
             if (productoDto == null || id != productoDto.Id)
             {
                 return BadRequest(new { message = "ID del producto no coincide o el producto es nulo." });
@@ -174,8 +216,16 @@ namespace TobacoBackend.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult> DeleteProducto(int id)
         {
+            // Validar permiso de eliminar productos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Eliminar");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para eliminar productos.");
+            }
+
             try
             {
                 var deleteResult = await _productoService.DeleteProducto(id);

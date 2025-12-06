@@ -13,9 +13,22 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<ProductoAFavor> FilterByTenant(IQueryable<ProductoAFavor> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(p => p.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<List<ProductoAFavor>> GetAllProductosAFavor()
         {
-            return await _context.ProductosAFavor
+            return await FilterByTenant(_context.ProductosAFavor)
                 .Include(p => p.Cliente)
                 .Include(p => p.Producto)
                 .Include(p => p.Venta)
@@ -26,7 +39,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<ProductoAFavor> GetProductoAFavorById(int id)
         {
-            return await _context.ProductosAFavor
+            return await FilterByTenant(_context.ProductosAFavor)
                 .Include(p => p.Cliente)
                 .Include(p => p.Producto)
                 .Include(p => p.Venta)
@@ -37,7 +50,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<ProductoAFavor>> GetProductosAFavorByClienteId(int clienteId, bool? soloNoEntregados = null)
         {
-            var query = _context.ProductosAFavor
+            var query = FilterByTenant(_context.ProductosAFavor)
                 .Include(p => p.Cliente)
                 .Include(p => p.Producto)
                 .Include(p => p.Venta)
@@ -57,7 +70,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<ProductoAFavor>> GetProductosAFavorByVentaId(int ventaId)
         {
-            return await _context.ProductosAFavor
+            return await FilterByTenant(_context.ProductosAFavor)
                 .Include(p => p.Cliente)
                 .Include(p => p.Producto)
                 .Include(p => p.Venta)
@@ -82,7 +95,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteProductoAFavor(int id)
         {
-            var productoAFavor = await _context.ProductosAFavor.FindAsync(id);
+            var productoAFavor = await FilterByTenant(_context.ProductosAFavor).FirstOrDefaultAsync(p => p.Id == id);
             if (productoAFavor == null) return false;
 
             _context.ProductosAFavor.Remove(productoAFavor);
@@ -92,7 +105,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeleteProductosAFavorByVentaId(int ventaId)
         {
-            var productosAFavor = await _context.ProductosAFavor
+            var productosAFavor = await FilterByTenant(_context.ProductosAFavor)
                 .Where(paf => paf.VentaId == ventaId)
                 .ToListAsync();
 

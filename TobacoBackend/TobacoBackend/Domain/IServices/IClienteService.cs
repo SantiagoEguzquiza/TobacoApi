@@ -20,5 +20,8 @@ namespace TobacoBackend.Domain.IServices
         Task ReducirDeuda(int clienteId, decimal monto);
         Task<bool> ValidarMontoAbono(int clienteId, decimal montoAbono);
         Task<object> GetDetalleDeuda(int clienteId);
+        
+        // Método para obtener o crear Consumidor Final compartido
+        Task<ClienteDTO> ObtenerOCrearConsumidorFinal();
     }
 }

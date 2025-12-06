@@ -239,6 +239,350 @@
         }
       }
     },
+    "/api/Asistencia/registrar-entrada": {
+      "post": {
+        "tags": [
+          "Asistencia"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarEntradaDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarEntradaDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarEntradaDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/registrar-salida": {
+      "post": {
+        "tags": [
+          "Asistencia"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarSalidaDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarSalidaDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarSalidaDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/activa/{userId}": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsistenciaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/usuario/{userId}": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/usuario/{userId}/rango": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fechaInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "fechaFin",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/todas": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Asistencia/rango": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "fechaInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "fechaFin",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsistenciaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/Categoria": {
       "get": {
         "tags": [
@@ -919,6 +1263,345 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AbonoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Clientes/consumidor-final": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Entregas/mis-entregas": {
+      "get": {
+        "tags": [
+          "Entregas"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Entregas/mis-recorridos": {
+      "get": {
+        "tags": [
+          "Entregas"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntregaDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Entregas/{id}/estado": {
+      "put": {
+        "tags": [
+          "Entregas"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEstadoDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEstadoDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActualizarEstadoDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Entregas/{id}/notas": {
+      "put": {
+        "tags": [
+          "Entregas"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgregarNotasDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgregarNotasDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgregarNotasDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Health/detailed": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PermisosEmpleado/usuario/{userId}": {
+      "get": {
+        "tags": [
+          "PermisosEmpleado"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "PermisosEmpleado"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePermisosEmpleadoDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePermisosEmpleadoDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePermisosEmpleadoDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PermisosEmpleado/mis-permisos": {
+      "get": {
+        "tags": [
+          "PermisosEmpleado"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermisosEmpleadoDTO"
                 }
               }
             }
@@ -1778,6 +2461,860 @@
         }
       }
     },
+    "/api/RecorridosProgramados/vendedor/{vendedorId}": {
+      "get": {
+        "tags": [
+          "RecorridosProgramados"
+        ],
+        "parameters": [
+          {
+            "name": "vendedorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecorridosProgramados": {
+      "post": {
+        "tags": [
+          "RecorridosProgramados"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRecorridoProgramadoDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRecorridoProgramadoDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRecorridoProgramadoDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RecorridosProgramados/{id}": {
+      "get": {
+        "tags": [
+          "RecorridosProgramados"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecorridoProgramadoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "RecorridosProgramados"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecorridoProgramadoDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecorridoProgramadoDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecorridoProgramadoDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "RecorridosProgramados"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SuperAdmin/tenants": {
+      "get": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SuperAdmin/tenants/{id}": {
+      "get": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SuperAdmin/tenants/{tenantId}/admins": {
+      "get": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SuperAdmin/tenants/{tenantId}/admins/{adminId}": {
+      "put": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "adminId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "adminId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Tenant/onboarding": {
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponseDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponseDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tenant": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tenant/{id}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tenant"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tenant"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/User/login": {
       "post": {
         "tags": [
@@ -2437,7 +3974,24 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateVentaResponseDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateVentaResponseDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateVentaResponseDTO"
+                }
+              }
+            }
           }
         }
       }
@@ -2682,6 +4236,68 @@
           }
         }
       }
+    },
+    "/Ventas/asignar": {
+      "post": {
+        "tags": [
+          "Ventas"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Ventas/asignar-automaticamente": {
+      "post": {
+        "tags": [
+          "Ventas"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaAutomaticaDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaAutomaticaDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarVentaAutomaticaDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2712,6 +4328,110 @@
           },
           "nota": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActualizarEstadoDTO": {
+        "type": "object",
+        "properties": {
+          "estado": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgregarNotasDTO": {
+        "type": "object",
+        "properties": {
+          "notas": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AsignarVentaAutomaticaDTO": {
+        "type": "object",
+        "properties": {
+          "ventaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioIdExcluir": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AsignarVentaDTO": {
+        "type": "object",
+        "properties": {
+          "ventaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AsistenciaDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaHoraEntrada": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaHoraSalida": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ubicacionEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "ubicacionSalida": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitudEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitudEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitudSalida": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitudSalida": {
+            "type": "string",
+            "nullable": true
+          },
+          "horasTrabajadas": {
+            "type": "string",
+            "format": "date-span",
             "nullable": true
           }
         },
@@ -2754,6 +4474,10 @@
         "additionalProperties": false
       },
       "ClienteDTO": {
+        "required": [
+          "direccion",
+          "nombre"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -2762,24 +4486,108 @@
             "nullable": true
           },
           "nombre": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string"
           },
           "direccion": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 200,
+            "minLength": 5,
+            "type": "string"
           },
           "telefono": {
+            "maxLength": 20,
+            "minLength": 0,
+            "pattern": "^[0-9+\\-\\s()]+$",
             "type": "string",
             "nullable": true
           },
           "deuda": {
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^$|^0$|^\\d+(\\.\\d{1,2})?$",
             "type": "string",
             "nullable": true
           },
           "descuentoGlobal": {
+            "maximum": 100,
+            "minimum": 0,
             "type": "number",
             "format": "double"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "latitud": {
+            "maximum": 90,
+            "minimum": -90,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "longitud": {
+            "maximum": 180,
+            "minimum": -180,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateRecorridoProgramadoDTO": {
+        "type": "object",
+        "properties": {
+          "vendedorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "diaSemana": {
+            "$ref": "#/components/schemas/DiaSemana"
+          },
+          "orden": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTenantDTO": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "descripcion": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "telefono": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2794,24 +4602,144 @@
         "properties": {
           "userName": {
             "maxLength": 50,
-            "minLength": 0,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_-]+$",
             "type": "string"
           },
           "password": {
-            "maxLength": 255,
-            "minLength": 0,
+            "maxLength": 100,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
             "type": "string"
           },
           "email": {
             "maxLength": 100,
             "minLength": 0,
             "type": "string",
+            "format": "email",
             "nullable": true
           },
           "role": {
             "maxLength": 20,
             "minLength": 0,
+            "pattern": "^(Admin|Employee)$",
             "type": "string"
+          },
+          "tipoVendedor": {
+            "$ref": "#/components/schemas/TipoVendedor"
+          },
+          "zona": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateVentaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "ventaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "asignada": {
+            "type": "boolean"
+          },
+          "usuarioAsignadoId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuarioAsignadoNombre": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DiaSemana": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "EntregaDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ventaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteNombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clienteDireccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitud": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "longitud": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "estado": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fechaAsignacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaEntrega": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "repartidorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orden": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notas": {
+            "type": "string",
+            "nullable": true
+          },
+          "distanciaDesdeUbicacionActual": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -2833,11 +4761,14 @@
         "type": "object",
         "properties": {
           "userName": {
-            "minLength": 1,
+            "maxLength": 50,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_-]+$",
             "type": "string"
           },
           "password": {
-            "minLength": 1,
+            "maxLength": 100,
+            "minLength": 6,
             "type": "string"
           }
         },
@@ -2866,6 +4797,148 @@
           1,
           2,
           3
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "OnboardingRequestDTO": {
+        "required": [
+          "adminPassword",
+          "adminUserName",
+          "empresaNombre"
+        ],
+        "type": "object",
+        "properties": {
+          "empresaNombre": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "empresaDescripcion": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "empresaEmail": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "empresaTelefono": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "adminUserName": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string"
+          },
+          "adminPassword": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "adminEmail": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OnboardingResponseDTO": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "$ref": "#/components/schemas/TenantDTO"
+          },
+          "adminUser": {
+            "$ref": "#/components/schemas/UserDTO"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PermisosEmpleadoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productos_Visualizar": {
+            "type": "boolean"
+          },
+          "productos_Crear": {
+            "type": "boolean"
+          },
+          "productos_Editar": {
+            "type": "boolean"
+          },
+          "productos_Eliminar": {
+            "type": "boolean"
+          },
+          "clientes_Visualizar": {
+            "type": "boolean"
+          },
+          "clientes_Crear": {
+            "type": "boolean"
+          },
+          "clientes_Editar": {
+            "type": "boolean"
+          },
+          "clientes_Eliminar": {
+            "type": "boolean"
+          },
+          "ventas_Visualizar": {
+            "type": "boolean"
+          },
+          "ventas_Crear": {
+            "type": "boolean"
+          },
+          "ventas_EditarBorrador": {
+            "type": "boolean"
+          },
+          "ventas_Eliminar": {
+            "type": "boolean"
+          },
+          "cuentaCorriente_Visualizar": {
+            "type": "boolean"
+          },
+          "cuentaCorriente_RegistrarAbonos": {
+            "type": "boolean"
+          },
+          "entregas_Visualizar": {
+            "type": "boolean"
+          },
+          "entregas_ActualizarEstado": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlanType": {
+        "enum": [
+          0,
+          1,
+          2
         ],
         "type": "integer",
         "format": "int32"
@@ -3057,6 +5130,24 @@
             "type": "string",
             "nullable": true
           },
+          "marca": {
+            "type": "string",
+            "nullable": true
+          },
+          "descuento": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "fechaExpiracionDescuento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "descuentoIndefinido": {
+            "type": "boolean"
+          },
           "half": {
             "type": "boolean"
           },
@@ -3068,6 +5159,100 @@
             "items": {
               "$ref": "#/components/schemas/ProductQuantityPriceDTO"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecorridoProgramadoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vendedorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vendedorNombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteNombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clienteDireccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "clienteLatitud": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "clienteLongitud": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "diaSemana": {
+            "$ref": "#/components/schemas/DiaSemana"
+          },
+          "orden": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegistrarEntradaDTO": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ubicacionEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitudEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitudEntrada": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegistrarSalidaDTO": {
+        "type": "object",
+        "properties": {
+          "asistenciaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ubicacionSalida": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitudSalida": {
+            "type": "string",
+            "nullable": true
+          },
+          "longitudSalida": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -3091,26 +5276,22 @@
         },
         "additionalProperties": false
       },
-      "TokenValidationRequest": {
+      "TenantDTO": {
+        "required": [
+          "nombre"
+        ],
         "type": "object",
         "properties": {
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdateUserDTO": {
-        "type": "object",
-        "properties": {
-          "userName": {
-            "maxLength": 50,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
+          "id": {
+            "type": "integer",
+            "format": "int32"
           },
-          "password": {
+          "nombre": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "descripcion": {
             "maxLength": 255,
             "minLength": 0,
             "type": "string",
@@ -3122,8 +5303,163 @@
             "type": "string",
             "nullable": true
           },
-          "role": {
-            "maxLength": 20,
+          "telefono": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TipoVendedor": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "TokenValidationRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePermisosEmpleadoDTO": {
+        "type": "object",
+        "properties": {
+          "productos_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "productos_Crear": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "productos_Editar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "productos_Eliminar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "clientes_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "clientes_Crear": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "clientes_Editar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "clientes_Eliminar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ventas_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ventas_Crear": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ventas_EditarBorrador": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ventas_Eliminar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "cuentaCorriente_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "cuentaCorriente_RegistrarAbonos": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "entregas_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "entregas_ActualizarEstado": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateRecorridoProgramadoDTO": {
+        "type": "object",
+        "properties": {
+          "clienteId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "diaSemana": {
+            "$ref": "#/components/schemas/DiaSemana"
+          },
+          "orden": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "activo": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateTenantDTO": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "telefono": {
+            "maxLength": 50,
             "minLength": 0,
             "type": "string",
             "nullable": true
@@ -3131,6 +5467,56 @@
           "isActive": {
             "type": "boolean",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserDTO": {
+        "type": "object",
+        "properties": {
+          "userName": {
+            "maxLength": 50,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "role": {
+            "maxLength": 20,
+            "minLength": 0,
+            "pattern": "^(Admin|Employee)$",
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "tipoVendedor": {
+            "$ref": "#/components/schemas/TipoVendedor"
+          },
+          "zona": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false
@@ -3183,6 +5569,16 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "tipoVendedor": {
+            "$ref": "#/components/schemas/TipoVendedor"
+          },
+          "zona": {
+            "type": "string",
+            "nullable": true
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanType"
           }
         },
         "additionalProperties": false
@@ -3226,12 +5622,20 @@
           "metodoPago": {
             "$ref": "#/components/schemas/MetodoPagoEnum"
           },
-          "usuarioId": {
+          "usuarioIdCreador": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "usuario": {
+          "usuarioCreador": {
+            "$ref": "#/components/schemas/UserDTO"
+          },
+          "usuarioIdAsignado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "usuarioAsignado": {
             "$ref": "#/components/schemas/UserDTO"
           },
           "estadoEntrega": {

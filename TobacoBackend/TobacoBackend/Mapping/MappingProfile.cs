@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.Mapping
 {
@@ -10,7 +11,8 @@ namespace TobacoBackend.Mapping
         {
             CreateMap<Cliente, ClienteDTO>().ReverseMap();
             CreateMap<Venta, VentaDTO>()
-                .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.Usuario))
+                .ForMember(dest => dest.UsuarioCreador, opt => opt.MapFrom(src => src.UsuarioCreador))
+                .ForMember(dest => dest.UsuarioAsignado, opt => opt.MapFrom(src => src.UsuarioAsignado))
                 .ReverseMap();
             CreateMap<VentaProducto, VentaProductoDTO>().ReverseMap();
             CreateMap<Categoria, CategoriaDTO>().ReverseMap();
@@ -22,12 +24,14 @@ namespace TobacoBackend.Mapping
             CreateMap<ProductoDTO, Producto>()
                 .ForMember(dest => dest.Categoria, opt => opt.Ignore())
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
-                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Marca) ? null : src.Marca));
 
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
                 .ForMember(dest => dest.CategoriaNombre, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nombre : string.Empty))
-                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices));
+                .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => src.Marca));
 
             CreateMap<User, UserDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -36,13 +40,19 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.LastLogin, opt => opt.MapFrom(src => src.LastLogin))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.TipoVendedor, opt => opt.MapFrom(src => src.TipoVendedor))
+                .ForMember(dest => dest.Zona, opt => opt.MapFrom(src => src.Zona))
+                .ForMember(dest => dest.Plan, opt => opt.MapFrom(src => src.Plan));
 
             CreateMap<CreateUserDTO, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.LastLogin, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+                .ForMember(dest => dest.IsActive, opt => opt.Ignore())
+                .ForMember(dest => dest.Plan, opt => opt.Ignore()) // Se manejará en el servicio
+                .ForMember(dest => dest.CreatedById, opt => opt.Ignore()) // Se manejará en el servicio
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
             // Mapeo para Abonos
             CreateMap<Abonos, AbonoDTO>()
@@ -52,6 +62,25 @@ namespace TobacoBackend.Mapping
 
             // Mapeo para ProductoAFavor
             CreateMap<ProductoAFavor, ProductoAFavorDTO>().ReverseMap();
+
+            // Mapeo para Asistencia
+            CreateMap<Asistencia, AsistenciaDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+                .ForMember(dest => dest.HorasTrabajadas, opt => opt.MapFrom(src => src.HorasTrabajadas))
+                .ReverseMap()
+                .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            // Mapeo de PermisosEmpleado
+            CreateMap<PermisosEmpleado, PermisosEmpleadoDTO>().ReverseMap();
+
+            // Mapeo de Tenant
+            CreateMap<Tenant, TenantDTO>().ReverseMap();
+            CreateMap<CreateTenantDTO, Tenant>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.Ignore())
+                .ForMember(dest => dest.Users, opt => opt.Ignore());
         }
     }
 }

@@ -13,13 +13,36 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<User> FilterByTenant(IQueryable<User> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(u => u.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<User?> GetByUserNameAsync(string userName)
         {
-            return await _context.Users
+            return await FilterByTenant(_context.Users)
                 .FirstOrDefaultAsync(u => u.UserName == userName && u.IsActive);
         }
 
         public async Task<User?> GetByIdAsync(int id)
+        {
+            return await FilterByTenant(_context.Users)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        /// <summary>
+        /// Obtiene un usuario por ID sin aplicar el filtro de tenant
+        /// Útil para SuperAdmin que necesita acceder a usuarios de cualquier tenant
+        /// </summary>
+        public async Task<User?> GetByIdWithoutTenantFilterAsync(int id)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == id);
@@ -34,13 +57,27 @@ namespace TobacoBackend.Repositories
 
         public async Task UpdateAsync(User user)
         {
-            _context.Users.Update(user);
+            // Verificar si la entidad ya está siendo rastreada
+            var trackedEntity = _context.ChangeTracker.Entries<User>()
+                .FirstOrDefault(e => e.Entity.Id == user.Id);
+
+            if (trackedEntity != null)
+            {
+                // Si ya está siendo rastreada, actualizar los valores de la entidad rastreada
+                trackedEntity.CurrentValues.SetValues(user);
+            }
+            else
+            {
+                // Si no está siendo rastreada, usar Update
+                _context.Users.Update(user);
+            }
+            
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> ExistsAsync(string userName)
         {
-            return await _context.Users
+            return await FilterByTenant(_context.Users)
                 .AnyAsync(u => u.UserName == userName);
         }
 
@@ -53,16 +90,67 @@ namespace TobacoBackend.Repositories
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
+            return await FilterByTenant(_context.Users)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Obtiene usuarios de un tenant específico sin usar el filtro automático del contexto
+        /// Útil para SuperAdmin que necesita acceder a usuarios de cualquier tenant
+        /// </summary>
+        public async Task<IEnumerable<User>> GetUsersByTenantIdAsync(int tenantId)
+        {
             return await _context.Users
+                .Where(u => u.TenantId == tenantId)
                 .ToListAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await FilterByTenant(_context.Users)
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (user != null)
             {
                 _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// Elimina un usuario por ID sin aplicar el filtro de tenant
+        /// Útil para SuperAdmin que necesita eliminar usuarios de cualquier tenant
+        /// </summary>
+        public async Task DeleteAsyncWithoutTenantFilter(int id)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetSubUsersByCreatedByIdAsync(int createdById)
+        {
+            return await FilterByTenant(_context.Users)
+                .Where(u => u.CreatedById == createdById)
+                .ToListAsync();
+        }
+
+        public async Task UpdateSubUsersPlanAsync(int createdById, PlanType newPlan)
+        {
+            var subUsers = await FilterByTenant(_context.Users)
+                .Where(u => u.CreatedById == createdById)
+                .ToListAsync();
+
+            foreach (var subUser in subUsers)
+            {
+                subUser.Plan = newPlan;
+            }
+
+            if (subUsers.Any())
+            {
                 await _context.SaveChangesAsync();
             }
         }

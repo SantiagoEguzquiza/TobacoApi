@@ -20,8 +20,10 @@ namespace TobacoBackend.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PricingService _pricingService;
+        private readonly IUserService _userService;
+        private readonly AplicationDbContext _context;
 
-        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository)
+        public VentaService(IVentaRepository ventaRepository, IMapper mapper, IProductoRepository productoRepository, IVentaPagoService ventaPagoService, IPrecioEspecialService precioEspecialService, IClienteService clienteService, IHttpContextAccessor httpContextAccessor, PricingService pricingService, IProductoAFavorRepository productoAFavorRepository, IUserService userService, AplicationDbContext context)
         {
             _ventaRepository = ventaRepository;
             _mapper = mapper;
@@ -32,16 +34,42 @@ namespace TobacoBackend.Services
             _httpContextAccessor = httpContextAccessor;
             _pricingService = pricingService;
             _productoAFavorRepository = productoAFavorRepository;
+            _userService = userService;
+            _context = context;
         }
 
-        public async Task AddVenta(VentaDTO ventaDto)
+        public async Task<CreateVentaResponseDTO> AddVenta(VentaDTO ventaDto)
         {
-            // Obtener el ID del usuario actual del contexto de autenticación
+            // Obtener el ID del usuario actual para registrar quién creó la venta
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            int? usuarioId = null;
+            int? usuarioIdCreador = null;
+            int? usuarioIdAsignado = null;
+            string? nombreRepartidorAsignado = null;
+            
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                usuarioId = userId;
+                usuarioIdCreador = userId;
+                
+                // Obtener el usuario actual para verificar su rol y tipo
+                var usuarioActual = await _userService.GetUserByIdAsync(userId);
+                
+                // Solo auto-asignar si es vendedor-repartidor (RepartidorVendedor)
+                if (usuarioActual != null && 
+                    usuarioActual.Role == "Employee" && 
+                    usuarioActual.TipoVendedor == TipoVendedor.RepartidorVendedor)
+                {
+                    // Auto-asignar la venta a sí mismo
+                    usuarioIdAsignado = userId;
+                    nombreRepartidorAsignado = usuarioActual.UserName;
+                }
+                // Si es Admin, no auto-asignar (usuarioIdAsignado queda null)
+            }
+
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
             }
 
             var venta = new Venta
@@ -50,7 +78,9 @@ namespace TobacoBackend.Services
                 Fecha = DateTime.Now,
                 VentaProductos = new List<VentaProducto>(),
                 MetodoPago = ventaDto.MetodoPago,
-                UsuarioId = usuarioId
+                UsuarioIdCreador = usuarioIdCreador, // Quien creó la venta
+                UsuarioIdAsignado = usuarioIdAsignado, // Auto-asignado si es vendedor-repartidor, null si no
+                TenantId = tenantId.Value
             };
 
             decimal total = 0;
@@ -63,6 +93,9 @@ namespace TobacoBackend.Services
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
 
+                // Aplicar lógica de expiración de descuentos antes de calcular el precio
+                await AplicarLogicaExpiracionDescuento(producto);
+
                 // Obtener el precio especial si existe
                 decimal? specialPrice = null;
                 try
@@ -74,25 +107,78 @@ namespace TobacoBackend.Services
                     // No special price available, use regular pricing
                 }
 
-                // Calculate optimal pricing using quantity-based pricing
-                var pricingResult = _pricingService.CalculateOptimalPricing(
-                    producto, 
-                    (int)productoDto.Cantidad, 
-                    specialPrice, 
-                    null // Global discount will be applied later
-                );
+                Console.WriteLine($"💰 VentaService: Producto {producto.Nombre}, Cantidad={productoDto.Cantidad}, PrecioBase={producto.Precio}, SpecialPrice={specialPrice}");
+
+                // Calcular el precio considerando cantidades decimales (como 0.5)
+                decimal precioConDescuentoProducto = 0;
+                
+                // Si la cantidad es menor a 1 (como 0.5), usar precio unitario directamente
+                if (productoDto.Cantidad < 1)
+                {
+                    // Para cantidades decimales, usar el precio unitario base
+                    decimal precioUnitario = specialPrice ?? producto.Precio;
+                    
+                    // Aplicar descuento del producto si está activo
+                    if (TieneDescuentoActivo(producto))
+                    {
+                        precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                    }
+                    
+                    // Multiplicar por la cantidad decimal (ej: precioUnitario * 0.5)
+                    precioConDescuentoProducto = precioUnitario * productoDto.Cantidad;
+                }
+                else
+                {
+                    // Para cantidades >= 1, usar la lógica de packs con la parte entera
+                    int cantidadEntera = (int)productoDto.Cantidad;
+                    decimal parteDecimal = productoDto.Cantidad - cantidadEntera;
+                    
+                    // Calcular precio para la parte entera usando packs
+                    var pricingResult = _pricingService.CalculateOptimalPricing(
+                        producto, 
+                        cantidadEntera, 
+                        specialPrice, 
+                        null // Global discount will be applied later
+                    );
+
+                    // Aplicar descuento del producto si está activo
+                    decimal precioParteEntera = pricingResult.TotalPrice;
+                    if (TieneDescuentoActivo(producto))
+                    {
+                        // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                        precioParteEntera = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                    }
+                    
+                    // Si hay parte decimal, calcular su precio usando el precio unitario
+                    decimal precioParteDecimal = 0;
+                    if (parteDecimal > 0)
+                    {
+                        decimal precioUnitario = specialPrice ?? producto.Precio;
+                        if (TieneDescuentoActivo(producto))
+                        {
+                            precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                        }
+                        precioParteDecimal = precioUnitario * parteDecimal;
+                    }
+                    
+                    precioConDescuentoProducto = precioParteEntera + precioParteDecimal;
+                }
 
                 var ventaProducto = new VentaProducto
                 {
                     ProductoId = producto.Id,
                     Cantidad = productoDto.Cantidad,
-                    PrecioFinalCalculado = pricingResult.TotalPrice // Precio después de descuentos por cantidad
+                    PrecioFinalCalculado = precioConDescuentoProducto // Precio después de descuentos por cantidad y descuento del producto
                 };
 
-                total += pricingResult.TotalPrice;
+                Console.WriteLine($"💰 VentaService: PrecioFinalCalculado={precioConDescuentoProducto} para {producto.Nombre} (cantidad={productoDto.Cantidad})");
+
+                total += precioConDescuentoProducto;
 
                 venta.VentaProductos.Add(ventaProducto);
             }
+
+            Console.WriteLine($"💰 VentaService: Subtotal antes de descuento global={total}");
 
             // Aplicar descuento global del cliente si existe
             var cliente = await _clienteService.GetClienteById(ventaDto.ClienteId);
@@ -101,9 +187,11 @@ namespace TobacoBackend.Services
             {
                 descuentoGlobal = total * (cliente.DescuentoGlobal / 100);
                 total = total - descuentoGlobal;
+                Console.WriteLine($"💰 VentaService: DescuentoGlobal={descuentoGlobal}, Total después de descuento={total}");
             }
 
             venta.Total = total;
+            Console.WriteLine($"💰 VentaService: Total final de la venta={venta.Total}");
 
             // Calcular y asignar precios finales a cada producto después del descuento global
             if (descuentoGlobal > 0)
@@ -151,6 +239,18 @@ namespace TobacoBackend.Services
                     await _clienteService.AgregarDeuda(venta.ClienteId, montoCuentaCorriente);
                 }
             }
+
+            // Preparar respuesta
+            var response = new CreateVentaResponseDTO
+            {
+                VentaId = venta.Id,
+                Message = "Venta creada exitosamente",
+                Asignada = usuarioIdAsignado.HasValue, // True si se auto-asignó (vendedor-repartidor)
+                UsuarioAsignadoId = usuarioIdAsignado,
+                UsuarioAsignadoNombre = nombreRepartidorAsignado
+            };
+
+            return response;
         }
 
 
@@ -247,7 +347,7 @@ namespace TobacoBackend.Services
             // Get the existing venta to compare changes
             var ventaExistente = await _ventaRepository.GetVentaById(id);
 
-            // Calculate the new total
+            // Calculate the new total and update PrecioFinalCalculado for each product
             decimal nuevoTotal = 0;
             if (ventaDto.VentaProductos != null)
             {
@@ -256,18 +356,105 @@ namespace TobacoBackend.Services
                     var producto = await _productoRepository.GetProductoById(productoDto.ProductoId);
                     if (producto != null)
                     {
-                        var precioFinal = await _precioEspecialService.GetPrecioFinalProductoAsync(ventaDto.ClienteId, producto.Id);
-                        nuevoTotal += precioFinal * productoDto.Cantidad;
+                        // Aplicar lógica de expiración de descuentos antes de calcular el precio
+                        await AplicarLogicaExpiracionDescuento(producto);
+
+                        // Obtener el precio especial si existe
+                        decimal? specialPrice = null;
+                        try
+                        {
+                            specialPrice = await _precioEspecialService.GetPrecioFinalProductoAsync(ventaDto.ClienteId, producto.Id);
+                        }
+                        catch
+                        {
+                            // No special price available, use regular pricing
+                        }
+
+                        // Calcular el precio considerando cantidades decimales (como 0.5)
+                        decimal precioConDescuentoProducto = 0;
+                        
+                        // Si la cantidad es menor a 1 (como 0.5), usar precio unitario directamente
+                        if (productoDto.Cantidad < 1)
+                        {
+                            // Para cantidades decimales, usar el precio unitario base
+                            decimal precioUnitario = specialPrice ?? producto.Precio;
+                            
+                            // Aplicar descuento del producto si está activo
+                            if (TieneDescuentoActivo(producto))
+                            {
+                                precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                            }
+                            
+                            // Multiplicar por la cantidad decimal (ej: precioUnitario * 0.5)
+                            precioConDescuentoProducto = precioUnitario * productoDto.Cantidad;
+                        }
+                        else
+                        {
+                            // Para cantidades >= 1, usar la lógica de packs con la parte entera
+                            int cantidadEntera = (int)productoDto.Cantidad;
+                            decimal parteDecimal = productoDto.Cantidad - cantidadEntera;
+                            
+                            // Calcular precio para la parte entera usando packs
+                            var pricingResult = _pricingService.CalculateOptimalPricing(
+                                producto, 
+                                cantidadEntera, 
+                                specialPrice, 
+                                null // Global discount will be applied later
+                            );
+
+                            // Aplicar descuento del producto si está activo
+                            decimal precioParteEntera = pricingResult.TotalPrice;
+                            if (TieneDescuentoActivo(producto))
+                            {
+                                // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                                precioParteEntera = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                            }
+                            
+                            // Si hay parte decimal, calcular su precio usando el precio unitario
+                            decimal precioParteDecimal = 0;
+                            if (parteDecimal > 0)
+                            {
+                                decimal precioUnitario = specialPrice ?? producto.Precio;
+                                if (TieneDescuentoActivo(producto))
+                                {
+                                    precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                                }
+                                precioParteDecimal = precioUnitario * parteDecimal;
+                            }
+                            
+                            precioConDescuentoProducto = precioParteEntera + precioParteDecimal;
+                        }
+
+                        // Actualizar el PrecioFinalCalculado en el DTO
+                        productoDto.PrecioFinalCalculado = precioConDescuentoProducto;
+
+                        nuevoTotal += precioConDescuentoProducto;
                     }
                 }
             }
 
             // Apply global discount if exists
             var cliente = await _clienteService.GetClienteById(ventaDto.ClienteId);
+            decimal descuentoGlobal = 0;
             if (cliente != null && cliente.DescuentoGlobal > 0)
             {
-                var descuento = nuevoTotal * (cliente.DescuentoGlobal / 100);
-                nuevoTotal = nuevoTotal - descuento;
+                descuentoGlobal = nuevoTotal * (cliente.DescuentoGlobal / 100);
+                nuevoTotal = nuevoTotal - descuentoGlobal;
+            }
+
+            // Aplicar descuento global proporcionalmente a cada producto
+            if (descuentoGlobal > 0 && ventaDto.VentaProductos != null)
+            {
+                foreach (var productoDto in ventaDto.VentaProductos)
+                {
+                    // Calcular la proporción de este producto en el total antes del descuento global
+                    var precioAntesDescuentoGlobal = productoDto.PrecioFinalCalculado;
+                    var proporcionProducto = precioAntesDescuentoGlobal / (nuevoTotal + descuentoGlobal);
+                    
+                    // Aplicar el descuento global proporcionalmente a este producto
+                    var descuentoProducto = descuentoGlobal * proporcionProducto;
+                    productoDto.PrecioFinalCalculado = precioAntesDescuentoGlobal - descuentoProducto;
+                }
             }
 
             // Calculate the current debt amount from the existing venta
@@ -467,6 +654,18 @@ namespace TobacoBackend.Services
             await _ventaRepository.SaveChangesAsync();
         }
 
+        public async Task<bool> UpdateEstadoEntrega(int ventaId, EstadoEntrega nuevoEstado)
+        {
+            var venta = await _ventaRepository.GetVentaById(ventaId);
+            if (venta == null)
+            {
+                return false;
+            }
+            venta.EstadoEntrega = nuevoEstado;
+            await _ventaRepository.UpdateVenta(venta);
+            return true;
+        }
+
         private async Task CrearProductoAFavor(Venta venta, VentaProducto ventaProducto, VentaProductoDTO itemDto, int? usuarioId)
         {
             Console.WriteLine($"=== CrearProductoAFavor - VentaId: {venta.Id}, ProductoId: {ventaProducto.ProductoId} ===");
@@ -484,6 +683,13 @@ namespace TobacoBackend.Services
             {
                 try
                 {
+                    // Set TenantId from current context
+                    var tenantId = _context.GetCurrentTenantId();
+                    if (tenantId == null)
+                    {
+                        throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+                    }
+
                     var productoAFavor = new ProductoAFavor
                     {
                         ClienteId = venta.ClienteId,
@@ -495,10 +701,11 @@ namespace TobacoBackend.Services
                         VentaId = venta.Id,
                         VentaProductoId = ventaProducto.ProductoId, // Como VentaProducto no tiene ID propio, usamos ProductoId
                         UsuarioRegistroId = usuarioId,
-                        Entregado = false
+                        Entregado = false,
+                        TenantId = tenantId.Value
                     };
 
-                    Console.WriteLine($"Creando ProductoAFavor: ClienteId={productoAFavor.ClienteId}, ProductoId={productoAFavor.ProductoId}, Cantidad={productoAFavor.Cantidad}, Motivo={productoAFavor.Motivo}");
+                    Console.WriteLine($"Creando ProductoAFavor: ClienteId={productoAFavor.ClienteId}, ProductoId={productoAFavor.ProductoId}, Cantidad={productoAFavor.Cantidad}, Motivo={productoAFavor.Motivo}, TenantId={productoAFavor.TenantId}");
                     
                     await _productoAFavorRepository.AddProductoAFavor(productoAFavor);
                     Console.WriteLine("ProductoAFavor creado exitosamente");
@@ -557,6 +764,98 @@ namespace TobacoBackend.Services
             {
                 return EstadoEntrega.PARCIAL;
             }
+        }
+
+        public async Task<bool> AsignarVentaAUsuario(int ventaId, int usuarioId)
+        {
+            return await _ventaRepository.AsignarVentaAUsuario(ventaId, usuarioId);
+        }
+
+        public async Task<AsignarVentaAutomaticaResponseDTO> AsignarVentaAutomaticamente(int ventaId, int usuarioIdExcluir)
+        {
+            // Buscar un repartidor disponible (empleado activo, excluyendo al usuario actual)
+            var repartidores = await _userService.GetAllUsersAsync();
+            var repartidorDisponible = repartidores
+                .FirstOrDefault(u => u.Role == "Employee" 
+                    && u.Id != usuarioIdExcluir
+                    && u.IsActive);
+
+            if (repartidorDisponible == null)
+            {
+                return new AsignarVentaAutomaticaResponseDTO
+                {
+                    Asignada = false,
+                    Message = "No hay repartidores disponibles para asignar la venta."
+                };
+            }
+
+            var asignado = await _ventaRepository.AsignarVentaAUsuario(ventaId, repartidorDisponible.Id);
+
+            return new AsignarVentaAutomaticaResponseDTO
+            {
+                Asignada = asignado,
+                UsuarioAsignadoId = repartidorDisponible.Id,
+                UsuarioAsignadoNombre = repartidorDisponible.UserName,
+                Message = asignado 
+                    ? $"Venta asignada exitosamente a {repartidorDisponible.UserName}"
+                    : "Error al asignar la venta."
+            };
+        }
+
+        /// <summary>
+        /// Aplica la lógica de expiración de descuentos (similar a ProductoService)
+        /// </summary>
+        private async Task AplicarLogicaExpiracionDescuento(Producto producto)
+        {
+            // Si el descuento es indefinido, no hacer nada
+            if (producto.descuentoIndefinido)
+            {
+                return;
+            }
+
+            // Si el descuento no es indefinido y tiene fecha de expiración
+            if (producto.fechaExpiracionDescuento.HasValue)
+            {
+                // Si la fecha ya venció, poner descuento en 0 y guardar
+                if (producto.fechaExpiracionDescuento.Value < DateTime.UtcNow)
+                {
+                    // Guardar el cambio en la base de datos
+                    await _productoRepository.UpdateProductoDiscount(producto.Id, 0, null, false);
+                    // Actualizar el objeto en memoria
+                    producto.Descuento = 0;
+                    producto.fechaExpiracionDescuento = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verifica si un producto tiene un descuento activo (no vencido)
+        /// </summary>
+        private bool TieneDescuentoActivo(Producto producto)
+        {
+            // Si no hay descuento, retornar false
+            if (producto.Descuento <= 0)
+            {
+                return false;
+            }
+
+            // Si el descuento es indefinido, está activo
+            if (producto.descuentoIndefinido)
+            {
+                return true;
+            }
+
+            // Si tiene fecha de expiración, verificar si no venció
+            if (producto.fechaExpiracionDescuento.HasValue)
+            {
+                var ahora = DateTime.UtcNow;
+                var fechaExpiracion = producto.fechaExpiracionDescuento.Value;
+                return fechaExpiracion > ahora;
+            }
+
+            // Si tiene descuento pero no es indefinido y no tiene fecha, considerar activo
+            // (aunque esto no debería pasar según la lógica del backend)
+            return true;
         }
     }
 }

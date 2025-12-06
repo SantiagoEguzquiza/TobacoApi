@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
 {
-    public class Cliente
+    public class Cliente : IMustHaveTenant
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -23,6 +23,12 @@ namespace TobacoBackend.Domain.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal DescuentoGlobal { get; set; } = 0;
 
+        public bool Visible { get; set; } = true;
+
+        // Coordenadas GPS para entregas
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
+
         public List<Venta> Ventas { get; set; } = new List<Venta>();
 
         public List<PrecioEspecial> PreciosEspeciales { get; set; } = new List<PrecioEspecial>();
@@ -31,5 +37,17 @@ namespace TobacoBackend.Domain.Models
 
         [NotMapped]
         public decimal DeudaDecimal => decimal.TryParse(Deuda, out var value) ? value : 0;
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este cliente
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este cliente
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

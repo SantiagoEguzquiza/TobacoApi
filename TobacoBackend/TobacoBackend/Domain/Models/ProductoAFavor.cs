@@ -6,7 +6,7 @@ namespace TobacoBackend.Domain.Models
     /// <summary>
     /// Representa un producto que quedó pendiente de entrega y está a favor del cliente
     /// </summary>
-    public class ProductoAFavor
+    public class ProductoAFavor : IMustHaveTenant
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -62,6 +62,18 @@ namespace TobacoBackend.Domain.Models
 
         [ForeignKey("UsuarioEntregaId")]
         public User? UsuarioEntrega { get; set; }
+
+        /// <summary>
+        /// ID del tenant (empresa/cliente) al que pertenece este producto a favor
+        /// </summary>
+        [Required]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Navegación al tenant al que pertenece este producto a favor
+        /// </summary>
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }
 

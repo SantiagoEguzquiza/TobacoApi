@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Services;
+using TobacoBackend.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
 {
@@ -21,6 +23,13 @@ namespace TobacoBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<AbonoDTO>> AddAbono([FromBody] AbonoDTO abonoDto)
         {
+            // Validar permiso de registrar abonos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "CuentaCorriente_RegistrarAbonos");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para registrar abonos.");
+            }
+
             try
             {
                 if (abonoDto == null)
@@ -42,6 +51,13 @@ namespace TobacoBackend.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateAbono(int id, [FromBody] AbonoDTO abonoDto)
         {
+            // Validar permiso de registrar abonos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "CuentaCorriente_RegistrarAbonos");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para registrar abonos.");
+            }
+
             if (abonoDto == null || (abonoDto.Id.HasValue && id != abonoDto.Id))
             {
                 return BadRequest(new { message = "ID del abono no coincide o el abono es nulo." });
@@ -64,6 +80,13 @@ namespace TobacoBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteAbono(int id)
         {
+            // Validar permiso de registrar abonos
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "CuentaCorriente_RegistrarAbonos");
+            if (!hasPermission)
+            {
+                return Forbid("No tienes permiso para registrar abonos.");
+            }
+
             try
             {
                 var deleteResult = await _abonosService.DeleteAbono(id);
@@ -85,6 +108,13 @@ namespace TobacoBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<List<AbonoDTO>>> GetAllAbonos()
         {
+            // Validar permiso de visualizar cuenta corriente
+            var canView = await PermissionHelper.CanViewModuleAsync(User, HttpContext.RequestServices, "CuentaCorriente");
+            if (!canView)
+            {
+                return Forbid("No tienes permiso para visualizar cuenta corriente.");
+            }
+
             var abonos = await _abonosService.GetAllAbonos();
             return Ok(abonos);
         }

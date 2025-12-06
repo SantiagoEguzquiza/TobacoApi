@@ -22,8 +22,17 @@ namespace TobacoBackend.DTOs
         [Required(ErrorMessage = "La categoría es requerida")]
         public int CategoriaId { get; set; }         
         
-        public string CategoriaNombre { get; set; }   
-        
+        public string CategoriaNombre { get; set; }
+
+        public string? Marca { get; set; }
+
+        [Range(0, 100, ErrorMessage = "El descuento debe estar entre 0 y 100")]
+        public decimal Descuento { get; set; } = 0;
+
+        public DateTime? fechaExpiracionDescuento { get; set; }
+
+        public bool descuentoIndefinido { get; set; } = false;
+
         public bool Half { get; set; } = false;
 
         public bool IsActive { get; set; } = true;

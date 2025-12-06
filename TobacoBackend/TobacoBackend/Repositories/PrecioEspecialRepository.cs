@@ -13,9 +13,22 @@ namespace TobacoBackend.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene el TenantId actual del contexto para filtrar las consultas
+        /// </summary>
+        private IQueryable<PrecioEspecial> FilterByTenant(IQueryable<PrecioEspecial> query)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            if (tenantId.HasValue)
+            {
+                return query.Where(pe => pe.TenantId == tenantId.Value);
+            }
+            return query; // Si no hay TenantId (SuperAdmin), no filtrar
+        }
+
         public async Task<List<PrecioEspecial>> GetAllPreciosEspecialesAsync()
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .Include(pe => pe.Cliente)
                 .Include(pe => pe.Producto)
                 .ToListAsync();
@@ -23,7 +36,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<PrecioEspecial?> GetPrecioEspecialByIdAsync(int id)
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .Include(pe => pe.Cliente)
                 .Include(pe => pe.Producto)
                 .FirstOrDefaultAsync(pe => pe.Id == id);
@@ -31,7 +44,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<PrecioEspecial>> GetPreciosEspecialesByClienteIdAsync(int clienteId)
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .Include(pe => pe.Producto)
                 .ThenInclude(p => p.Categoria)
                 .Where(pe => pe.ClienteId == clienteId)
@@ -41,7 +54,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<PrecioEspecial?> GetPrecioEspecialByClienteAndProductoAsync(int clienteId, int productoId)
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .Include(pe => pe.Cliente)
                 .Include(pe => pe.Producto)
                 .FirstOrDefaultAsync(pe => pe.ClienteId == clienteId && pe.ProductoId == productoId);
@@ -64,7 +77,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeletePrecioEspecialAsync(int id)
         {
-            var precioEspecial = await _context.PreciosEspeciales.FindAsync(id);
+            var precioEspecial = await FilterByTenant(_context.PreciosEspeciales).FirstOrDefaultAsync(pe => pe.Id == id);
             if (precioEspecial == null)
                 return false;
 
@@ -75,7 +88,7 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> DeletePrecioEspecialByClienteAndProductoAsync(int clienteId, int productoId)
         {
-            var precioEspecial = await _context.PreciosEspeciales
+            var precioEspecial = await FilterByTenant(_context.PreciosEspeciales)
                 .FirstOrDefaultAsync(pe => pe.ClienteId == clienteId && pe.ProductoId == productoId);
             
             if (precioEspecial == null)
@@ -88,13 +101,13 @@ namespace TobacoBackend.Repositories
 
         public async Task<bool> ExistsPrecioEspecialAsync(int clienteId, int productoId)
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .AnyAsync(pe => pe.ClienteId == clienteId && pe.ProductoId == productoId);
         }
 
         public async Task<List<PrecioEspecial>> GetPreciosEspecialesByProductoIdAsync(int productoId)
         {
-            return await _context.PreciosEspeciales
+            return await FilterByTenant(_context.PreciosEspeciales)
                 .Include(pe => pe.Cliente)
                 .Where(pe => pe.ProductoId == productoId)
                 .ToListAsync();

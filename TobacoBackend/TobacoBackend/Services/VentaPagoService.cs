@@ -37,6 +37,10 @@ namespace TobacoBackend.Services
         public async Task<VentaPagoDTO> AddVentaPago(VentaPagoDTO ventaPagoDto)
         {
             var ventaPago = _mapper.Map<Domain.Models.VentaPago>(ventaPagoDto);
+            
+            // VentaPago no tiene TenantId directamente, se filtra a través de la relación con Venta
+            // El TenantId se valida en el repositorio a través de la venta asociada
+            
             var result = await _ventaPagoRepository.AddVentaPago(ventaPago);
             return _mapper.Map<VentaPagoDTO>(result);
         }
