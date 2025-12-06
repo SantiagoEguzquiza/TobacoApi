@@ -107,20 +107,61 @@ namespace TobacoBackend.Services
                     // No special price available, use regular pricing
                 }
 
-                // Calculate optimal pricing using quantity-based pricing
-                var pricingResult = _pricingService.CalculateOptimalPricing(
-                    producto, 
-                    (int)productoDto.Cantidad, 
-                    specialPrice, 
-                    null // Global discount will be applied later
-                );
+                Console.WriteLine($"💰 VentaService: Producto {producto.Nombre}, Cantidad={productoDto.Cantidad}, PrecioBase={producto.Precio}, SpecialPrice={specialPrice}");
 
-                // Aplicar descuento del producto si está activo
-                decimal precioConDescuentoProducto = pricingResult.TotalPrice;
-                if (TieneDescuentoActivo(producto))
+                // Calcular el precio considerando cantidades decimales (como 0.5)
+                decimal precioConDescuentoProducto = 0;
+                
+                // Si la cantidad es menor a 1 (como 0.5), usar precio unitario directamente
+                if (productoDto.Cantidad < 1)
                 {
-                    // Aplicar descuento del producto sobre el precio final (ya incluye packs)
-                    precioConDescuentoProducto = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                    // Para cantidades decimales, usar el precio unitario base
+                    decimal precioUnitario = specialPrice ?? producto.Precio;
+                    
+                    // Aplicar descuento del producto si está activo
+                    if (TieneDescuentoActivo(producto))
+                    {
+                        precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                    }
+                    
+                    // Multiplicar por la cantidad decimal (ej: precioUnitario * 0.5)
+                    precioConDescuentoProducto = precioUnitario * productoDto.Cantidad;
+                }
+                else
+                {
+                    // Para cantidades >= 1, usar la lógica de packs con la parte entera
+                    int cantidadEntera = (int)productoDto.Cantidad;
+                    decimal parteDecimal = productoDto.Cantidad - cantidadEntera;
+                    
+                    // Calcular precio para la parte entera usando packs
+                    var pricingResult = _pricingService.CalculateOptimalPricing(
+                        producto, 
+                        cantidadEntera, 
+                        specialPrice, 
+                        null // Global discount will be applied later
+                    );
+
+                    // Aplicar descuento del producto si está activo
+                    decimal precioParteEntera = pricingResult.TotalPrice;
+                    if (TieneDescuentoActivo(producto))
+                    {
+                        // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                        precioParteEntera = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                    }
+                    
+                    // Si hay parte decimal, calcular su precio usando el precio unitario
+                    decimal precioParteDecimal = 0;
+                    if (parteDecimal > 0)
+                    {
+                        decimal precioUnitario = specialPrice ?? producto.Precio;
+                        if (TieneDescuentoActivo(producto))
+                        {
+                            precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                        }
+                        precioParteDecimal = precioUnitario * parteDecimal;
+                    }
+                    
+                    precioConDescuentoProducto = precioParteEntera + precioParteDecimal;
                 }
 
                 var ventaProducto = new VentaProducto
@@ -130,10 +171,14 @@ namespace TobacoBackend.Services
                     PrecioFinalCalculado = precioConDescuentoProducto // Precio después de descuentos por cantidad y descuento del producto
                 };
 
+                Console.WriteLine($"💰 VentaService: PrecioFinalCalculado={precioConDescuentoProducto} para {producto.Nombre} (cantidad={productoDto.Cantidad})");
+
                 total += precioConDescuentoProducto;
 
                 venta.VentaProductos.Add(ventaProducto);
             }
+
+            Console.WriteLine($"💰 VentaService: Subtotal antes de descuento global={total}");
 
             // Aplicar descuento global del cliente si existe
             var cliente = await _clienteService.GetClienteById(ventaDto.ClienteId);
@@ -142,9 +187,11 @@ namespace TobacoBackend.Services
             {
                 descuentoGlobal = total * (cliente.DescuentoGlobal / 100);
                 total = total - descuentoGlobal;
+                Console.WriteLine($"💰 VentaService: DescuentoGlobal={descuentoGlobal}, Total después de descuento={total}");
             }
 
             venta.Total = total;
+            Console.WriteLine($"💰 VentaService: Total final de la venta={venta.Total}");
 
             // Calcular y asignar precios finales a cada producto después del descuento global
             if (descuentoGlobal > 0)
@@ -323,20 +370,59 @@ namespace TobacoBackend.Services
                             // No special price available, use regular pricing
                         }
 
-                        // Calculate optimal pricing using quantity-based pricing
-                        var pricingResult = _pricingService.CalculateOptimalPricing(
-                            producto, 
-                            (int)productoDto.Cantidad, 
-                            specialPrice, 
-                            null // Global discount will be applied later
-                        );
-
-                        // Aplicar descuento del producto si está activo
-                        decimal precioConDescuentoProducto = pricingResult.TotalPrice;
-                        if (TieneDescuentoActivo(producto))
+                        // Calcular el precio considerando cantidades decimales (como 0.5)
+                        decimal precioConDescuentoProducto = 0;
+                        
+                        // Si la cantidad es menor a 1 (como 0.5), usar precio unitario directamente
+                        if (productoDto.Cantidad < 1)
                         {
-                            // Aplicar descuento del producto sobre el precio final (ya incluye packs)
-                            precioConDescuentoProducto = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                            // Para cantidades decimales, usar el precio unitario base
+                            decimal precioUnitario = specialPrice ?? producto.Precio;
+                            
+                            // Aplicar descuento del producto si está activo
+                            if (TieneDescuentoActivo(producto))
+                            {
+                                precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                            }
+                            
+                            // Multiplicar por la cantidad decimal (ej: precioUnitario * 0.5)
+                            precioConDescuentoProducto = precioUnitario * productoDto.Cantidad;
+                        }
+                        else
+                        {
+                            // Para cantidades >= 1, usar la lógica de packs con la parte entera
+                            int cantidadEntera = (int)productoDto.Cantidad;
+                            decimal parteDecimal = productoDto.Cantidad - cantidadEntera;
+                            
+                            // Calcular precio para la parte entera usando packs
+                            var pricingResult = _pricingService.CalculateOptimalPricing(
+                                producto, 
+                                cantidadEntera, 
+                                specialPrice, 
+                                null // Global discount will be applied later
+                            );
+
+                            // Aplicar descuento del producto si está activo
+                            decimal precioParteEntera = pricingResult.TotalPrice;
+                            if (TieneDescuentoActivo(producto))
+                            {
+                                // Aplicar descuento del producto sobre el precio final (ya incluye packs)
+                                precioParteEntera = pricingResult.TotalPrice * (1 - producto.Descuento / 100);
+                            }
+                            
+                            // Si hay parte decimal, calcular su precio usando el precio unitario
+                            decimal precioParteDecimal = 0;
+                            if (parteDecimal > 0)
+                            {
+                                decimal precioUnitario = specialPrice ?? producto.Precio;
+                                if (TieneDescuentoActivo(producto))
+                                {
+                                    precioUnitario = precioUnitario * (1 - producto.Descuento / 100);
+                                }
+                                precioParteDecimal = precioUnitario * parteDecimal;
+                            }
+                            
+                            precioConDescuentoProducto = precioParteEntera + precioParteDecimal;
                         }
 
                         // Actualizar el PrecioFinalCalculado en el DTO
