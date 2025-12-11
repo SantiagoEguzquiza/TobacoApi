@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
@@ -39,15 +39,25 @@ namespace TobacoBackend.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Usar AccessTokenExpirationMinutes en lugar de ExpirationDays para access tokens
+            var expirationMinutes = _jwtSettings.AccessTokenExpirationMinutes > 0 
+                ? _jwtSettings.AccessTokenExpirationMinutes 
+                : 30; // Default 30 minutos
+
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(_jwtSettings.ExpirationDays),
+                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
                 signingCredentials: credentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            return Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString();
         }
 
         public ClaimsPrincipal ValidateToken(string token)

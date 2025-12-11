@@ -12,19 +12,22 @@ namespace TobacoBackend.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly TokenService _tokenService;
         private readonly IMapper _mapper;
         private readonly IServiceProvider _serviceProvider;
         private readonly AplicationDbContext _context;
 
         public UserService(
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
+            IRefreshTokenRepository refreshTokenRepository,
             TokenService tokenService, 
             IMapper mapper, 
             IServiceProvider serviceProvider,
             AplicationDbContext context)
         {
             _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _tokenService = tokenService;
             _mapper = mapper;
             _serviceProvider = serviceProvider;
@@ -72,15 +75,83 @@ namespace TobacoBackend.Services
             user.LastLogin = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
 
-            // Generate token with TenantId
+            // Revoke all existing refresh tokens for this user
+            await _refreshTokenRepository.RevokeAllUserTokensAsync(user.Id);
+
+            // Generate access token with TenantId
             var token = _tokenService.GenerateToken(user.Id.ToString(), user.UserName, user.TenantId);
             var expiresAt = _tokenService.GetTokenExpiration(token);
+            var expiresIn = (int)(expiresAt - DateTime.UtcNow).TotalSeconds;
+
+            // Generate refresh token
+            var refreshTokenString = _tokenService.GenerateRefreshToken();
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(30); // 30 días por defecto
+
+            // Save refresh token to database
+            var refreshToken = new RefreshToken
+            {
+                Token = refreshTokenString,
+                UserId = user.Id,
+                TenantId = user.TenantId,
+                ExpiresAt = refreshTokenExpiration,
+                IsRevoked = false
+            };
+            await _refreshTokenRepository.CreateAsync(refreshToken);
 
             return new LoginResponseDTO
             {
                 Token = token,
+                RefreshToken = refreshTokenString,
                 ExpiresAt = expiresAt,
+                ExpiresIn = expiresIn,
                 User = _mapper.Map<UserDTO>(user)
+            };
+        }
+
+        public async Task<RefreshTokenResponseDTO?> RefreshTokenAsync(string refreshTokenString)
+        {
+            var refreshToken = await _refreshTokenRepository.GetByTokenAsync(refreshTokenString);
+            
+            if (refreshToken == null || refreshToken.IsRevoked || refreshToken.ExpiresAt < DateTime.UtcNow)
+            {
+                return null;
+            }
+
+            // Get user
+            var user = refreshToken.User;
+            if (user == null || !user.IsActive)
+            {
+                return null;
+            }
+
+            // Revoke the old refresh token
+            await _refreshTokenRepository.RevokeTokenAsync(refreshTokenString);
+
+            // Generate new access token
+            var newAccessToken = _tokenService.GenerateToken(user.Id.ToString(), user.UserName, user.TenantId);
+            var expiresAt = _tokenService.GetTokenExpiration(newAccessToken);
+            var expiresIn = (int)(expiresAt - DateTime.UtcNow).TotalSeconds;
+
+            // Generate new refresh token
+            var newRefreshTokenString = _tokenService.GenerateRefreshToken();
+            var newRefreshTokenExpiration = DateTime.UtcNow.AddDays(30);
+
+            // Save new refresh token
+            var newRefreshToken = new RefreshToken
+            {
+                Token = newRefreshTokenString,
+                UserId = user.Id,
+                TenantId = user.TenantId,
+                ExpiresAt = newRefreshTokenExpiration,
+                IsRevoked = false
+            };
+            await _refreshTokenRepository.CreateAsync(newRefreshToken);
+
+            return new RefreshTokenResponseDTO
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshTokenString, // Rotar refresh token por seguridad
+                ExpiresIn = expiresIn
             };
         }
 
