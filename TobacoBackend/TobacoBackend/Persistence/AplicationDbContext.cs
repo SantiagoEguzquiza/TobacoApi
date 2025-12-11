@@ -21,6 +21,7 @@ public class AplicationDbContext : DbContext
     public DbSet<Asistencia> Asistencias { get; set; }
     public DbSet<RecorridoProgramado> RecorridosProgramados { get; set; }
     public DbSet<PermisosEmpleado> PermisosEmpleados { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private const string TenantIdClaim = "tenant_id";
@@ -384,6 +385,27 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<PermisosEmpleado>()
             .Property(p => p.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
+
+        // RefreshToken entity configuration
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany()
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.Tenant)
+            .WithMany()
+            .HasForeignKey(rt => rt.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RefreshToken>()
+            .Property(rt => rt.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(rt => rt.Token)
+            .IsUnique();
 
         // NOTA: Los filtros por TenantId se aplican manualmente en los repositorios
         // porque EF Core no puede traducir expresiones que acceden a HttpContext a SQL

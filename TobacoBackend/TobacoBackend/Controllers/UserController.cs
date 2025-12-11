@@ -8,6 +8,7 @@ using TobacoBackend.Helpers;
 using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using TobacoBackend.Authorization;
+using TobacoBackend.DTOs;
 
 namespace TobacoBackend.Controllers
 {
@@ -139,6 +140,29 @@ namespace TobacoBackend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Error durante la validación del token: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<ActionResult<RefreshTokenResponseDTO>> RefreshToken([FromBody] RefreshTokenRequestDTO request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
+                    return BadRequest(new { message = "El refresh token es requerido." });
+
+                var result = await _userService.RefreshTokenAsync(request.RefreshToken);
+
+                if (result == null)
+                {
+                    return Unauthorized(new { message = "Refresh token inválido o expirado." });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error durante la renovación del token: {ex.Message}" });
             }
         }
 

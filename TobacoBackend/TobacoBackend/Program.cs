@@ -118,6 +118,7 @@ builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
 builder.Services.AddScoped<IRecorridoProgramadoRepository, RecorridoProgramadoRepository>();
 builder.Services.AddScoped<IPermisosEmpleadoRepository, PermisosEmpleadoRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // CORS - Configuración restrictiva
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 

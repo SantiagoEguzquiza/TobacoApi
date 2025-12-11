@@ -5,6 +5,7 @@ namespace TobacoBackend.Domain.IServices
     public interface IUserService
     {
         Task<LoginResponseDTO?> LoginAsync(LoginDTO loginDto);
+        Task<RefreshTokenResponseDTO?> RefreshTokenAsync(string refreshToken);
         Task<UserDTO?> GetUserByIdAsync(int id);
         Task<bool> ValidateUserAsync(string userName, string password);
         Task<IEnumerable<UserDTO>> GetAllUsersAsync();

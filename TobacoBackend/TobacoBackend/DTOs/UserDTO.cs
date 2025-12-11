@@ -33,8 +33,23 @@ namespace TobacoBackend.DTOs
     public class LoginResponseDTO
     {
         public string Token { get; set; }
+        public string RefreshToken { get; set; }
         public DateTime ExpiresAt { get; set; }
+        public int ExpiresIn { get; set; } // Tiempo de expiración en segundos
         public UserDTO User { get; set; }
+    }
+
+    public class RefreshTokenRequestDTO
+    {
+        [Required(ErrorMessage = "El refresh token es requerido")]
+        public string RefreshToken { get; set; } = string.Empty;
+    }
+
+    public class RefreshTokenResponseDTO
+    {
+        public string AccessToken { get; set; }
+        public string? RefreshToken { get; set; } // Nuevo refresh token (opcional, solo si se rota)
+        public int ExpiresIn { get; set; } // Tiempo de expiración en segundos
     }
 
     public class CreateUserDTO
