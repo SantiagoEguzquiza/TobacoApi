@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.Contracts;
 using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.IRepositories;
@@ -41,16 +41,28 @@ namespace TobacoBackend.Repositories
         public async Task<bool> DeleteCliente(int id)
         {
             var cliente = await FilterByTenant(_context.Clientes).Where(c => c.Id == id).FirstOrDefaultAsync();
+            if (cliente == null)
+                return false;
 
-            if (cliente != null)
+            // Indicar qué debe eliminar primero si tiene datos asociados
+            var pendientes = new List<string>();
+            if (await _context.Ventas.AnyAsync(v => v.ClienteId == id))
+                pendientes.Add("las ventas asociadas");
+            if (await _context.Abonos.AnyAsync(a => a.ClienteId == id))
+                pendientes.Add("los abonos registrados");
+            if (await _context.PreciosEspeciales.AnyAsync(p => p.ClienteId == id))
+                pendientes.Add("los precios especiales configurados");
+
+            if (pendientes.Count > 0)
             {
-                _context.Clientes.Remove(cliente);
-                await _context.SaveChangesAsync();
-                return true;
+                var lista = string.Join(", ", pendientes);
+                throw new InvalidOperationException(
+                    "No se pudo eliminar el cliente. Elimina primero " + lista + ".");
             }
 
-            return false;
-
+            _context.Clientes.Remove(cliente);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task UpdateCliente(Cliente cliente)
@@ -122,8 +134,55 @@ namespace TobacoBackend.Repositories
 
         public async Task<List<Cliente>> GetClientesConDeuda()
         {
-            var allClientes = await FilterByTenant(_context.Clientes).ToListAsync();
-            var clientesConDeuda = allClientes.Where(c => c.DeudaDecimal > 0).ToList();
+            var tenantId = _context.GetCurrentTenantId();
+            var baseQuery = tenantId.HasValue 
+                ? _context.Clientes.Where(c => c.TenantId == tenantId.Value || c.TenantId == 0)
+                : _context.Clientes.AsQueryable();
+            
+            // Obtener IDs de clientes que tienen ventas con cuenta corriente (filtrando por tenant si aplica)
+            var ventasCCQuery = _context.Ventas
+                .Where(v => v.MetodoPago == MetodoPagoEnum.CuentaCorriente);
+            
+            if (tenantId.HasValue)
+            {
+                ventasCCQuery = ventasCCQuery.Where(v => v.TenantId == tenantId.Value);
+            }
+            
+            var clienteIdsConVentasCC = await ventasCCQuery
+                .Select(v => v.ClienteId)
+                .Distinct()
+                .ToListAsync();
+            
+            // Obtener IDs de clientes que tienen abonos (filtrando por tenant si aplica)
+            var abonosQuery = _context.Abonos.AsQueryable();
+            if (tenantId.HasValue)
+            {
+                abonosQuery = abonosQuery.Where(a => a.TenantId == tenantId.Value);
+            }
+            
+            var clienteIdsConAbonos = await abonosQuery
+                .Select(a => a.ClienteId)
+                .Distinct()
+                .ToListAsync();
+            
+            // Obtener todos los clientes del tenant
+            var todosLosClientes = await baseQuery.ToListAsync();
+            
+            // Filtrar en memoria los clientes que tengan:
+            // 1. Deuda actual > 0 (usando DeudaDecimal que es una propiedad calculada), O
+            // 2. Alguna venta con cuenta corriente, O
+            // 3. Algún abono registrado
+            var todosLosIdsConCC = clienteIdsConVentasCC
+                .Union(clienteIdsConAbonos)
+                .ToHashSet();
+            
+            var clientesConDeuda = todosLosClientes
+                .Where(c => 
+                    c.DeudaDecimal > 0 || 
+                    todosLosIdsConCC.Contains(c.Id)
+                )
+                .ToList();
+            
             return clientesConDeuda;
         }
 
@@ -143,14 +202,59 @@ namespace TobacoBackend.Repositories
 
         public async Task<(List<Cliente> Clientes, int TotalCount)> GetClientesConDeudaPaginados(int page, int pageSize)
         {
-            // Obtener todos los clientes y filtrar en memoria usando DeudaDecimal
-            var allClientes = await FilterByTenant(_context.Clientes).ToListAsync();
-            var clientesConDeuda = allClientes.Where(c => c.DeudaDecimal > 0).ToList();
+            var tenantId = _context.GetCurrentTenantId();
+            var baseQuery = tenantId.HasValue 
+                ? _context.Clientes.Where(c => c.TenantId == tenantId.Value || c.TenantId == 0)
+                : _context.Clientes.AsQueryable();
             
-            var totalCount = clientesConDeuda.Count;
+            // Obtener IDs de clientes que tienen ventas con cuenta corriente (filtrando por tenant si aplica)
+            var ventasCCQuery = _context.Ventas
+                .Where(v => v.MetodoPago == MetodoPagoEnum.CuentaCorriente);
             
-            var clientesPaginados = clientesConDeuda
-                .OrderByDescending(c => c.Id)
+            if (tenantId.HasValue)
+            {
+                ventasCCQuery = ventasCCQuery.Where(v => v.TenantId == tenantId.Value);
+            }
+            
+            var clienteIdsConVentasCCList = await ventasCCQuery
+                .Select(v => v.ClienteId)
+                .Distinct()
+                .ToListAsync();
+            
+            // Obtener IDs de clientes que tienen abonos (filtrando por tenant si aplica)
+            var abonosQuery = _context.Abonos.AsQueryable();
+            if (tenantId.HasValue)
+            {
+                abonosQuery = abonosQuery.Where(a => a.TenantId == tenantId.Value);
+            }
+            
+            var clienteIdsConAbonosList = await abonosQuery
+                .Select(a => a.ClienteId)
+                .Distinct()
+                .ToListAsync();
+            
+            // Obtener todos los clientes del tenant
+            var todosLosClientes = await baseQuery.ToListAsync();
+            
+            // Filtrar en memoria los clientes que tengan:
+            // 1. Deuda actual > 0 (usando DeudaDecimal que es una propiedad calculada), O
+            // 2. Alguna venta con cuenta corriente, O
+            // 3. Algún abono registrado
+            var todosLosIdsConCC = clienteIdsConVentasCCList
+                .Union(clienteIdsConAbonosList)
+                .ToHashSet();
+            
+            var clientesConCC = todosLosClientes
+                .Where(c => 
+                    c.DeudaDecimal > 0 || 
+                    todosLosIdsConCC.Contains(c.Id)
+                )
+                .OrderBy(c => c.Nombre)
+                .ToList();
+            
+            var totalCount = clientesConCC.Count;
+            
+            var clientesPaginados = clientesConCC
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
