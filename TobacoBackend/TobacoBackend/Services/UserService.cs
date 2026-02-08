@@ -83,9 +83,9 @@ namespace TobacoBackend.Services
             var expiresAt = _tokenService.GetTokenExpiration(token);
             var expiresIn = (int)(expiresAt - DateTime.UtcNow).TotalSeconds;
 
-            // Generate refresh token (duración basada en JwtSettings.RefreshTokenExpirationDays)
+            // Generate refresh token (duración: RefreshTokenExpirationMinutes si > 0, si no RefreshTokenExpirationDays)
             var refreshTokenString = _tokenService.GenerateRefreshToken();
-            var refreshTokenExpiration = DateTime.UtcNow.AddDays(_tokenService.RefreshTokenExpirationDays);
+            var refreshTokenExpiration = DateTime.UtcNow.Add(_tokenService.RefreshTokenExpiration);
 
             // Save refresh token to database
             var refreshToken = new RefreshToken
@@ -134,7 +134,7 @@ namespace TobacoBackend.Services
 
             // Generate new refresh token (misma duración configurada)
             var newRefreshTokenString = _tokenService.GenerateRefreshToken();
-            var newRefreshTokenExpiration = DateTime.UtcNow.AddDays(_tokenService.RefreshTokenExpirationDays);
+            var newRefreshTokenExpiration = DateTime.UtcNow.Add(_tokenService.RefreshTokenExpiration);
 
             // Save new refresh token
             var newRefreshToken = new RefreshToken

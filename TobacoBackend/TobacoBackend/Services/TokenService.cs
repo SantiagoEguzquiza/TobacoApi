@@ -18,10 +18,17 @@ namespace TobacoBackend.Services
 
         /// <summary>
         /// Exponer la duración de refresh token configurada para que otros servicios la usen.
+        /// Si RefreshTokenExpirationMinutes > 0 se usa en minutos (para pruebas); si no, en días.
         /// </summary>
         public int RefreshTokenExpirationDays => _jwtSettings.RefreshTokenExpirationDays > 0
             ? _jwtSettings.RefreshTokenExpirationDays
             : 30;
+
+        /// <summary>Duración del refresh token. Si RefreshTokenExpirationMinutes > 0 se usa minutos; si no, días.</summary>
+        public TimeSpan RefreshTokenExpiration =>
+            _jwtSettings.RefreshTokenExpirationMinutes > 0
+                ? TimeSpan.FromMinutes(_jwtSettings.RefreshTokenExpirationMinutes)
+                : TimeSpan.FromDays(RefreshTokenExpirationDays);
 
         public string GenerateToken(string userId, string? userName = null, int? tenantId = null)
         {
