@@ -99,6 +99,9 @@ if (backupEnabled)
     builder.Services.AddHostedService<BackupService>();
 }
 
+// Keep-alive de la base de datos: ping cada 4 min para evitar cold start tras inactividad (producción)
+builder.Services.AddHostedService<DatabaseKeepAliveService>();
+
 // Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database")
@@ -303,6 +306,21 @@ builder.Services.AddScoped<RoleRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler>(sp => sp.GetRequiredService<RoleRequirementHandler>());
 
 var app = builder.Build();
+
+// Warm-up de la base de datos al arrancar: completar antes de aceptar tráfico para que
+// el primer usuario no sufra cold start (p. ej. Azure SQL tarda 10-15 s la primera vez).
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
+    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+    await db.Database.CanConnectAsync(cts.Token);
+    app.Logger.LogInformation("Base de datos: conexión lista (warm-up completado). API lista para producción.");
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Warm-up de base de datos falló; la API arranca igual. La primera petición puede ser lenta.");
+}
 
 // Configure the HTTP request pipeline
 
