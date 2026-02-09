@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace TobacoBackend.Data
 {
@@ -17,7 +15,7 @@ namespace TobacoBackend.Data
 
             var optionsBuilder = new DbContextOptionsBuilder<AplicationDbContext>();
 
-            optionsBuilder.UseSqlServer(
+            optionsBuilder.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"));
 
             return new AplicationDbContext(optionsBuilder.Options);

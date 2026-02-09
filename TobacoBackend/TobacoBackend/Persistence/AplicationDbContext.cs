@@ -26,6 +26,9 @@ public class AplicationDbContext : DbContext
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private const string TenantIdClaim = "tenant_id";
 
+    private const string UtcNowSql = "timezone('utc', now())";
+
+
     public AplicationDbContext(DbContextOptions<AplicationDbContext> options) : base(options)
     {
     }
@@ -53,7 +56,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Tenant>()
             .Property(t => t.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         // Configurar relaciones con Tenant
         modelBuilder.Entity<User>()
@@ -196,7 +200,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         modelBuilder.Entity<User>()
             .Property(u => u.Plan)
@@ -291,7 +296,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Abonos>()
             .Property(a => a.Fecha)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         // ProductoAFavor entity configuration
         modelBuilder.Entity<ProductoAFavor>()
@@ -330,7 +336,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductoAFavor>()
             .Property(p => p.FechaRegistro)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         // VentaProducto - Usuario Chequeo relationship
         modelBuilder.Entity<VentaProducto>()
@@ -369,7 +376,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<RecorridoProgramado>()
             .Property(r => r.FechaCreacion)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         // PermisosEmpleado entity configuration
         modelBuilder.Entity<PermisosEmpleado>()
@@ -384,7 +392,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<PermisosEmpleado>()
             .Property(p => p.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         // RefreshToken entity configuration
         modelBuilder.Entity<RefreshToken>()
@@ -401,7 +410,8 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<RefreshToken>()
             .Property(rt => rt.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasColumnType("timestamptz")
+            .HasDefaultValueSql(UtcNowSql);
 
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(rt => rt.Token)
