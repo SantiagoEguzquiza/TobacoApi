@@ -75,7 +75,8 @@ namespace TobacoBackend.Services
             var venta = new Venta
             {
                 ClienteId = ventaDto.ClienteId,
-                Fecha = DateTime.Now,
+                // Usar la fecha enviada por el cliente (ya viene en UTC desde la app)
+                Fecha = ventaDto.Fecha,
                 VentaProductos = new List<VentaProducto>(),
                 MetodoPago = ventaDto.MetodoPago,
                 UsuarioIdCreador = usuarioIdCreador, // Quien creó la venta
