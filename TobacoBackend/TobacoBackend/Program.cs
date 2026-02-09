@@ -13,12 +13,16 @@ using AspNetCoreRateLimit;
 using TobacoBackend.Helpers;
 using System.Text.Json;
 using TobacoBackend.Authorization;
-using TobacoBackend.Domain.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configurar el puerto desde variable de entorno (para despliegues en la nube)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 
 // Add services to the container.
 builder.Services.AddControllers()
