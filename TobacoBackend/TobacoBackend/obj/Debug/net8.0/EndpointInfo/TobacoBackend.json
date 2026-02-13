@@ -4566,6 +4566,9 @@
           "visible": {
             "type": "boolean"
           },
+          "hasCCTE": {
+            "type": "boolean"
+          },
           "latitud": {
             "maximum": 90,
             "minimum": -90,
@@ -5066,7 +5069,7 @@
             "format": "int32"
           },
           "totalPrice": {
-            "minimum": 0,01,
+            "minimum": 0.01,
             "type": "number",
             "format": "double"
           },
@@ -5174,7 +5177,7 @@
             "format": "double"
           },
           "precio": {
-            "minimum": 0,01,
+            "minimum": 0.01,
             "type": "number",
             "format": "double"
           },

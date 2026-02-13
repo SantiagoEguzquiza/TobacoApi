@@ -98,6 +98,9 @@ namespace TobacoBackend.Services
             };
             await _refreshTokenRepository.CreateAsync(refreshToken);
 
+            // Limpiar tokens expirados/revocados para que la tabla no crezca sin límite
+            await _refreshTokenRepository.CleanExpiredTokensAsync();
+
             return new LoginResponseDTO
             {
                 Token = token,
@@ -146,6 +149,9 @@ namespace TobacoBackend.Services
                 IsRevoked = false
             };
             await _refreshTokenRepository.CreateAsync(newRefreshToken);
+
+            // Limpiar tokens expirados/revocados para que la tabla no crezca sin límite
+            await _refreshTokenRepository.CleanExpiredTokensAsync();
 
             return new RefreshTokenResponseDTO
             {

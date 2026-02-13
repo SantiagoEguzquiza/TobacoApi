@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace TobacoBackend.DTOs
 {
@@ -26,6 +26,11 @@ namespace TobacoBackend.DTOs
         public decimal DescuentoGlobal { get; set; } = 0;
         
         public bool Visible { get; set; } = true;
+
+        /// <summary>
+        /// Indica si el cliente tiene habilitada la cuenta corriente. Por defecto false.
+        /// </summary>
+        public bool HasCCTE { get; set; } = false;
         
         [Range(-90, 90, ErrorMessage = "La latitud debe estar entre -90 y 90")]
         public double? Latitud { get; set; }
