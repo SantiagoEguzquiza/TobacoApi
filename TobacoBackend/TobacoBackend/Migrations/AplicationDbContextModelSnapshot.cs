@@ -2,8 +2,13 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+=======
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+>>>>>>> main
 
 #nullable disable
 
@@ -17,14 +22,21 @@ namespace TobacoBackend.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.9")
+<<<<<<< HEAD
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+=======
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+>>>>>>> main
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Abonos", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -35,10 +47,23 @@ namespace TobacoBackend.Migrations
                     b.Property<DateTime>("Fecha")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+>>>>>>> main
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Monto")
                         .IsRequired()
+<<<<<<< HEAD
                         .HasColumnType("text");
 
                     b.Property<string>("Nota")
@@ -47,6 +72,16 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nota")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -61,6 +96,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -100,6 +136,47 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaHoraEntrada")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaHoraSalida")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LatitudEntrada")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LatitudSalida")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LongitudEntrada")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LongitudSalida")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UbicacionEntrada")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("UbicacionSalida")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -114,18 +191,29 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+>>>>>>> main
 
                     b.Property<string>("ColorHex")
                         .IsRequired()
                         .HasMaxLength(7)
+<<<<<<< HEAD
                         .HasColumnType("character varying(7)");
+=======
+                        .HasColumnType("nvarchar(7)");
+>>>>>>> main
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
+<<<<<<< HEAD
                         .HasColumnType("character varying(100)");
 
                     b.Property<int>("SortOrder")
@@ -133,6 +221,15 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -146,15 +243,22 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+>>>>>>> main
 
                     b.Property<decimal>("DescuentoGlobal")
                         .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("Deuda")
                         .IsRequired()
+<<<<<<< HEAD
                         .HasColumnType("text");
 
                     b.Property<string>("Direccion")
@@ -183,6 +287,33 @@ namespace TobacoBackend.Migrations
 
                     b.Property<bool>("Visible")
                         .HasColumnType("boolean");
+=======
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Direccion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("bit");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -195,6 +326,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -260,6 +392,73 @@ namespace TobacoBackend.Migrations
 
                     b.Property<bool>("Ventas_Visualizar")
                         .HasColumnType("boolean");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Clientes_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Editar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Clientes_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("CuentaCorriente_RegistrarAbonos")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CuentaCorriente_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Entregas_ActualizarEstado")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Entregas_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Editar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Productos_Visualizar")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Ventas_Crear")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_EditarBorrador")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_Eliminar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Ventas_Visualizar")
+                        .HasColumnType("bit");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -275,6 +474,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -287,16 +487,37 @@ namespace TobacoBackend.Migrations
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+>>>>>>> main
 
                     b.Property<decimal>("Precio")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ProductoId")
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -314,6 +535,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -326,6 +548,20 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.Property<decimal>("TotalPrice")
                         .HasPrecision(18, 2)
@@ -345,6 +581,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -384,6 +621,47 @@ namespace TobacoBackend.Migrations
 
                     b.Property<DateTime?>("fechaExpiracionDescuento")
                         .HasColumnType("timestamp with time zone");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Descuento")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("Half")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Marca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Precio")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Stock")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("descuentoIndefinido")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("fechaExpiracionDescuento")
+                        .HasColumnType("datetime2");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -398,6 +676,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -418,10 +697,33 @@ namespace TobacoBackend.Migrations
                     b.Property<DateTime>("FechaRegistro")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Entregado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("FechaEntrega")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+>>>>>>> main
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Motivo")
                         .IsRequired()
+<<<<<<< HEAD
                         .HasColumnType("text");
 
                     b.Property<string>("Nota")
@@ -444,6 +746,30 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("VentaProductoId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nota")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioEntregaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioRegistroId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VentaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VentaProductoId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -466,6 +792,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -492,6 +819,34 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("VendedorId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VendedorId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -509,6 +864,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -529,14 +885,43 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(500)
+<<<<<<< HEAD
                         .HasColumnType("character varying(500)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -554,6 +939,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -561,10 +947,20 @@ namespace TobacoBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+>>>>>>> main
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(255)
+<<<<<<< HEAD
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("Email")
@@ -573,10 +969,21 @@ namespace TobacoBackend.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+=======
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+>>>>>>> main
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
+<<<<<<< HEAD
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Telefono")
@@ -585,6 +992,16 @@ namespace TobacoBackend.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+=======
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -595,6 +1012,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -616,21 +1034,53 @@ namespace TobacoBackend.Migrations
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("timestamp with time zone");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime2");
+>>>>>>> main
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(255)
+<<<<<<< HEAD
                         .HasColumnType("character varying(255)");
 
                     b.Property<int>("Plan")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+=======
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("Plan")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+>>>>>>> main
                         .HasDefaultValue(0);
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
+<<<<<<< HEAD
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("Employee");
 
@@ -639,15 +1089,33 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int>("TipoVendedor")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Employee");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoVendedor")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(50)
+<<<<<<< HEAD
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("Zona")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+=======
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Zona")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -663,6 +1131,7 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
@@ -691,6 +1160,36 @@ namespace TobacoBackend.Migrations
 
                     b.Property<int?>("UsuarioIdCreador")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EstadoEntrega")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MetodoPago")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("UsuarioIdAsignado")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioIdCreador")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -709,19 +1208,32 @@ namespace TobacoBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Metodo")
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Metodo")
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.Property<decimal>("Monto")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("VentaId")
+<<<<<<< HEAD
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("Id");
 
@@ -733,6 +1245,7 @@ namespace TobacoBackend.Migrations
             modelBuilder.Entity("TobacoBackend.Domain.Models.VentaProducto", b =>
                 {
                     b.Property<int>("VentaId")
+<<<<<<< HEAD
                         .HasColumnType("integer");
 
                     b.Property<int>("ProductoId")
@@ -753,13 +1266,39 @@ namespace TobacoBackend.Migrations
 
                     b.Property<string>("Nota")
                         .HasColumnType("text");
+=======
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Cantidad")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("Entregado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("FechaChequeo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Motivo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nota")
+                        .HasColumnType("nvarchar(max)");
+>>>>>>> main
 
                     b.Property<decimal>("PrecioFinalCalculado")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("UsuarioChequeoId")
+<<<<<<< HEAD
                         .HasColumnType("integer");
+=======
+                        .HasColumnType("int");
+>>>>>>> main
 
                     b.HasKey("VentaId", "ProductoId");
 

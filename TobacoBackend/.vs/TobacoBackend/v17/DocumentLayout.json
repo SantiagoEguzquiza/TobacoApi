@@ -99,12 +99,21 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+<<<<<<< HEAD
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Proyectos\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Proyectos\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\UserController.cs",
               "RelativeToolTip": "TobacoBackend\\Controllers\\UserController.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAACQAAAAlAAAAAAAAAA==",
+=======
+              "Title": "CategoriaController.cs",
+              "DocumentMoniker": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Proyectos\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\CategoriaController.cs",
+              "RelativeDocumentMoniker": "TobacoBackend\\Controllers\\CategoriaController.cs",
+              "ToolTip": "C:\\Users\\rodri\\OneDrive\\Escritorio\\Proyectos\\TobacoApi\\TobacoBackend\\TobacoBackend\\Controllers\\CategoriaController.cs",
+              "RelativeToolTip": "TobacoBackend\\Controllers\\CategoriaController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAgAAAAAAAAAA==",
+>>>>>>> main
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-13T05:42:46.328Z",
               "EditorCaption": ""
