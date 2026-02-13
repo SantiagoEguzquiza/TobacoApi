@@ -1,30 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace TobacoBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class CategoryColor : Migration
+    public partial class AddHasCCTEToCliente : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "ColorHex",
-                table: "Categorias",
-                type: "nvarchar(7)",
-                maxLength: 7,
+            migrationBuilder.AddColumn<bool>(
+                name: "HasCCTE",
+                table: "Clientes",
+                type: "boolean",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ColorHex",
-                table: "Categorias");
+                name: "HasCCTE",
+                table: "Clientes");
         }
     }
 }

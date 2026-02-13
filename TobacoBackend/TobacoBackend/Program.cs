@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
@@ -65,7 +66,7 @@ builder.Services.AddHttpContextAccessor();
 // Database - Usar factory para inyectar IHttpContextAccessor
 builder.Services.AddDbContext<AplicationDbContext>((serviceProvider, options) =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
     // El DbContext se crea con el constructor que acepta IHttpContextAccessor
 }, ServiceLifetime.Scoped);

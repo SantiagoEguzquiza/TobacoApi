@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
@@ -24,6 +24,11 @@ namespace TobacoBackend.Domain.Models
         public decimal DescuentoGlobal { get; set; } = 0;
 
         public bool Visible { get; set; } = true;
+
+        /// <summary>
+        /// Indica si el cliente puede operar con cuenta corriente. Por defecto false.
+        /// </summary>
+        public bool HasCCTE { get; set; } = false;
 
         // Coordenadas GPS para entregas
         public double? Latitud { get; set; }
