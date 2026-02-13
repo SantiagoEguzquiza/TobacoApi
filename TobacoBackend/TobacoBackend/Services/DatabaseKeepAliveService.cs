@@ -13,7 +13,7 @@ public class DatabaseKeepAliveService : IHostedService, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private Timer? _timer;
     private static readonly TimeSpan Interval = TimeSpan.FromMinutes(4);
-    private static readonly TimeSpan PingTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
 
     public DatabaseKeepAliveService(
         ILogger<DatabaseKeepAliveService> logger,
@@ -36,7 +36,7 @@ public class DatabaseKeepAliveService : IHostedService, IDisposable
         {
             using var scope = _serviceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
-            using var cts = new CancellationTokenSource(PingTimeout);
+            using var cts = new CancellationTokenSource(Timeout);
             await db.Database.CanConnectAsync(cts.Token);
             _logger.LogDebug("DatabaseKeepAlive: ping OK");
         }

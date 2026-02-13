@@ -13,16 +13,12 @@ using AspNetCoreRateLimit;
 using TobacoBackend.Helpers;
 using System.Text.Json;
 using TobacoBackend.Authorization;
+using TobacoBackend.Domain.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configurar el puerto desde variable de entorno (para despliegues en la nube)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -66,19 +62,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<AplicationDbContext>((sp, options) =>
+// Database - Usar factory para inyectar IHttpContextAccessor
+builder.Services.AddDbContext<AplicationDbContext>((serviceProvider, options) =>
 {
-    var conn = builder.Configuration.GetConnectionString("DefaultConnection");
-
-    options.UseNpgsql(conn);
-
-    // Opcional recomendado: logs solo en dev
-    if (builder.Environment.IsDevelopment())
-    {
-        options.EnableSensitiveDataLogging();
-        options.EnableDetailedErrors();
-    }
-});
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+    // El DbContext se crea con el constructor que acepta IHttpContextAccessor
+}, ServiceLifetime.Scoped);
 
 // Registrar servicios
 builder.Services.AddScoped<IClienteService, ClienteService>();
@@ -100,6 +90,7 @@ builder.Services.AddScoped<SecurityLoggingService>();
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<AccountLockoutService>();
 builder.Services.AddSingleton<MetricsService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
 
 // Backup Service (Hosted Service para backups automáticos)
 var backupEnabled = builder.Configuration.GetValue<bool>("BackupSettings:Enabled", true);
@@ -315,13 +306,6 @@ builder.Services.AddScoped<RoleRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler>(sp => sp.GetRequiredService<RoleRequirementHandler>());
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
-db.Database.Migrate();
-}
-
 
 // Warm-up de la base de datos al arrancar: completar antes de aceptar tráfico para que
 // el primer usuario no sufra cold start (p. ej. Azure SQL tarda 10-15 s la primera vez).
