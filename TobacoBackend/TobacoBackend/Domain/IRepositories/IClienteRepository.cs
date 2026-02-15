@@ -1,4 +1,4 @@
-﻿using TobacoBackend.Domain.Models;
+using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 
 namespace TobacoBackend.Domain.IRepositories
@@ -14,6 +14,6 @@ namespace TobacoBackend.Domain.IRepositories
         Task<List<Cliente>> GetClientesConDeuda();
         Task<(List<Cliente> Clientes, int TotalCount)> GetClientesPaginados(int page, int pageSize);
         Task<(List<Cliente> Clientes, int TotalCount)> GetClientesConDeudaPaginados(int page, int pageSize);
-        Task<Cliente?> BuscarConsumidorFinal();
+        Task<Cliente?> BuscarConsumidorFinal(int tenantId);
     }
 }

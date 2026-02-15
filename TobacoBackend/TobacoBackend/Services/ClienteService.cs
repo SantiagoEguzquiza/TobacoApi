@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
@@ -22,49 +22,40 @@ namespace TobacoBackend.Services
         {
             var cliente = _mapper.Map<Cliente>(clienteDto);
             
-            // Si es "Consumidor Final", usar TenantId = 0 para que sea compartido entre todos los tenants
-            if (cliente.Nombre.Trim().Equals("Consumidor Final", StringComparison.OrdinalIgnoreCase))
-            {
-                cliente.TenantId = 0; // TenantId especial para Consumidor Final compartido
-            }
-            else
-            {
-                // Set TenantId from current context
-                var tenantId = _context.GetCurrentTenantId();
-                if (!tenantId.HasValue)
-                {
-                    throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
-                }
-                cliente.TenantId = tenantId.Value;
-            }
+            // Set TenantId from current context
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+                throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
+            cliente.TenantId = tenantId.Value;
             
             var clienteCreado = await _clienteRepository.AddCliente(cliente);
             return _mapper.Map<ClienteDTO>(clienteCreado);
         }
 
         /// <summary>
-        /// Obtiene o crea el cliente "Consumidor Final" compartido entre todos los tenants
+        /// Obtiene o crea el cliente "Consumidor Final" del tenant actual (un Consumidor Final por tenant)
         /// </summary>
         public async Task<ClienteDTO> ObtenerOCrearConsumidorFinal()
         {
-            // Buscar Consumidor Final con TenantId = 0 (compartido)
-            var consumidorFinal = await _clienteRepository.BuscarConsumidorFinal();
-            
-            if (consumidorFinal != null)
-            {
-                return _mapper.Map<ClienteDTO>(consumidorFinal);
-            }
+            var tenantId = _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+                throw new InvalidOperationException("No se pudo determinar el tenant. Inicia sesión con un usuario de tenant.");
 
-            // Si no existe, crearlo con TenantId = 0
+            var consumidorFinal = await _clienteRepository.BuscarConsumidorFinal(tenantId.Value);
+            if (consumidorFinal != null)
+                return _mapper.Map<ClienteDTO>(consumidorFinal);
+
+            // Crear con datos mínimos válidos para el tenant actual
             var nuevoConsumidorFinal = new Cliente
             {
                 Nombre = "Consumidor Final",
-                Direccion = "Sin dirección especificada",
-                Telefono = "0",
+                Direccion = "Sin dirección",
+                Telefono = "Sin teléfono",
                 Deuda = "0",
                 DescuentoGlobal = 0,
                 Visible = true,
-                TenantId = 0 // Compartido entre todos los tenants
+                HasCCTE = false,
+                TenantId = tenantId.Value
             };
 
             var consumidorCreado = await _clienteRepository.AddCliente(nuevoConsumidorFinal);
