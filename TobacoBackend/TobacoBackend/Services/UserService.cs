@@ -44,30 +44,13 @@ namespace TobacoBackend.Services
                 return null;
             }
 
-            // Validar contraseña
-            bool isValid = ValidatePassword(loginDto.Password, user.Password);
-            
-            // Si falla con BCrypt, intentar con SHA256 antiguo (migración)
-            if (!isValid && PasswordService.IsOldPasswordHash(user.Password))
-            {
-                if (PasswordService.ValidateOldPassword(loginDto.Password, user.Password))
-                {
-                    // Migrar automáticamente a BCrypt
-                    user.Password = PasswordService.HashPassword(loginDto.Password);
-                    isValid = true;
-                }
-            }
-
-            if (!isValid)
-            {
+            // Validar contraseña (solo BCrypt)
+            if (!ValidatePassword(loginDto.Password, user.Password))
                 return null;
-            }
 
-            // Si se migró la contraseña, guardar el cambio
-            if (PasswordService.IsOldPasswordHash(user.Password) == false && 
-                PasswordService.NeedsRehash(user.Password))
+            // Actualizar hash si el workFactor es menor al deseado
+            if (PasswordService.NeedsRehash(user.Password))
             {
-                // Actualizar si el workFactor es menor al deseado
                 user.Password = PasswordService.HashPassword(loginDto.Password);
             }
 
@@ -175,13 +158,6 @@ namespace TobacoBackend.Services
 
         private bool ValidatePassword(string password, string hashedPassword)
         {
-            // Si es un hash antiguo SHA256, no validar aquí (se hace en LoginAsync para migración)
-            if (PasswordService.IsOldPasswordHash(hashedPassword))
-            {
-                return false; // Se manejará en LoginAsync
-            }
-            
-            // Usar BCrypt para validación segura con protección contra timing attacks
             return PasswordService.VerifyPassword(password, hashedPassword);
         }
 

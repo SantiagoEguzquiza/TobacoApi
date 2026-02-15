@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
@@ -39,7 +39,15 @@ namespace TobacoBackend.Services
             }
 
             var abono = _mapper.Map<Abonos>(abonoDto);
-            
+            if (string.IsNullOrEmpty(abono.Nota))
+                abono.Nota = "";
+
+            // PostgreSQL timestamp with time zone requiere UTC
+            if (abono.Fecha.Kind != DateTimeKind.Utc)
+                abono.Fecha = abono.Fecha.Kind == DateTimeKind.Local
+                    ? abono.Fecha.ToUniversalTime()
+                    : DateTime.SpecifyKind(abono.Fecha, DateTimeKind.Utc);
+
             // Set TenantId from current context
             var tenantId = _context.GetCurrentTenantId();
             if (!tenantId.HasValue)
@@ -96,6 +104,10 @@ namespace TobacoBackend.Services
         {
             var abono = _mapper.Map<Abonos>(abonoDto);
             abono.Id = id;
+            if (abono.Fecha.Kind != DateTimeKind.Utc)
+                abono.Fecha = abono.Fecha.Kind == DateTimeKind.Local
+                    ? abono.Fecha.ToUniversalTime()
+                    : DateTime.SpecifyKind(abono.Fecha, DateTimeKind.Utc);
             await _abonosRepository.UpdateAbono(abono);
         }
 

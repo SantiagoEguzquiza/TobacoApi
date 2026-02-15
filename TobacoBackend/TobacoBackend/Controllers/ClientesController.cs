@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Contracts;
 using TobacoBackend.Domain.IServices;
@@ -325,7 +325,10 @@ namespace TobacoBackend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = $"Error al saldar deuda: {ex.Message}" });
+                var inner = ex;
+                while (inner.InnerException != null) inner = inner.InnerException;
+                var msg = inner.Message;
+                return BadRequest(new { message = $"Error al saldar deuda: {msg}" });
             }
         }
 

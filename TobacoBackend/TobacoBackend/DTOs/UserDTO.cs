@@ -45,6 +45,38 @@ namespace TobacoBackend.DTOs
         public string RefreshToken { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Solo Development: body opcional para restablecer contraseña SuperAdmin.
+    /// </summary>
+    public class ResetSuperAdminPasswordRequest
+    {
+        public string? NewPassword { get; set; }
+    }
+
+    /// <summary>
+    /// Solicitud de recuperación de contraseña (no revela si el usuario existe).
+    /// </summary>
+    public class ForgotPasswordRequest
+    {
+        [Required(ErrorMessage = "El usuario es requerido")]
+        [StringLength(50, MinimumLength = 3)]
+        public string UserName { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Restablecer contraseña con el token recibido por correo.
+    /// </summary>
+    public class ResetPasswordRequest
+    {
+        [Required(ErrorMessage = "El token es requerido")]
+        public string Token { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La nueva contraseña es requerida")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener entre 8 y 100 caracteres")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", ErrorMessage = "La contraseña debe contener al menos una letra mayúscula, una minúscula y un número")]
+        public string NewPassword { get; set; } = string.Empty;
+    }
+
     public class RefreshTokenResponseDTO
     {
         public string AccessToken { get; set; }

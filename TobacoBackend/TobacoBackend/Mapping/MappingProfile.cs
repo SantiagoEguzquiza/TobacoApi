@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using TobacoBackend.Domain.Models;
@@ -54,11 +54,13 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.CreatedById, opt => opt.Ignore()) // Se manejará en el servicio
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
-            // Mapeo para Abonos
+            // Mapeo para Abonos (TenantId y Tenant se asignan en el servicio)
             CreateMap<Abonos, AbonoDTO>()
                 .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente != null ? src.Cliente.Nombre : string.Empty))
                 .ReverseMap()
-                .ForMember(dest => dest.Cliente, opt => opt.Ignore());
+                .ForMember(dest => dest.Cliente, opt => opt.Ignore())
+                .ForMember(dest => dest.TenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.Tenant, opt => opt.Ignore());
 
             // Mapeo para ProductoAFavor
             CreateMap<ProductoAFavor, ProductoAFavorDTO>().ReverseMap();

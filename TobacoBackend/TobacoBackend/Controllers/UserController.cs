@@ -9,6 +9,10 @@ using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using TobacoBackend.Authorization;
 using TobacoBackend.DTOs;
+using TobacoBackend.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.Controllers
 {
@@ -20,13 +24,143 @@ namespace TobacoBackend.Controllers
         private readonly TokenService _tokenService;
         private readonly SecurityLoggingService _securityLogger;
         private readonly AuditService _auditService;
+        private readonly AplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
+        private readonly IEmailService _emailService;
+        private readonly EmailSettings _emailSettings;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserService userService, TokenService tokenService, SecurityLoggingService securityLogger, AuditService auditService)
+        public UserController(IUserService userService, TokenService tokenService, SecurityLoggingService securityLogger, AuditService auditService, AplicationDbContext context, IWebHostEnvironment env, IEmailService emailService, IOptions<EmailSettings> emailSettings, ILogger<UserController> logger)
         {
             _userService = userService;
             _tokenService = tokenService;
             _securityLogger = securityLogger;
             _auditService = auditService;
+            _context = context;
+            _env = env;
+            _emailService = emailService;
+            _emailSettings = emailSettings.Value;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Solo Development: restablece la contraseña de todos los usuarios SuperAdmin.
+        /// Útil si olvidaste la contraseña. Ejemplo: POST body { "newPassword": "SuperAdmin123" }
+        /// </summary>
+        [HttpPost("reset-superadmin-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> ResetSuperAdminPassword([FromBody] ResetSuperAdminPasswordRequest? request)
+        {
+            if (!_env.IsDevelopment())
+                return NotFound();
+
+            var newPassword = request?.NewPassword?.Trim();
+            if (string.IsNullOrEmpty(newPassword))
+                newPassword = "SuperAdmin123";
+
+            var superAdmins = await _context.Users
+                .Where(u => u.Role == "SuperAdmin")
+                .ToListAsync();
+            if (superAdmins.Count == 0)
+                return Ok(new { message = "No hay ningún usuario SuperAdmin en la base de datos.", userNames = Array.Empty<string>() });
+
+            var hashed = UserService.HashPasswordForStorage(newPassword);
+            foreach (var u in superAdmins)
+                u.Password = hashed;
+            await _context.SaveChangesAsync();
+
+            var names = superAdmins.Select(u => u.UserName).ToList();
+            return Ok(new
+            {
+                message = "Contraseña SuperAdmin restablecida. Usa la nueva contraseña para iniciar sesión.",
+                userNames = names,
+                newPassword = newPassword
+            });
+        }
+
+        /// <summary>
+        /// Recuperar contraseña: el usuario indica su nombre de usuario. Si existe y tiene email, se envía un correo con enlace para restablecer.
+        /// Por seguridad siempre se devuelve el mismo mensaje.
+        /// </summary>
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> ForgotPassword([FromBody] ForgotPasswordRequest? request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.UserName))
+                return BadRequest(new { message = "El usuario es requerido." });
+
+            var userName = InputSanitizer.SanitizeUserName(request.UserName.Trim());
+            if (InputSanitizer.ContainsSqlInjection(userName) || InputSanitizer.ContainsXss(userName))
+                return BadRequest(new { message = "Entrada inválida." });
+
+            string? maskedEmail = null;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user != null && !string.IsNullOrWhiteSpace(user.Email))
+            {
+                // Invalidar tokens anteriores
+                await _context.PasswordResetTokens.Where(t => t.UserId == user.Id).ExecuteDeleteAsync();
+                var token = Guid.NewGuid().ToString("N");
+                var expiresAt = DateTime.UtcNow.AddHours(1);
+                _context.PasswordResetTokens.Add(new PasswordResetToken
+                {
+                    UserId = user.Id,
+                    Token = token,
+                    ExpiresAt = expiresAt
+                });
+                await _context.SaveChangesAsync();
+
+                var baseUrl = _emailSettings.BaseUrlForEmails?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
+                var resetLink = $"{baseUrl}/recuperar-contrasena?token={Uri.EscapeDataString(token)}";
+                var enviado = await _emailService.SendPasswordResetEmailAsync(user.Email, user.UserName, resetLink);
+                if (enviado)
+                    maskedEmail = MaskEmail(user.Email);
+                else
+                    _logger.LogWarning("Recuperar contraseña: no se pudo enviar el correo a {Email}. Revisa la sección Email en appsettings (Gmail: contraseña de aplicación).", user.Email);
+            }
+            else if (user != null && string.IsNullOrWhiteSpace(user.Email))
+                _logger.LogWarning("Recuperar contraseña: el usuario {UserName} no tiene email registrado. Añade el email en Gestión de Usuarios.", userName);
+
+            var message = maskedEmail != null
+                ? "Se te envió un correo con el enlace para restablecer tu contraseña. Se envió a " + maskedEmail + ". Revisa tu bandeja y la carpeta de spam."
+                : "Si el usuario existe y tiene correo registrado, recibirás un correo con un enlace para restablecer tu contraseña. Revisa también la carpeta de spam.";
+            return Ok(new { message, maskedEmail });
+        }
+
+        /// <summary>
+        /// Redirige a la página amigable (enlaces antiguos en correos ya enviados).
+        /// </summary>
+        [HttpGet("reset-password-page")]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordPage([FromQuery] string? token)
+        {
+            var baseUrl = _emailSettings.BaseUrlForEmails?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
+            var newUrl = string.IsNullOrEmpty(token) ? $"{baseUrl}/recuperar-contrasena" : $"{baseUrl}/recuperar-contrasena?token={Uri.EscapeDataString(token)}";
+            return Redirect(newUrl);
+        }
+
+        /// <summary>
+        /// Restablecer contraseña con el token recibido por correo.
+        /// </summary>
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> ResetPassword([FromBody] ResetPasswordRequest? request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Token))
+                return BadRequest(new { message = "Token inválido." });
+            if (!Helpers.PasswordPolicy.IsValid(request.NewPassword, out var policyError))
+                return BadRequest(new { message = policyError ?? "La contraseña no cumple los requisitos." });
+
+            var resetToken = await _context.PasswordResetTokens
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.Token == request.Token);
+            if (resetToken == null || resetToken.ExpiresAt < DateTime.UtcNow)
+                return BadRequest(new { message = "El enlace ha caducado o no es válido. Solicita uno nuevo desde la app." });
+
+            resetToken.User.Password = UserService.HashPasswordForStorage(request.NewPassword);
+            _context.PasswordResetTokens.Remove(resetToken);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Contraseña actualizada correctamente. Ya puedes iniciar sesión en la app." });
         }
 
         [HttpPost("login")]
@@ -504,6 +638,18 @@ namespace TobacoBackend.Controllers
             {
                 return BadRequest(new { message = $"Error al generar token de prueba: {ex.Message}" });
             }
+        }
+
+        /// <summary>Enmascara un email para mostrarlo al usuario (ej: rodrigo@gmail.com -> rod***@gmail.com).</summary>
+        private static string MaskEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return "***";
+            var idx = email.IndexOf('@');
+            if (idx <= 0) return "***";
+            var local = email.Substring(0, idx);
+            var domain = email.Substring(idx);
+            var visible = local.Length <= 3 ? local : local.Substring(0, 3);
+            return visible + "***" + domain;
         }
 
     }
