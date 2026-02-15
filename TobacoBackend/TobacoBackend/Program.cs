@@ -90,6 +90,8 @@ builder.Services.AddScoped<PricingService>();
 builder.Services.AddScoped<SecurityLoggingService>();
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<AccountLockoutService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(EmailSettings.SectionName));
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<MetricsService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 

@@ -49,7 +49,7 @@ public class DatabaseKeepAliveService : IHostedService, IDisposable
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        _timer?.Change(Timeout.Infinite, 0);
+        _timer?.Change(System.Threading.Timeout.Infinite, 0);
         return Task.CompletedTask;
     }
 

@@ -50,7 +50,7 @@ namespace TobacoBackend.Services
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("BackupService detenido.");
-            _timer?.Change(Timeout.Infinite, 0);
+            _timer?.Change(System.Threading.Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
 

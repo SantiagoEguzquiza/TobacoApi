@@ -1,5 +1,4 @@
 using BCrypt.Net;
-using System.Security.Cryptography;
 
 namespace TobacoBackend.Services
 {
@@ -43,51 +42,6 @@ namespace TobacoBackend.Services
             catch
             {
                 // Si hay algún error en la verificación (formato inválido, etc.), retornar false
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Verifica si un hash es del tipo antiguo SHA256 (para migración)
-        /// </summary>
-        /// <param name="hashedPassword">Hash a verificar</param>
-        /// <returns>True si es un hash SHA256 antiguo</returns>
-        public static bool IsOldPasswordHash(string hashedPassword)
-        {
-            if (string.IsNullOrWhiteSpace(hashedPassword))
-                return false;
-
-            // Los hashes BCrypt empiezan con $2a$, $2b$, $2y$, etc.
-            // Los hashes SHA256 en Base64 no empiezan con $
-            return !hashedPassword.StartsWith("$2");
-        }
-
-        /// <summary>
-        /// Valida una contraseña contra un hash SHA256 antiguo (para migración)
-        /// </summary>
-        /// <param name="password">Contraseña en texto plano</param>
-        /// <param name="oldHash">Hash SHA256 antiguo</param>
-        /// <returns>True si la contraseña es correcta</returns>
-        public static bool ValidateOldPassword(string password, string oldHash)
-        {
-            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(oldHash))
-                return false;
-
-            try
-            {
-                using (var sha256 = System.Security.Cryptography.SHA256.Create())
-                {
-                    var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                    var hashedString = Convert.ToBase64String(hashedBytes);
-                    // Comparación de tiempo constante para prevenir timing attacks
-                    return CryptographicOperations.FixedTimeEquals(
-                        System.Text.Encoding.UTF8.GetBytes(hashedString),
-                        System.Text.Encoding.UTF8.GetBytes(oldHash)
-                    );
-                }
-            }
-            catch
-            {
                 return false;
             }
         }

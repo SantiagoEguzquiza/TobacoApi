@@ -22,6 +22,7 @@ public class AplicationDbContext : DbContext
     public DbSet<RecorridoProgramado> RecorridosProgramados { get; set; }
     public DbSet<PermisosEmpleado> PermisosEmpleados { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private const string TenantIdClaim = "tenant_id";
@@ -208,6 +209,16 @@ public class AplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(u => u.CreatedById)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<PasswordResetToken>()
+            .HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PasswordResetToken>()
+            .HasIndex(t => t.Token)
+            .IsUnique();
 
         // VentaPago entity configuration
         modelBuilder.Entity<VentaPago>()
