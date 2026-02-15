@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
@@ -114,8 +114,15 @@ namespace TobacoBackend.Controllers
 
             try
             {
-                await _categoriaService.UpdateAsync(id, categoriaDto);
-                return Ok(new { message = "Categoría actualizada exitosamente." });
+                var categoriaActualizada = await _categoriaService.UpdateAsync(id, categoriaDto);
+                if (categoriaActualizada == null)
+                    return NotFound(new { message = "Categoría no encontrada." });
+
+                return Ok(categoriaActualizada);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception)
             {
