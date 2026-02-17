@@ -18,16 +18,12 @@ namespace TobacoBackend.Repositories
 
         /// <summary>
         /// Obtiene el TenantId actual del contexto para filtrar las consultas
-        /// Siempre incluye clientes con TenantId = 0 (Consumidor Final compartido)
         /// </summary>
         private IQueryable<Cliente> FilterByTenant(IQueryable<Cliente> query)
         {
             var tenantId = _context.GetCurrentTenantId();
             if (tenantId.HasValue)
-            {
-                // Incluir clientes del tenant actual Y clientes con TenantId = 0 (Consumidor Final compartido)
-                return query.Where(c => c.TenantId == tenantId.Value || c.TenantId == 0);
-            }
+                return query.Where(c => c.TenantId == tenantId.Value);
             return query; // Si no hay TenantId (SuperAdmin), no filtrar
         }
 
@@ -87,36 +83,23 @@ namespace TobacoBackend.Repositories
 
         public async Task<Cliente> GetClienteById(int id)
         {
-            // Buscar primero en el tenant actual, luego en TenantId = 0 (Consumidor Final compartido)
             var tenantId = _context.GetCurrentTenantId();
-            Cliente? cliente = null;
-            
-            if (tenantId.HasValue)
-            {
-                cliente = await _context.Clientes
-                    .Where(c => c.Id == id && (c.TenantId == tenantId.Value || c.TenantId == 0))
-                    .FirstOrDefaultAsync();
-            }
-            else
-            {
-                cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
-            }
-            
-            if (cliente == null)
-            {
-                throw new Exception($"El cliente con id {id} no fue encontrado o no existe");
-            }
+            Cliente? cliente = tenantId.HasValue
+                ? await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id && c.TenantId == tenantId.Value)
+                : await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
 
+            if (cliente == null)
+                throw new Exception($"El cliente con id {id} no fue encontrado o no existe");
             return cliente;
         }
 
         /// <summary>
-        /// Busca el cliente "Consumidor Final" con TenantId = 0 (compartido entre todos los tenants)
+        /// Busca el cliente "Consumidor Final" del tenant indicado (un Consumidor Final por tenant)
         /// </summary>
-        public async Task<Cliente?> BuscarConsumidorFinal()
+        public async Task<Cliente?> BuscarConsumidorFinal(int tenantId)
         {
             return await _context.Clientes
-                .Where(c => c.TenantId == 0 && c.Nombre.Trim().Equals("Consumidor Final", StringComparison.OrdinalIgnoreCase))
+                .Where(c => c.TenantId == tenantId && c.Nombre.ToLower() == "consumidor final")
                 .FirstOrDefaultAsync();
         }
 
