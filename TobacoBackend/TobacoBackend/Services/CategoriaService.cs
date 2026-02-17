@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
@@ -47,14 +47,22 @@ public class CategoriaService : ICategoriaService
         await _repository.AddAsync(categoria);
     }
 
-    public async Task UpdateAsync(int id, CategoriaDTO categoriaDto)
+    public async Task<CategoriaDTO?> UpdateAsync(int id, CategoriaDTO categoriaDto)
     {
         var existing = await _repository.GetByIdAsync(id);
-        if (existing != null)
-        {
-            existing.Nombre = categoriaDto.Nombre;
-            await _repository.UpdateAsync(existing);
-        }
+        if (existing == null)
+            return null;
+
+        var nombreTrimmed = categoriaDto.Nombre.Trim();
+        var allCategorias = await _repository.GetAllAsync();
+        if (allCategorias.Any(c => c.Id != id && string.Equals(c.Nombre.Trim(), nombreTrimmed, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Ya existe una categoría con ese nombre.");
+
+        existing.Nombre = nombreTrimmed;
+        existing.ColorHex = categoriaDto.ColorHex;
+        await _repository.UpdateAsync(existing);
+
+        return _mapper.Map<CategoriaDTO>(existing);
     }
 
     public async Task DeleteAsync(int id)
