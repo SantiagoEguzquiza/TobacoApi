@@ -1,4 +1,4 @@
-﻿using TobacoBackend.Domain.Models;
+using TobacoBackend.Domain.Models;
 
 namespace TobacoBackend.Domain.IRepositories
 {
@@ -13,5 +13,9 @@ namespace TobacoBackend.Domain.IRepositories
         Task<bool> ActivateProducto(int id);
         Task<ProductoPaginationResult> GetProductosPaginados(int page, int pageSize);
         Task UpdateProductoDiscount(int id, decimal descuento, DateTime? fechaExpiracionDescuento, bool descuentoIndefinido);
+        /// <summary>
+        /// Ajusta el stock del producto (delta positivo = sumar, negativo = restar). Usado en ventas y devoluciones.
+        /// </summary>
+        Task AjustarStock(int productId, decimal delta);
     }
 }

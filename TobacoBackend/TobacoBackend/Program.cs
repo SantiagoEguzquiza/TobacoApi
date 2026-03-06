@@ -63,6 +63,12 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
+// Database - Validar cadena de conexión al arranque
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new InvalidOperationException(
+        "DefaultConnection no está configurada. Pon la cadena de tu base en la nube en appsettings.Development.json (ConnectionStrings:DefaultConnection) o en la variable de entorno ConnectionStrings__DefaultConnection. Ejemplo: Host=tu-proyecto.railway.app;Port=5432;Database=railway;Username=postgres;Password=xxx;Ssl Mode=Require");
+
 // Database - Usar factory para inyectar IHttpContextAccessor
 builder.Services.AddDbContext<AplicationDbContext>((serviceProvider, options) =>
 {

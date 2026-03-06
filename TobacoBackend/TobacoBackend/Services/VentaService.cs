@@ -93,6 +93,11 @@ namespace TobacoBackend.Services
                 {
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
+                if (producto.Stock < productoDto.Cantidad)
+                {
+                    throw new InvalidOperationException(
+                        $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, solicitado: {productoDto.Cantidad}.");
+                }
 
                 // Aplicar lógica de expiración de descuentos antes de calcular el precio
                 await AplicarLogicaExpiracionDescuento(producto);
@@ -212,6 +217,12 @@ namespace TobacoBackend.Services
             // Add the venta first to get the ID
             await _ventaRepository.AddVenta(venta);
 
+            // Descontar stock de cada producto vendido
+            foreach (var vp in venta.VentaProductos)
+            {
+                await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+            }
+
             // Add VentaPagos if provided
             if (ventaDto.VentaPagos != null && ventaDto.VentaPagos.Any())
             {
@@ -272,6 +283,15 @@ namespace TobacoBackend.Services
                 }
 
                 Console.WriteLine($"Venta encontrada: ClienteId={ventaExistente.ClienteId}, MetodoPago={ventaExistente.MetodoPago}");
+
+                // Devolver stock de cada producto de la venta antes de eliminar
+                if (ventaExistente.VentaProductos != null)
+                {
+                    foreach (var vp in ventaExistente.VentaProductos)
+                    {
+                        await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                    }
+                }
 
                 // Calculate the debt amount that needs to be reduced
                 decimal montoDeudaAReducir = 0;
@@ -347,6 +367,28 @@ namespace TobacoBackend.Services
         {
             // Get the existing venta to compare changes
             var ventaExistente = await _ventaRepository.GetVentaById(id);
+
+            // Devolver stock de los productos de la venta anterior (antes de aplicar los nuevos)
+            if (ventaExistente.VentaProductos != null)
+            {
+                foreach (var vp in ventaExistente.VentaProductos)
+                {
+                    await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                }
+            }
+
+            // Validar stock suficiente para los nuevos productos
+            if (ventaDto.VentaProductos != null)
+            {
+                var porProducto = ventaDto.VentaProductos.GroupBy(x => x.ProductoId).ToDictionary(g => g.Key, g => g.Sum(x => x.Cantidad));
+                foreach (var kv in porProducto)
+                {
+                    var producto = await _productoRepository.GetProductoById(kv.Key);
+                    if (producto.Stock < kv.Value)
+                        throw new InvalidOperationException(
+                            $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, solicitado: {kv.Value}.");
+                }
+            }
 
             // Calculate the new total and update PrecioFinalCalculado for each product
             decimal nuevoTotal = 0;
@@ -493,6 +535,15 @@ namespace TobacoBackend.Services
             venta.Id = id;
             venta.Total = nuevoTotal;
             await _ventaRepository.UpdateVenta(venta);
+
+            // Descontar stock de los nuevos productos de la venta
+            if (venta.VentaProductos != null)
+            {
+                foreach (var vp in venta.VentaProductos)
+                {
+                    await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+                }
+            }
             
             // Update VentaPagos
             if (ventaDto.VentaPagos != null)

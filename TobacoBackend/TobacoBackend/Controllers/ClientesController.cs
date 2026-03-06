@@ -80,10 +80,15 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "El cliente no puede ser nulo." });
                 }
 
-                // Validar modelo
+                // Validar modelo: devolver el mensaje del atributo (ej. "La dirección debe tener entre 5 y 200 caracteres")
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(new { message = "Datos del cliente inválidos.", errors = ModelState });
+                    var firstError = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m));
+                    var message = string.IsNullOrWhiteSpace(firstError) ? "Datos del cliente inválidos." : firstError;
+                    return BadRequest(new { message });
                 }
 
                 // Sanitizar y validar entrada
