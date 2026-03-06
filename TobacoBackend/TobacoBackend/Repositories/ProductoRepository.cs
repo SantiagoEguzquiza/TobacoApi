@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.Models;
 
@@ -186,6 +186,17 @@ namespace TobacoBackend.Repositories
                 producto.descuentoIndefinido = descuentoIndefinido;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task AjustarStock(int productId, decimal delta)
+        {
+            var producto = await FilterByTenant(_context.Productos).FirstOrDefaultAsync(p => p.Id == productId);
+            if (producto == null)
+                throw new Exception($"Producto con id {productId} no encontrado.");
+            producto.Stock += delta;
+            if (producto.Stock < 0)
+                producto.Stock = 0;
+            await _context.SaveChangesAsync();
         }
     }
 }
