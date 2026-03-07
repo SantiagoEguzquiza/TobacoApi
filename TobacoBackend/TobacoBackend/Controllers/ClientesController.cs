@@ -61,7 +61,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-       
+        
         [HttpPost]
         [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)] // Validación de permisos se hace dentro
         public async Task<ActionResult<ClienteDTO>> AddCliente([FromBody] ClienteDTO clienteDto)
