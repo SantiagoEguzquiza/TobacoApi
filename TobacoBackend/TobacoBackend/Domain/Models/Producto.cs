@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TobacoBackend.Domain.Models
@@ -18,6 +18,12 @@ namespace TobacoBackend.Domain.Models
         [Required]
         public decimal Precio { get; set; }
 
+        /// <summary>Último costo de compra registrado (actualizado al confirmar una compra).</summary>
+        public decimal? UltimoCostoCompra { get; set; }
+
+        /// <summary>Costo promedio ponderado (recalculado al confirmar una compra).</summary>
+        public decimal? CostoPromedio { get; set; }
+
         [Required]
         public int CategoriaId { get; set; }
 
@@ -26,6 +32,7 @@ namespace TobacoBackend.Domain.Models
 
         public List<VentaProducto> VentaProductos { get; set; } = new List<VentaProducto>();
         public List<ProductQuantityPrice> QuantityPrices { get; set; } = new List<ProductQuantityPrice>();
+        public List<CompraItem> CompraItems { get; set; } = new List<CompraItem>();
 
         public string? Marca { get; set; }
 
