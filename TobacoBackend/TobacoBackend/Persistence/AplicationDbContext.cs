@@ -23,6 +23,9 @@ public class AplicationDbContext : DbContext
     public DbSet<PermisosEmpleado> PermisosEmpleados { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+    public DbSet<Proveedor> Proveedores { get; set; }
+    public DbSet<Compra> Compras { get; set; }
+    public DbSet<CompraItem> CompraItems { get; set; }
 
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private const string TenantIdClaim = "tenant_id";
@@ -161,6 +164,14 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Producto>()
             .Property(p => p.Stock)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Producto>()
+            .Property(p => p.UltimoCostoCompra)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Producto>()
+            .Property(p => p.CostoPromedio)
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<Producto>()
@@ -417,6 +428,70 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(rt => rt.Token)
             .IsUnique();
+
+        // Proveedor entity configuration
+        modelBuilder.Entity<Proveedor>()
+            .HasOne(p => p.Tenant)
+            .WithMany()
+            .HasForeignKey(p => p.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Proveedor>()
+            .Property(p => p.Nombre)
+            .IsRequired()
+            .HasMaxLength(200);
+
+        // Compra entity configuration
+        modelBuilder.Entity<Compra>()
+            .HasOne(c => c.Proveedor)
+            .WithMany(p => p.Compras)
+            .HasForeignKey(c => c.ProveedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Compra>()
+            .HasOne(c => c.Tenant)
+            .WithMany()
+            .HasForeignKey(c => c.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Compra>()
+            .Property(c => c.Total)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Compra>()
+            .Property(c => c.CreatedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        // CompraItem entity configuration
+        modelBuilder.Entity<CompraItem>()
+            .HasOne(ci => ci.Compra)
+            .WithMany(c => c.Items)
+            .HasForeignKey(ci => ci.CompraId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CompraItem>()
+            .HasOne(ci => ci.Producto)
+            .WithMany(p => p.CompraItems)
+            .HasForeignKey(ci => ci.ProductoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CompraItem>()
+            .HasOne(ci => ci.Tenant)
+            .WithMany()
+            .HasForeignKey(ci => ci.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CompraItem>()
+            .Property(ci => ci.Cantidad)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<CompraItem>()
+            .Property(ci => ci.CostoUnitario)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<CompraItem>()
+            .Property(ci => ci.Subtotal)
+            .HasPrecision(18, 2);
 
         // NOTA: Los filtros por TenantId se aplican manualmente en los repositorios
         // porque EF Core no puede traducir expresiones que acceden a HttpContext a SQL

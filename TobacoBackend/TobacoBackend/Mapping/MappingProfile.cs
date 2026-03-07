@@ -83,6 +83,19 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.Users, opt => opt.Ignore());
+
+            CreateMap<Proveedor, ProveedorDTO>().ReverseMap();
+            CreateMap<CreateProveedorDTO, Proveedor>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.TenantId, opt => opt.Ignore())
+                .ForMember(dest => dest.Tenant, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Compras, opt => opt.Ignore());
+            CreateMap<CompraItem, CompraItemDTO>()
+                .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : null));
+            CreateMap<Compra, CompraDTO>()
+                .ForMember(dest => dest.Proveedor, opt => opt.MapFrom(src => src.Proveedor))
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
         }
     }
 }

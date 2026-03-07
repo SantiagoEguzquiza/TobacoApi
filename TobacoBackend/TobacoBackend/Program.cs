@@ -132,6 +132,10 @@ builder.Services.AddScoped<IRecorridoProgramadoRepository, RecorridoProgramadoRe
 builder.Services.AddScoped<IPermisosEmpleadoRepository, PermisosEmpleadoRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<ICompraService, CompraService>();
 
 // CORS - Configuración restrictiva
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
