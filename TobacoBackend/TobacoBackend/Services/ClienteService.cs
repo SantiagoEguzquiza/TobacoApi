@@ -167,27 +167,18 @@ namespace TobacoBackend.Services
 
             var deudaActual = cliente.DeudaDecimal;
             var nuevaDeuda = deudaActual - monto;
-            
-            // No permitir deuda negativa
-            if (nuevaDeuda < 0)
-            {
-                nuevaDeuda = 0;
-            }
-
+            // Permitir valores negativos = saldo a favor del cliente
             cliente.Deuda = nuevaDeuda.ToString();
             await _clienteRepository.UpdateCliente(cliente);
         }
 
         public async Task<bool> ValidarMontoAbono(int clienteId, decimal montoAbono)
         {
+            if (montoAbono <= 0) return false;
             var cliente = await _clienteRepository.GetClienteById(clienteId);
-            if (cliente == null)
-            {
-                return false;
-            }
-
-            var deudaActual = cliente.DeudaDecimal;
-            return montoAbono <= deudaActual && montoAbono > 0;
+            if (cliente == null) return false;
+            // Permitir abonos mayores a la deuda: el excedente se convierte en saldo a favor
+            return true;
         }
 
         public async Task<object> GetDetalleDeuda(int clienteId)
@@ -198,17 +189,33 @@ namespace TobacoBackend.Services
                 throw new Exception($"Cliente con ID {clienteId} no encontrado");
             }
 
-            // Solo devolver si tiene deuda
-            if (cliente.DeudaDecimal <= 0)
+            var saldo = cliente.DeudaDecimal;
+            if (saldo == 0)
             {
                 return new
                 {
                     clienteId = cliente.Id,
                     clienteNombre = cliente.Nombre,
-                    deudaActual = 0,
+                    deudaActual = 0m,
+                    saldoAFavor = 0m,
                     deudaFormateada = "0",
+                    saldoAFavorFormateado = "0",
                     fechaConsulta = DateTime.Now,
-                    mensaje = "El cliente no tiene deuda pendiente"
+                    mensaje = "El cliente no tiene deuda ni saldo a favor"
+                };
+            }
+
+            if (saldo < 0)
+            {
+                return new
+                {
+                    clienteId = cliente.Id,
+                    clienteNombre = cliente.Nombre,
+                    deudaActual = 0m,
+                    saldoAFavor = Math.Abs(saldo),
+                    deudaFormateada = "0",
+                    saldoAFavorFormateado = Math.Abs(saldo).ToString("F2"),
+                    fechaConsulta = DateTime.Now
                 };
             }
 
@@ -216,8 +223,10 @@ namespace TobacoBackend.Services
             {
                 clienteId = cliente.Id,
                 clienteNombre = cliente.Nombre,
-                deudaActual = cliente.DeudaDecimal,
+                deudaActual = saldo,
+                saldoAFavor = 0m,
                 deudaFormateada = cliente.Deuda,
+                saldoAFavorFormateado = "0",
                 fechaConsulta = DateTime.Now
             };
         }

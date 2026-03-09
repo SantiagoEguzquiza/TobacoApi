@@ -67,14 +67,44 @@ public class CategoriaService : ICategoriaService
 
     public async Task DeleteAsync(int id)
     {
-        try
+        var tenantId = _context.GetCurrentTenantId();
+        if (!tenantId.HasValue)
+            throw new InvalidOperationException("No se pudo determinar el TenantId.");
+
+        var categoria = await _context.Categorias
+            .FirstOrDefaultAsync(c => c.Id == id && c.TenantId == tenantId.Value);
+        if (categoria == null)
+            throw new InvalidOperationException("No se encontró la categoría o no tienes permiso para eliminarla.");
+
+        // Productos en esta categoría (del mismo tenant)
+        var productosEnCategoria = await _context.Productos
+            .Where(p => p.CategoriaId == id && p.TenantId == tenantId.Value)
+            .ToListAsync();
+
+        var productosActivos = productosEnCategoria.Where(p => p.IsActive).ToList();
+        if (productosActivos.Any())
+            throw new InvalidOperationException(
+                $"No se puede eliminar la categoría porque tiene {productosActivos.Count} producto(s) activo(s). Desactiva los productos primero.");
+
+        // Solo hay productos desactivados (o ninguno): reasignar a otra categoría si hay productos
+        if (productosEnCategoria.Any())
         {
-            await _repository.DeleteAsync(id);
+            var otraCategoria = await _context.Categorias
+                .Where(c => c.TenantId == tenantId.Value && c.Id != id)
+                .OrderBy(c => c.SortOrder)
+                .FirstOrDefaultAsync();
+
+            if (otraCategoria == null)
+                throw new InvalidOperationException(
+                    "No se puede eliminar la única categoría si tiene productos asignados (aunque estén desactivados).");
+
+            foreach (var p in productosEnCategoria)
+                p.CategoriaId = otraCategoria.Id;
+            await _context.SaveChangesAsync();
         }
-        catch (DbUpdateException)
-        {
-            throw new Exception("No se puede eliminar la categoría porque tiene productos asociados.");
-        }
+
+        _context.Categorias.Remove(categoria);
+        await _context.SaveChangesAsync();
     }
 
     public async Task ReorderAsync(List<(int id, int sortOrder)> categoriaOrders)
