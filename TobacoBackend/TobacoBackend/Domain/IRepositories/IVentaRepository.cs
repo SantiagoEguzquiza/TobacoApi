@@ -8,6 +8,7 @@ namespace TobacoBackend.Domain.IRepositories
         Task<List<Venta>> GetAllVentas();
         Task<Venta> GetVentaById(int id);
         Task AddVenta(Venta venta);
+        Task<int> GetNextNumeroVentaAsync(int tenantId);
         Task AddVentaProducto(VentaProducto ventaProducto);
         Task AddOrUpdateVentaProducto(VentaProducto ventaProducto);
         Task UpdateVenta(Venta venta);

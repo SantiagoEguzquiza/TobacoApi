@@ -146,7 +146,11 @@ namespace TobacoBackend.Controllers
                         CuentaCorriente_Visualizar = true,
                         CuentaCorriente_RegistrarAbonos = true,
                         Entregas_Visualizar = true,
-                        Entregas_ActualizarEstado = true
+                        Entregas_ActualizarEstado = true,
+                        Compras_Visualizar = true,
+                        Compras_Crear = true,
+                        Compras_Editar = true,
+                        Compras_Eliminar = true
                     });
                 }
 

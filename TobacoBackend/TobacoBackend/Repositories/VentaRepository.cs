@@ -32,6 +32,14 @@ namespace TobacoBackend.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> GetNextNumeroVentaAsync(int tenantId)
+        {
+            var max = await _context.Ventas
+                .Where(v => v.TenantId == tenantId)
+                .MaxAsync(v => (int?)v.NumeroVenta);
+            return (max ?? 0) + 1;
+        }
+
         public async Task AddVentaProducto(VentaProducto ventaProducto)
         {
             await _context.VentasProductos.AddAsync(ventaProducto);

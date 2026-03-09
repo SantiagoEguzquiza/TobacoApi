@@ -7,5 +7,6 @@ namespace TobacoBackend.Domain.IRepositories
         Task<Compra> CreateAsync(Compra compra);
         Task<Compra?> GetByIdAsync(int id);
         Task<List<Compra>> GetAllByTenantAsync(DateTime? desde = null, DateTime? hasta = null);
+        Task DeleteAsync(Compra compra);
     }
 }

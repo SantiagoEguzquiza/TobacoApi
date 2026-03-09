@@ -9,6 +9,11 @@ namespace TobacoBackend.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        /// <summary>
+        /// Número de venta visible por tenant (correlativo independiente por cada cliente).
+        /// </summary>
+        public int NumeroVenta { get; set; }
+
         [Required]
         public int ClienteId { get; set; }
 

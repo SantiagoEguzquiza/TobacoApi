@@ -287,6 +287,10 @@ public class AplicationDbContext : DbContext
         
         // Venta entity configuration
         modelBuilder.Entity<Venta>()
+            .HasIndex(v => new { v.TenantId, v.NumeroVenta })
+            .IsUnique();
+
+        modelBuilder.Entity<Venta>()
             .HasOne(v => v.Cliente)
             .WithMany(c => c.Ventas)
             .HasForeignKey(v => v.ClienteId)

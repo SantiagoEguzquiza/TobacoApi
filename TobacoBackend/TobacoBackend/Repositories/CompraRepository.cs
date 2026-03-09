@@ -51,5 +51,11 @@ namespace TobacoBackend.Repositories
                 .ThenByDescending(c => c.Id)
                 .ToListAsync();
         }
+
+        public async Task DeleteAsync(Compra compra)
+        {
+            _context.Compras.Remove(compra);
+            await _context.SaveChangesAsync();
+        }
     }
 }
