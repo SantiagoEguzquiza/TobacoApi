@@ -1439,6 +1439,27 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Compra"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/api/Entregas/mis-entregas": {
@@ -5223,6 +5244,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "numeroVenta": {
+            "type": "integer",
+            "format": "int32"
+          },
           "message": {
             "type": "string",
             "nullable": true
@@ -5527,6 +5552,18 @@
             "type": "boolean"
           },
           "entregas_ActualizarEstado": {
+            "type": "boolean"
+          },
+          "compras_Visualizar": {
+            "type": "boolean"
+          },
+          "compras_Crear": {
+            "type": "boolean"
+          },
+          "compras_Editar": {
+            "type": "boolean"
+          },
+          "compras_Eliminar": {
             "type": "boolean"
           }
         },
@@ -6100,6 +6137,22 @@
           "entregas_ActualizarEstado": {
             "type": "boolean",
             "nullable": true
+          },
+          "compras_Visualizar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "compras_Crear": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "compras_Editar": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "compras_Eliminar": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6278,6 +6331,10 @@
         "type": "object",
         "properties": {
           "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numeroVenta": {
             "type": "integer",
             "format": "int32"
           },

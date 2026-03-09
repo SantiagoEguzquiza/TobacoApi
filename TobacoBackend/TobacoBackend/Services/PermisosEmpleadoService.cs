@@ -84,6 +84,15 @@ namespace TobacoBackend.Services
             if (updateDto.Entregas_ActualizarEstado.HasValue)
                 permisos.Entregas_ActualizarEstado = updateDto.Entregas_ActualizarEstado.Value;
 
+            if (updateDto.Compras_Visualizar.HasValue)
+                permisos.Compras_Visualizar = updateDto.Compras_Visualizar.Value;
+            if (updateDto.Compras_Crear.HasValue)
+                permisos.Compras_Crear = updateDto.Compras_Crear.Value;
+            if (updateDto.Compras_Editar.HasValue)
+                permisos.Compras_Editar = updateDto.Compras_Editar.Value;
+            if (updateDto.Compras_Eliminar.HasValue)
+                permisos.Compras_Eliminar = updateDto.Compras_Eliminar.Value;
+
             var updated = await _repository.UpdateAsync(permisos);
             return _mapper.Map<PermisosEmpleadoDTO>(updated);
         }
@@ -124,6 +133,10 @@ namespace TobacoBackend.Services
                 "CuentaCorriente_RegistrarAbonos" => permisos.CuentaCorriente_RegistrarAbonos,
                 "Entregas_Visualizar" => permisos.Entregas_Visualizar,
                 "Entregas_ActualizarEstado" => permisos.Entregas_ActualizarEstado,
+                "Compras_Visualizar" => permisos.Compras_Visualizar,
+                "Compras_Crear" => permisos.Compras_Crear,
+                "Compras_Editar" => permisos.Compras_Editar,
+                "Compras_Eliminar" => permisos.Compras_Eliminar,
                 _ => false
             };
         }

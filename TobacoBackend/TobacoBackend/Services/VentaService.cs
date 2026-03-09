@@ -72,8 +72,11 @@ namespace TobacoBackend.Services
                 throw new InvalidOperationException("No se pudo determinar el TenantId del contexto actual.");
             }
 
+            var numeroVenta = await _ventaRepository.GetNextNumeroVentaAsync(tenantId.Value);
+
             var venta = new Venta
             {
+                NumeroVenta = numeroVenta,
                 ClienteId = ventaDto.ClienteId,
                 // Usar la fecha enviada por el cliente (ya viene en UTC desde la app)
                 Fecha = ventaDto.Fecha,
@@ -256,6 +259,7 @@ namespace TobacoBackend.Services
             var response = new CreateVentaResponseDTO
             {
                 VentaId = venta.Id,
+                NumeroVenta = venta.NumeroVenta,
                 Message = "Venta creada exitosamente",
                 Asignada = usuarioIdAsignado.HasValue, // True si se auto-asignó (vendedor-repartidor)
                 UsuarioAsignadoId = usuarioIdAsignado,

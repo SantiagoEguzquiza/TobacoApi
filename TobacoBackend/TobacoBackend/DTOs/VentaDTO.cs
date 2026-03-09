@@ -5,6 +5,8 @@ namespace TobacoBackend.DTOs
     public class VentaDTO
     {
         public int Id { get; set; }
+        /// <summary>Número visible de venta (correlativo por tenant).</summary>
+        public int NumeroVenta { get; set; }
         public int ClienteId { get; set; }
         public ClienteDTO Cliente { get; set; } 
         public List<VentaProductoDTO> VentaProductos { get; set; }

@@ -33,6 +33,12 @@ namespace TobacoBackend.DTOs
         // Permisos de Entregas
         public bool Entregas_Visualizar { get; set; }
         public bool Entregas_ActualizarEstado { get; set; }
+
+        // Permisos de Compras
+        public bool Compras_Visualizar { get; set; }
+        public bool Compras_Crear { get; set; }
+        public bool Compras_Editar { get; set; }
+        public bool Compras_Eliminar { get; set; }
     }
 
     /// <summary>
@@ -65,6 +71,12 @@ namespace TobacoBackend.DTOs
         // Permisos de Entregas
         public bool? Entregas_Visualizar { get; set; }
         public bool? Entregas_ActualizarEstado { get; set; }
+
+        // Permisos de Compras
+        public bool? Compras_Visualizar { get; set; }
+        public bool? Compras_Crear { get; set; }
+        public bool? Compras_Editar { get; set; }
+        public bool? Compras_Eliminar { get; set; }
     }
 }
 

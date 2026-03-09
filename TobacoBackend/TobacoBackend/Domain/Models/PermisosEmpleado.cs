@@ -38,6 +38,12 @@ namespace TobacoBackend.Domain.Models
         public bool Entregas_Visualizar { get; set; } = false;
         public bool Entregas_ActualizarEstado { get; set; } = false;
 
+        // Permisos de Compras
+        public bool Compras_Visualizar { get; set; } = false;
+        public bool Compras_Crear { get; set; } = false;
+        public bool Compras_Editar { get; set; } = false;
+        public bool Compras_Eliminar { get; set; } = false;
+
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

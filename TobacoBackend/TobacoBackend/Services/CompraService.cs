@@ -135,5 +135,45 @@ namespace TobacoBackend.Services
             var compras = await _compraRepository.GetAllByTenantAsync(desde, hasta);
             return _mapper.Map<List<CompraDTO>>(compras);
         }
+
+        public async Task DeleteAsync(int id)
+        {
+            var compra = await _compraRepository.GetByIdAsync(id);
+            if (compra == null)
+                throw new InvalidOperationException("Compra no encontrada.");
+
+            if (compra.Items == null || compra.Items.Count == 0)
+            {
+                await _compraRepository.DeleteAsync(compra);
+                return;
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var item in compra.Items)
+                {
+                    var producto = await _productoRepository.GetProductoById(item.ProductoId);
+                    var stockActual = producto.Stock;
+                    var cantidadARevertir = item.Cantidad;
+
+                    if (stockActual < cantidadARevertir)
+                        throw new InvalidOperationException(
+                            $"No se puede eliminar la compra: el producto \"{producto.Nombre}\" tiene stock actual {stockActual} " +
+                            $"y la compra agregó {cantidadARevertir} unidades. Revertir dejaría stock negativo.");
+
+                    producto.Stock = stockActual - cantidadARevertir;
+                    await _productoRepository.UpdateProducto(producto);
+                }
+
+                await _compraRepository.DeleteAsync(compra);
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }
