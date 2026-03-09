@@ -4935,7 +4935,7 @@
           "deuda": {
             "maxLength": 50,
             "minLength": 0,
-            "pattern": "^$|^0$|^\\d+(\\.\\d{1,2})?$",
+            "pattern": "^$|^0$|^-?\\d+(\\.\\d{1,2})?$",
             "type": "string",
             "nullable": true
           },

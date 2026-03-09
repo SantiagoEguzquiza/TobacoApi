@@ -72,7 +72,10 @@ if (string.IsNullOrWhiteSpace(connectionString))
 // Database - Usar factory para inyectar IHttpContextAccessor
 builder.Services.AddDbContext<AplicationDbContext>((serviceProvider, options) =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")!, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
+    });
     var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
     // El DbContext se crea con el constructor que acepta IHttpContextAccessor
 }, ServiceLifetime.Scoped);

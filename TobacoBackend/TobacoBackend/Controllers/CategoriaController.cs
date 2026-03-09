@@ -139,7 +139,7 @@ namespace TobacoBackend.Controllers
                 var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Eliminar");
                 if (!hasPermission)
                 {
-                    return Forbid("No tiene permisos para eliminar categorías. Se requiere el permiso de eliminar productos.");
+                    return StatusCode(403, new { message = "No tiene permisos para eliminar categorías. Se requiere el permiso de eliminar productos." });
                 }
 
                 await _categoriaService.DeleteAsync(id);
