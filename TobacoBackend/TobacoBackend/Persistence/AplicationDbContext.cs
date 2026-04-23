@@ -57,7 +57,11 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Tenant>()
             .Property(t => t.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        
+        modelBuilder.Entity<Tenant>()
+            .Property(t => t.StockControlEnabledByDefault)
+            .HasDefaultValue(true);
 
         // Configurar relaciones con Tenant
         modelBuilder.Entity<User>()
@@ -173,6 +177,10 @@ public class AplicationDbContext : DbContext
         modelBuilder.Entity<Producto>()
             .Property(p => p.CostoPromedio)
             .HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Producto>()
+            .Property(p => p.StockControlMode)
+            .HasDefaultValue(StockControlMode.InheritTenant);
 
         modelBuilder.Entity<Producto>()
             .HasOne(p => p.Categoria)
@@ -208,7 +216,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<User>()
             .Property(u => u.Plan)
@@ -317,7 +325,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Abonos>()
             .Property(a => a.Fecha)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // ProductoAFavor entity configuration
         modelBuilder.Entity<ProductoAFavor>()
@@ -356,7 +364,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductoAFavor>()
             .Property(p => p.FechaRegistro)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // VentaProducto - Usuario Chequeo relationship
         modelBuilder.Entity<VentaProducto>()
@@ -395,7 +403,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<RecorridoProgramado>()
             .Property(r => r.FechaCreacion)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // PermisosEmpleado entity configuration
         modelBuilder.Entity<PermisosEmpleado>()
@@ -410,7 +418,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<PermisosEmpleado>()
             .Property(p => p.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // RefreshToken entity configuration
         modelBuilder.Entity<RefreshToken>()
@@ -427,7 +435,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<RefreshToken>()
             .Property(rt => rt.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(rt => rt.Token)
@@ -464,7 +472,7 @@ public class AplicationDbContext : DbContext
 
         modelBuilder.Entity<Compra>()
             .Property(c => c.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // CompraItem entity configuration
         modelBuilder.Entity<CompraItem>()

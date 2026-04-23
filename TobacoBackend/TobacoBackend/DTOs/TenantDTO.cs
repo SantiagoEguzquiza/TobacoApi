@@ -20,6 +20,8 @@ namespace TobacoBackend.DTOs
         public string? Telefono { get; set; }
 
         public bool IsActive { get; set; }
+        
+        public bool StockControlEnabledByDefault { get; set; } = true;
 
         public DateTime CreatedAt { get; set; }
 
@@ -41,6 +43,8 @@ namespace TobacoBackend.DTOs
 
         [StringLength(50, ErrorMessage = "El teléfono no puede exceder 50 caracteres")]
         public string? Telefono { get; set; }
+        
+        public bool StockControlEnabledByDefault { get; set; } = true;
     }
 
     public class UpdateTenantDTO
@@ -59,6 +63,8 @@ namespace TobacoBackend.DTOs
         public string? Telefono { get; set; }
 
         public bool? IsActive { get; set; }
+        
+        public bool? StockControlEnabledByDefault { get; set; }
     }
 }
 

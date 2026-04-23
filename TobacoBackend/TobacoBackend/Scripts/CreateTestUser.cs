@@ -27,7 +27,7 @@ namespace TobacoBackend.Scripts
             Console.WriteLine($"Hashed Password: {hashedPassword}");
             Console.WriteLine();
             Console.WriteLine("SQL to insert test user:");
-            Console.WriteLine($"INSERT INTO Users (UserName, Password, Email, CreatedAt, IsActive) VALUES ('{userName}', '{hashedPassword}', 'admin@tobaco.com', GETUTCDATE(), 1);");
+            Console.WriteLine($"INSERT INTO Users (UserName, Password, Email, CreatedAt, IsActive) VALUES ('{userName}', '{hashedPassword}', 'admin@tobaco.com', CURRENT_TIMESTAMP, 1);");
         }
     }
 }

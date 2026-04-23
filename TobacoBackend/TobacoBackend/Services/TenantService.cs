@@ -79,6 +79,9 @@ namespace TobacoBackend.Services
             
             if (updateTenantDto.IsActive.HasValue)
                 tenant.IsActive = updateTenantDto.IsActive.Value;
+            
+            if (updateTenantDto.StockControlEnabledByDefault.HasValue)
+                tenant.StockControlEnabledByDefault = updateTenantDto.StockControlEnabledByDefault.Value;
 
             tenant.UpdatedAt = DateTime.UtcNow;
 
