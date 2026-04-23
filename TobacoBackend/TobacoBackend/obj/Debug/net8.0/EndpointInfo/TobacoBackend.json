@@ -5093,7 +5093,7 @@
             "format": "int32"
           },
           "cantidad": {
-            "minimum": 0.01,
+            "minimum": 0,01,
             "type": "number",
             "format": "double"
           },
@@ -5185,6 +5185,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "stockControlEnabledByDefault": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5645,7 +5648,7 @@
             "format": "int32"
           },
           "totalPrice": {
-            "minimum": 0.01,
+            "minimum": 0,01,
             "type": "number",
             "format": "double"
           },
@@ -5753,7 +5756,7 @@
             "format": "double"
           },
           "precio": {
-            "minimum": 0.01,
+            "minimum": 0,01,
             "type": "number",
             "format": "double"
           },
@@ -5795,6 +5798,13 @@
           },
           "half": {
             "type": "boolean"
+          },
+          "stockControlMode": {
+            "$ref": "#/components/schemas/StockControlMode"
+          },
+          "effectiveStockControl": {
+            "type": "boolean",
+            "nullable": true
           },
           "isActive": {
             "type": "boolean"
@@ -6004,6 +6014,15 @@
         },
         "additionalProperties": false
       },
+      "StockControlMode": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "TenantDTO": {
         "required": [
           "nombre"
@@ -6038,6 +6057,9 @@
             "nullable": true
           },
           "isActive": {
+            "type": "boolean"
+          },
+          "stockControlEnabledByDefault": {
             "type": "boolean"
           },
           "createdAt": {
@@ -6209,6 +6231,10 @@
             "nullable": true
           },
           "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "stockControlEnabledByDefault": {
             "type": "boolean",
             "nullable": true
           }

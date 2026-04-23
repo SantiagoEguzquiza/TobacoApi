@@ -400,6 +400,9 @@ app.UseExceptionHandling();
 if (app.Environment.IsDevelopment())
 {
     app.UseRequestLogging();
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
+    db.Database.EnsureCreated();
 }
 
 // Swagger habilitado en todos los entornos

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TobacoBackend.Domain.IRepositories;
 using TobacoBackend.Domain.Models;
+using TobacoBackend.Helpers;
 
 namespace TobacoBackend.Repositories
 {
@@ -137,6 +138,7 @@ namespace TobacoBackend.Repositories
             existingProduct.Descuento = producto.Descuento;
             existingProduct.fechaExpiracionDescuento = producto.fechaExpiracionDescuento;
             existingProduct.descuentoIndefinido = producto.descuentoIndefinido;
+            existingProduct.StockControlMode = producto.StockControlMode;
 
             // Remove existing quantity prices
             _context.ProductQuantityPrices.RemoveRange(existingProduct.QuantityPrices);
@@ -193,6 +195,16 @@ namespace TobacoBackend.Repositories
             var producto = await FilterByTenant(_context.Productos).FirstOrDefaultAsync(p => p.Id == productId);
             if (producto == null)
                 throw new Exception($"Producto con id {productId} no encontrado.");
+
+            var tenantStockControlDefault = await _context.Tenants
+                .Where(t => t.Id == producto.TenantId)
+                .Select(t => (bool?)t.StockControlEnabledByDefault)
+                .FirstOrDefaultAsync();
+
+            var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault ?? true, producto.StockControlMode);
+            if (!shouldControlStock)
+                return;
+
             producto.Stock += delta;
             if (producto.Stock < 0)
                 producto.Stock = 0;

@@ -37,6 +37,13 @@ namespace TobacoBackend.DTOs
         public bool descuentoIndefinido { get; set; } = false;
 
         public bool Half { get; set; } = false;
+        
+        public StockControlMode StockControlMode { get; set; } = StockControlMode.InheritTenant;
+        
+        /// <summary>
+        /// Valor resuelto final (tenant + override del producto).
+        /// </summary>
+        public bool? EffectiveStockControl { get; set; }
 
         public bool IsActive { get; set; } = true;
         
