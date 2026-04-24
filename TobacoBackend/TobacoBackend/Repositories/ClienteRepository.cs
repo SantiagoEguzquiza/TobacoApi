@@ -115,6 +115,14 @@ namespace TobacoBackend.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Cliente>> BuscarClientesConDeudaAsync(string query)
+        {
+            return await FilterByTenant(_context.Clientes)
+                .Where(c => c.HasCCTE && c.Nombre.Contains(query))
+                .OrderBy(c => c.Nombre)
+                .ToListAsync();
+        }
+
         /// <summary>
         /// Devuelve todos los clientes con cuenta corriente habilitada (HasCCTE == true).
         /// Incluye clientes con saldo 0 para poder ver historial completo.

@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using TobacoBackend.Domain.IServices;
 using TobacoBackend.DTOs;
 using TobacoBackend.Helpers;
+using TobacoBackend.Authorization;
 using System.Text.RegularExpressions;
 
 namespace TobacoBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = AuthorizationPolicies.AdminOrEmployeeOnly)]
     public class CategoriaController : ControllerBase
     {
         private readonly ICategoriaService _categoriaService;
@@ -68,8 +69,13 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)]
         public async Task<ActionResult> AddCategoria([FromBody] CategoriaDTO categoriaDto)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Crear");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para crear categorías.");
+
             try
             {
                 if (categoriaDto == null)
@@ -94,8 +100,13 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)]
         public async Task<ActionResult> UpdateCategoria(int id, [FromBody] CategoriaDTO categoriaDto)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Editar");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para editar categorías.");
+
             if (categoriaDto == null || id != categoriaDto.Id)
                 return BadRequest(new { message = "ID de la categoría no coincide o la categoría es nula." });
 

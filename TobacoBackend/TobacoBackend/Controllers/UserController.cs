@@ -29,8 +29,9 @@ namespace TobacoBackend.Controllers
         private readonly IEmailService _emailService;
         private readonly EmailSettings _emailSettings;
         private readonly ILogger<UserController> _logger;
+        private readonly AccountLockoutService _lockoutService;
 
-        public UserController(IUserService userService, TokenService tokenService, SecurityLoggingService securityLogger, AuditService auditService, AplicationDbContext context, IWebHostEnvironment env, IEmailService emailService, IOptions<EmailSettings> emailSettings, ILogger<UserController> logger)
+        public UserController(IUserService userService, TokenService tokenService, SecurityLoggingService securityLogger, AuditService auditService, AplicationDbContext context, IWebHostEnvironment env, IEmailService emailService, IOptions<EmailSettings> emailSettings, ILogger<UserController> logger, AccountLockoutService lockoutService)
         {
             _userService = userService;
             _tokenService = tokenService;
@@ -41,6 +42,7 @@ namespace TobacoBackend.Controllers
             _emailService = emailService;
             _emailSettings = emailSettings.Value;
             _logger = logger;
+            _lockoutService = lockoutService;
         }
 
         /// <summary>
@@ -158,6 +160,17 @@ namespace TobacoBackend.Controllers
 
             resetToken.User.Password = UserService.HashPasswordForStorage(request.NewPassword);
             _context.PasswordResetTokens.Remove(resetToken);
+
+            // Revocar todos los refresh tokens activos del usuario para forzar re-login
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == resetToken.User.Id && !rt.IsRevoked)
+                .ToListAsync();
+            foreach (var rt in activeTokens)
+            {
+                rt.IsRevoked = true;
+                rt.RevokedAt = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Contraseña actualizada correctamente. Ya puedes iniciar sesión en la app." });
@@ -179,8 +192,8 @@ namespace TobacoBackend.Controllers
 
                 // Sanitizar y validar entrada
                 loginDto.UserName = InputSanitizer.SanitizeUserName(loginDto.UserName);
-                
-                if (InputSanitizer.ContainsSqlInjection(loginDto.UserName) || 
+
+                if (InputSanitizer.ContainsSqlInjection(loginDto.UserName) ||
                     InputSanitizer.ContainsXss(loginDto.UserName))
                 {
                     _securityLogger.LogUnauthorizedAccess(loginDto.UserName, "POST:/api/User/login",
@@ -188,24 +201,38 @@ namespace TobacoBackend.Controllers
                     return BadRequest(new { message = "Entrada inválida detectada." });
                 }
 
+                // Verificar si la cuenta está bloqueada
+                if (_lockoutService.IsAccountLocked(loginDto.UserName))
+                {
+                    var minutosRestantes = _lockoutService.GetLockoutRemainingMinutes(loginDto.UserName) ?? 15;
+                    return StatusCode(429, new
+                    {
+                        message = $"Cuenta bloqueada por demasiados intentos fallidos. Intentá de nuevo en {minutosRestantes} minuto{(minutosRestantes == 1 ? "" : "s")}.",
+                        remainingMinutes = minutosRestantes
+                    });
+                }
+
+                var ipAddress = SecurityLoggingService.GetClientIpAddress(HttpContext);
                 var result = await _userService.LoginAsync(loginDto);
 
                 if (result == null)
                 {
-                    // Log intento de login fallido
-                    var ipAddress = SecurityLoggingService.GetClientIpAddress(HttpContext);
+                    _lockoutService.RecordFailedAttempt(loginDto.UserName, ipAddress);
                     _securityLogger.LogFailedLoginAttempt(loginDto.UserName, ipAddress);
-                    
-                    return Unauthorized(new { 
-                        message = "Usuario o contraseña incorrectos."
+
+                    var remaining = _lockoutService.GetRemainingAttempts(loginDto.UserName);
+                    return Unauthorized(new {
+                        message = "Usuario o contraseña incorrectos.",
+                        remainingAttempts = remaining
                     });
                 }
 
-                // Log login exitoso
+                // Login exitoso: limpiar intentos fallidos
+                _lockoutService.ClearFailedAttempts(loginDto.UserName);
                 _securityLogger.LogSuccessfulLogin(
-                    result.User.UserName, 
+                    result.User.UserName,
                     result.User.Id,
-                    SecurityLoggingService.GetClientIpAddress(HttpContext)
+                    ipAddress
                 );
 
                 return Ok(result);
@@ -275,6 +302,24 @@ namespace TobacoBackend.Controllers
             {
                 return BadRequest(new { message = $"Error durante la validación del token: {ex.Message}" });
             }
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout([FromBody] LogoutRequestDTO? request)
+        {
+            if (request != null && !string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                var token = await _context.RefreshTokens
+                    .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken && !rt.IsRevoked);
+                if (token != null)
+                {
+                    token.IsRevoked = true;
+                    token.RevokedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return Ok(new { message = "Sesión cerrada correctamente." });
         }
 
         [HttpPost("refresh")]
@@ -369,29 +414,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        // Test endpoint to verify all users are being returned (remove in production)
-        [HttpGet("test-all")]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> TestGetAllUsers()
-        {
-            try
-            {
-                var users = await _userService.GetAllUsersAsync();
-                
-                Console.WriteLine($"Test endpoint: Returning {users.Count()} users");
-                foreach (var user in users)
-                {
-                    Console.WriteLine($"Test endpoint: User {user.UserName} - Active: {user.IsActive}");
-                }
-                
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = $"Error al obtener los usuarios: {ex.Message}" });
-            }
-        }
-
-        [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Solo Admin puede crear usuarios
+[Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Solo Admin puede crear usuarios
         [HttpPost("create")]
         public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO createUserDto)
         {
@@ -612,35 +635,7 @@ namespace TobacoBackend.Controllers
             }
         }
 
-        // Endpoint temporal para verificar la duración del token
-        [HttpGet("test-token-duration")]
-        public ActionResult TestTokenDuration()
-        {
-            try
-            {
-                var testToken = _tokenService.GenerateToken("999", "test_user");
-                var expiration = _tokenService.GetTokenExpiration(testToken);
-                var now = DateTime.UtcNow;
-                var duration = expiration - now;
-
-                return Ok(new
-                {
-                    message = "Token de prueba generado",
-                    tokenGenerated = testToken,
-                    expiration = expiration,
-                    currentTime = now,
-                    durationInDays = duration.TotalDays,
-                    durationInHours = duration.TotalHours,
-                    configuredExpirationDays = 30
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = $"Error al generar token de prueba: {ex.Message}" });
-            }
-        }
-
-        /// <summary>Enmascara un email para mostrarlo al usuario (ej: rodrigo@gmail.com -> rod***@gmail.com).</summary>
+/// <summary>Enmascara un email para mostrarlo al usuario (ej: rodrigo@gmail.com -> rod***@gmail.com).</summary>
         private static string MaskEmail(string email)
         {
             if (string.IsNullOrEmpty(email)) return "***";
@@ -657,5 +652,10 @@ namespace TobacoBackend.Controllers
     public class TokenValidationRequest
     {
         public string Token { get; set; }
+    }
+
+    public class LogoutRequestDTO
+    {
+        public string? RefreshToken { get; set; }
     }
 }

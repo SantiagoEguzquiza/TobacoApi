@@ -8,7 +8,6 @@ using TobacoBackend.Services;
 using TobacoBackend.Helpers;
 using System.Security.Claims;
 using TobacoBackend.Authorization;
-using TobacoBackend.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
@@ -247,6 +246,24 @@ namespace TobacoBackend.Controllers
             }
         }
 
+        // GET: api/clientes/con-deuda/buscar?query=juan
+        [HttpGet("con-deuda/buscar")]
+        public async Task<IActionResult> BuscarClientesConDeuda([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest(new { message = "El parámetro de búsqueda no puede estar vacío." });
+
+            try
+            {
+                var clientes = await _clienteService.BuscarClientesConDeudaAsync(query);
+                return Ok(clientes);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al buscar clientes con cuenta corriente: {ex.Message}" });
+            }
+        }
+
         [HttpGet("{id}/validar-abono")]
         public async Task<ActionResult<bool>> ValidarMontoAbono(int id, [FromQuery] decimal monto)
         {
@@ -297,6 +314,10 @@ namespace TobacoBackend.Controllers
         [HttpPost("{id}/saldarDeuda")]
         public async Task<ActionResult<AbonoDTO>> SaldarDeuda(int id, [FromBody] SaldarDeudaDTO saldarDeudaDto)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "CuentaCorriente_RegistrarAbonos");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para registrar abonos.");
+
             try
             {
                 if (saldarDeudaDto == null)

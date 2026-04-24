@@ -10,7 +10,7 @@ namespace TobacoBackend.Domain.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(500)]
+        [StringLength(100)]
         public string Token { get; set; }
 
         [Required]
