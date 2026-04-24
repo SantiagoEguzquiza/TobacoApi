@@ -6,6 +6,7 @@ using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using TobacoBackend.Helpers;
 
 namespace TobacoBackend.Services
 {
@@ -73,6 +74,7 @@ namespace TobacoBackend.Services
             }
 
             var numeroVenta = await _ventaRepository.GetNextNumeroVentaAsync(tenantId.Value);
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(tenantId.Value);
 
             var venta = new Venta
             {
@@ -88,6 +90,7 @@ namespace TobacoBackend.Services
             };
 
             decimal total = 0;
+            var shouldControlStockByProductId = new Dictionary<int, bool>();
 
             foreach (var productoDto in ventaDto.VentaProductos)
             {
@@ -96,7 +99,11 @@ namespace TobacoBackend.Services
                 {
                     throw new Exception($"Producto con ID {productoDto.ProductoId} no encontrado.");
                 }
-                if (producto.Stock < productoDto.Cantidad)
+
+                var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                shouldControlStockByProductId[producto.Id] = shouldControlStock;
+
+                if (shouldControlStock && producto.Stock < productoDto.Cantidad)
                 {
                     throw new InvalidOperationException(
                         $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, solicitado: {productoDto.Cantidad}.");
@@ -223,7 +230,10 @@ namespace TobacoBackend.Services
             // Descontar stock de cada producto vendido
             foreach (var vp in venta.VentaProductos)
             {
-                await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+                if (shouldControlStockByProductId.TryGetValue(vp.ProductoId, out var shouldControlStock) && shouldControlStock)
+                {
+                    await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+                }
             }
 
             // Add VentaPagos if provided
@@ -287,13 +297,19 @@ namespace TobacoBackend.Services
                 }
 
                 Console.WriteLine($"Venta encontrada: ClienteId={ventaExistente.ClienteId}, MetodoPago={ventaExistente.MetodoPago}");
+                var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(ventaExistente.TenantId);
 
                 // Devolver stock de cada producto de la venta antes de eliminar
                 if (ventaExistente.VentaProductos != null)
                 {
                     foreach (var vp in ventaExistente.VentaProductos)
                     {
-                        await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                        var producto = await _productoRepository.GetProductoById(vp.ProductoId);
+                        var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                        if (shouldControlStock)
+                        {
+                            await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                        }
                     }
                 }
 
@@ -371,24 +387,33 @@ namespace TobacoBackend.Services
         {
             // Get the existing venta to compare changes
             var ventaExistente = await _ventaRepository.GetVentaById(id);
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(ventaExistente.TenantId);
 
             // Devolver stock de los productos de la venta anterior (antes de aplicar los nuevos)
             if (ventaExistente.VentaProductos != null)
             {
                 foreach (var vp in ventaExistente.VentaProductos)
                 {
-                    await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                    var productoAnterior = await _productoRepository.GetProductoById(vp.ProductoId);
+                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, productoAnterior.StockControlMode);
+                    if (shouldControlStock)
+                    {
+                        await _productoRepository.AjustarStock(vp.ProductoId, vp.Cantidad);
+                    }
                 }
             }
 
             // Validar stock suficiente para los nuevos productos
+            var shouldControlStockByProductId = new Dictionary<int, bool>();
             if (ventaDto.VentaProductos != null)
             {
                 var porProducto = ventaDto.VentaProductos.GroupBy(x => x.ProductoId).ToDictionary(g => g.Key, g => g.Sum(x => x.Cantidad));
                 foreach (var kv in porProducto)
                 {
                     var producto = await _productoRepository.GetProductoById(kv.Key);
-                    if (producto.Stock < kv.Value)
+                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                    shouldControlStockByProductId[kv.Key] = shouldControlStock;
+                    if (shouldControlStock && producto.Stock < kv.Value)
                         throw new InvalidOperationException(
                             $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, solicitado: {kv.Value}.");
                 }
@@ -545,7 +570,10 @@ namespace TobacoBackend.Services
             {
                 foreach (var vp in venta.VentaProductos)
                 {
-                    await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+                    if (shouldControlStockByProductId.TryGetValue(vp.ProductoId, out var shouldControlStock) && shouldControlStock)
+                    {
+                        await _productoRepository.AjustarStock(vp.ProductoId, -vp.Cantidad);
+                    }
                 }
             }
             
@@ -912,6 +940,16 @@ namespace TobacoBackend.Services
             // Si tiene descuento pero no es indefinido y no tiene fecha, considerar activo
             // (aunque esto no debería pasar según la lógica del backend)
             return true;
+        }
+
+        private async Task<bool> GetTenantStockControlDefaultAsync(int tenantId)
+        {
+            var tenantDefault = await _context.Tenants
+                .Where(t => t.Id == tenantId)
+                .Select(t => (bool?)t.StockControlEnabledByDefault)
+                .FirstOrDefaultAsync();
+
+            return tenantDefault ?? true;
         }
     }
 }

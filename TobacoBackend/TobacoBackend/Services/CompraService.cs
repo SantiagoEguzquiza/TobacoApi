@@ -4,6 +4,8 @@ using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using TobacoBackend.Persistence;
+using TobacoBackend.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace TobacoBackend.Services
 {
@@ -34,6 +36,8 @@ namespace TobacoBackend.Services
             var tenantId = _context.GetCurrentTenantId();
             if (!tenantId.HasValue)
                 throw new InvalidOperationException("No se pudo determinar el tenant. Inicia sesión con un usuario de tenant.");
+            
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(tenantId.Value);
 
             if (dto.Items == null || dto.Items.Count == 0)
                 throw new InvalidOperationException("La compra debe tener al menos un ítem.");
@@ -94,20 +98,26 @@ namespace TobacoBackend.Services
                 foreach (var (itemDto, _) in itemsParaGuardar)
                 {
                     var producto = await _productoRepository.GetProductoById(itemDto.ProductoId);
+                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
                     var stockActual = producto.Stock;
-                    var nuevoStock = stockActual + itemDto.Cantidad;
-                    producto.Stock = nuevoStock;
-                    producto.UltimoCostoCompra = itemDto.CostoUnitario;
 
-                    if (stockActual <= 0)
+                    if (shouldControlStock)
                     {
-                        producto.CostoPromedio = itemDto.CostoUnitario;
+                        var nuevoStock = stockActual + itemDto.Cantidad;
+                        producto.Stock = nuevoStock;
+
+                        if (stockActual <= 0)
+                        {
+                            producto.CostoPromedio = itemDto.CostoUnitario;
+                        }
+                        else
+                        {
+                            var costoPromedioActual = producto.CostoPromedio ?? 0;
+                            producto.CostoPromedio = ((stockActual * costoPromedioActual) + (itemDto.Cantidad * itemDto.CostoUnitario)) / nuevoStock;
+                        }
                     }
-                    else
-                    {
-                        var costoPromedioActual = producto.CostoPromedio ?? 0;
-                        producto.CostoPromedio = ((stockActual * costoPromedioActual) + (itemDto.Cantidad * itemDto.CostoUnitario)) / nuevoStock;
-                    }
+
+                    producto.UltimoCostoCompra = itemDto.CostoUnitario;
 
                     await _productoRepository.UpdateProducto(producto);
                 }
@@ -151,9 +161,16 @@ namespace TobacoBackend.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(compra.TenantId);
                 foreach (var item in compra.Items)
                 {
                     var producto = await _productoRepository.GetProductoById(item.ProductoId);
+                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                    if (!shouldControlStock)
+                    {
+                        continue;
+                    }
+
                     var stockActual = producto.Stock;
                     var cantidadARevertir = item.Cantidad;
 
@@ -174,6 +191,16 @@ namespace TobacoBackend.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        private async Task<bool> GetTenantStockControlDefaultAsync(int tenantId)
+        {
+            var tenantDefault = await _context.Tenants
+                .Where(t => t.Id == tenantId)
+                .Select(t => (bool?)t.StockControlEnabledByDefault)
+                .FirstOrDefaultAsync();
+
+            return tenantDefault ?? true;
         }
     }
 }

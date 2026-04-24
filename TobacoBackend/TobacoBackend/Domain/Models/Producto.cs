@@ -43,6 +43,12 @@ namespace TobacoBackend.Domain.Models
         public bool descuentoIndefinido { get; set; } = false;
 
         public bool Half { get; set; } = false;
+        
+        /// <summary>
+        /// Configuración de control de stock para el producto.
+        /// Si está en InheritTenant usa la configuración global del tenant.
+        /// </summary>
+        public StockControlMode StockControlMode { get; set; } = StockControlMode.InheritTenant;
 
         public bool IsActive { get; set; } = true;
 

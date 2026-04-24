@@ -23,6 +23,11 @@ namespace TobacoBackend.Domain.Models
         public string? Telefono { get; set; }
 
         public bool IsActive { get; set; } = true;
+        
+        /// <summary>
+        /// Define si los productos heredan control de stock activo por defecto.
+        /// </summary>
+        public bool StockControlEnabledByDefault { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
