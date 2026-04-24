@@ -115,6 +115,9 @@ if (backupEnabled)
 // Keep-alive de la base de datos: ping cada 4 min para evitar cold start tras inactividad (producción)
 builder.Services.AddHostedService<DatabaseKeepAliveService>();
 
+// Limpieza diaria de refresh tokens expirados y revocados
+builder.Services.AddHostedService<TokenCleanupService>();
+
 // Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database")
@@ -350,9 +353,11 @@ if (app.Environment.IsDevelopment())
     app.UseRequestLogging();
 }
 
-// Swagger habilitado en todos los entornos
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 if (!app.Environment.IsDevelopment())
 {

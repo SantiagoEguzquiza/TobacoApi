@@ -90,7 +90,7 @@ namespace TobacoBackend.Services
                     ValidateAudience = true,
                     ValidAudience = _jwtSettings.Audience,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.FromMinutes(1)
                 }, out SecurityToken validatedToken);
 
                 return principal;
