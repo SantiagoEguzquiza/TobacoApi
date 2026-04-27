@@ -25,12 +25,14 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.Categoria, opt => opt.Ignore())
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
                 .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.StockControlMode, opt => opt.MapFrom(src => src.StockControlMode))
                 .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Marca) ? null : src.Marca));
 
             CreateMap<Producto, ProductoDTO>()
                 .ForMember(dest => dest.CategoriaId, opt => opt.MapFrom(src => src.CategoriaId))
                 .ForMember(dest => dest.CategoriaNombre, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nombre : string.Empty))
                 .ForMember(dest => dest.QuantityPrices, opt => opt.MapFrom(src => src.QuantityPrices))
+                .ForMember(dest => dest.StockControlMode, opt => opt.MapFrom(src => src.StockControlMode))
                 .ForMember(dest => dest.Marca, opt => opt.MapFrom(src => src.Marca));
 
             CreateMap<User, UserDTO>()
@@ -43,7 +45,8 @@ namespace TobacoBackend.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.TipoVendedor, opt => opt.MapFrom(src => src.TipoVendedor))
                 .ForMember(dest => dest.Zona, opt => opt.MapFrom(src => src.Zona))
-                .ForMember(dest => dest.Plan, opt => opt.MapFrom(src => src.Plan));
+                .ForMember(dest => dest.Plan, opt => opt.MapFrom(src => src.Plan))
+                .ForMember(dest => dest.TenantId, opt => opt.MapFrom(src => src.TenantId));
 
             CreateMap<CreateUserDTO, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

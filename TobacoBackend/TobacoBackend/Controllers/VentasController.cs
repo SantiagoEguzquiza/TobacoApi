@@ -6,7 +6,6 @@ using TobacoBackend.Services;
 using TobacoBackend.Helpers;
 using System.Security.Claims;
 using TobacoBackend.Authorization;
-using TobacoBackend.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace TobacoBackend.Controllers
@@ -227,6 +226,10 @@ namespace TobacoBackend.Controllers
         [HttpPut("{id}/estado-entrega")]
         public async Task<ActionResult> UpdateEstadoEntregaItems(int id, [FromBody] List<VentaProductoDTO> items)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Entregas_ActualizarEstado");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para actualizar el estado de entrega.");
+
             try
             {
                 if (items == null || !items.Any())
@@ -245,6 +248,7 @@ namespace TobacoBackend.Controllers
 
         // POST: api/Ventas/asignar
         [HttpPost("asignar")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         public async Task<ActionResult> AsignarVentaAUsuario([FromBody] AsignarVentaDTO dto)
         {
             try
@@ -272,6 +276,7 @@ namespace TobacoBackend.Controllers
 
         // POST: api/Ventas/asignar-automaticamente
         [HttpPost("asignar-automaticamente")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         public async Task<ActionResult> AsignarVentaAutomaticamente([FromBody] AsignarVentaAutomaticaDTO dto)
         {
             try

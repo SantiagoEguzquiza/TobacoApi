@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TobacoBackend.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    [Migration("20260214224129_AddPasswordResetToken")]
-    partial class AddPasswordResetToken
+    [Migration("20260422021852_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,6 +194,92 @@ namespace TobacoBackend.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Compra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NumeroComprobante")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("ProveedorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Compras");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.CompraItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("CompraId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("CostoUnitario")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompraId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("CompraItems");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.PasswordResetToken", b =>
                 {
                     b.Property<int>("Id")
@@ -244,6 +330,18 @@ namespace TobacoBackend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("Clientes_Visualizar")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Compras_Crear")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Compras_Editar")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Compras_Eliminar")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Compras_Visualizar")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
@@ -387,6 +485,10 @@ namespace TobacoBackend.Migrations
                     b.Property<int>("CategoriaId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("CostoPromedio")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<decimal>("Descuento")
                         .HasColumnType("numeric");
 
@@ -411,8 +513,17 @@ namespace TobacoBackend.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<int>("StockControlMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("UltimoCostoCompra")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<bool>("descuentoIndefinido")
                         .HasColumnType("boolean");
@@ -495,6 +606,40 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("VentaId");
 
                     b.ToTable("ProductosAFavor");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Proveedor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Contacto")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Proveedores");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.RecorridoProgramado", b =>
@@ -614,6 +759,11 @@ namespace TobacoBackend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("StockControlEnabledByDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Telefono")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -714,6 +864,9 @@ namespace TobacoBackend.Migrations
                     b.Property<int>("MetodoPago")
                         .HasColumnType("integer");
 
+                    b.Property<int>("NumeroVenta")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
 
@@ -731,11 +884,12 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("ClienteId");
 
-                    b.HasIndex("TenantId");
-
                     b.HasIndex("UsuarioIdAsignado");
 
                     b.HasIndex("UsuarioIdCreador");
+
+                    b.HasIndex("TenantId", "NumeroVenta")
+                        .IsUnique();
 
                     b.ToTable("Ventas");
                 });
@@ -861,6 +1015,52 @@ namespace TobacoBackend.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Compra", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.Proveedor", "Proveedor")
+                        .WithMany("Compras")
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TobacoBackend.Domain.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Proveedor");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.CompraItem", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.Compra", "Compra")
+                        .WithMany("Items")
+                        .HasForeignKey("CompraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TobacoBackend.Domain.Models.Producto", "Producto")
+                        .WithMany("CompraItems")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TobacoBackend.Domain.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Compra");
+
+                    b.Navigation("Producto");
 
                     b.Navigation("Tenant");
                 });
@@ -1007,6 +1207,17 @@ namespace TobacoBackend.Migrations
                     b.Navigation("UsuarioRegistro");
 
                     b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Proveedor", b =>
+                {
+                    b.HasOne("TobacoBackend.Domain.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.RecorridoProgramado", b =>
@@ -1157,11 +1368,23 @@ namespace TobacoBackend.Migrations
                     b.Navigation("Ventas");
                 });
 
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Compra", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("TobacoBackend.Domain.Models.Producto", b =>
                 {
+                    b.Navigation("CompraItems");
+
                     b.Navigation("QuantityPrices");
 
                     b.Navigation("VentaProductos");
+                });
+
+            modelBuilder.Entity("TobacoBackend.Domain.Models.Proveedor", b =>
+                {
+                    b.Navigation("Compras");
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Tenant", b =>

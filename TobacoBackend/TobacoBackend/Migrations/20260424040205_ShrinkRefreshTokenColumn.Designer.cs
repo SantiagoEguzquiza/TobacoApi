@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TobacoBackend.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    [Migration("20260309043549_CheckPendingChanges")]
-    partial class CheckPendingChanges
+    [Migration("20260424040205_ShrinkRefreshTokenColumn")]
+    partial class ShrinkRefreshTokenColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -707,8 +707,8 @@ namespace TobacoBackend.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");

@@ -101,6 +101,12 @@ namespace TobacoBackend.Services
             return _mapper.Map<IEnumerable<ClienteDTO>>(clientes);
         }
 
+        public async Task<IEnumerable<ClienteDTO>> BuscarClientesConDeudaAsync(string query)
+        {
+            var clientes = await _clienteRepository.BuscarClientesConDeudaAsync(query);
+            return _mapper.Map<IEnumerable<ClienteDTO>>(clientes);
+        }
+
         public async Task<List<ClienteDTO>> GetClientesConDeuda()
         {
             var clientes = await _clienteRepository.GetClientesConDeuda();

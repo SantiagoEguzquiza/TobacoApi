@@ -1099,6 +1099,27 @@
         }
       }
     },
+    "/Clientes/con-deuda/buscar": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Clientes/{id}/validar-abono": {
       "get": {
         "tags": [
@@ -3847,6 +3868,37 @@
         }
       }
     },
+    "/api/User/logout": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/User/refresh": {
       "post": {
         "tags": [
@@ -3925,44 +3977,6 @@
       }
     },
     "/api/User/all": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/User/test-all": {
       "get": {
         "tags": [
           "User"
@@ -4105,18 +4119,6 @@
               "format": "int32"
             }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/User/test-token-duration": {
-      "get": {
-        "tags": [
-          "User"
         ],
         "responses": {
           "200": {
@@ -5185,6 +5187,9 @@
             "minLength": 0,
             "type": "string",
             "nullable": true
+          },
+          "stockControlEnabledByDefault": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5410,6 +5415,16 @@
           },
           "user": {
             "$ref": "#/components/schemas/UserDTO"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LogoutRequestDTO": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5796,6 +5811,13 @@
           "half": {
             "type": "boolean"
           },
+          "stockControlMode": {
+            "$ref": "#/components/schemas/StockControlMode"
+          },
+          "effectiveStockControl": {
+            "type": "boolean",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -6004,6 +6026,15 @@
         },
         "additionalProperties": false
       },
+      "StockControlMode": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "TenantDTO": {
         "required": [
           "nombre"
@@ -6038,6 +6069,9 @@
             "nullable": true
           },
           "isActive": {
+            "type": "boolean"
+          },
+          "stockControlEnabledByDefault": {
             "type": "boolean"
           },
           "createdAt": {
@@ -6209,6 +6243,10 @@
             "nullable": true
           },
           "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "stockControlEnabledByDefault": {
             "type": "boolean",
             "nullable": true
           }

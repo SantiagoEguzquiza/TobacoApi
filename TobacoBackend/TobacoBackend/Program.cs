@@ -115,6 +115,9 @@ if (backupEnabled)
 // Keep-alive de la base de datos: ping cada 4 min para evitar cold start tras inactividad (producción)
 builder.Services.AddHostedService<DatabaseKeepAliveService>();
 
+// Limpieza diaria de refresh tokens expirados y revocados
+builder.Services.AddHostedService<TokenCleanupService>();
+
 // Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database")
@@ -324,19 +327,87 @@ builder.Services.AddScoped<IAuthorizationHandler>(sp => sp.GetRequiredService<Ro
 
 var app = builder.Build();
 
-// Warm-up de la base de datos al arrancar: completar antes de aceptar tráfico para que
-// el primer usuario no sufra cold start (p. ej. Azure SQL tarda 10-15 s la primera vez).
+// Warm-up / inicialización de base de datos al arrancar
 try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
+
+    // Aplicar migraciones pendientes en todos los entornos.
+    // Esto evita tener que correr `dotnet ef database update` a mano cuando
+    // se publica una nueva versión y mantiene la DB sincronizada con el modelo.
+    var pendientes = (await db.Database.GetPendingMigrationsAsync()).ToList();
+    if (pendientes.Count > 0)
+    {
+        app.Logger.LogInformation(
+            "Aplicando {Count} migraciones pendientes: {Migraciones}",
+            pendientes.Count,
+            string.Join(", ", pendientes));
+
+        await db.Database.MigrateAsync();
+
+        app.Logger.LogInformation("Migraciones aplicadas correctamente.");
+    }
+    else
+    {
+        app.Logger.LogInformation("No hay migraciones pendientes; la DB ya está al día.");
+    }
+
+    // Seeds (tenant del sistema + SuperAdmin) solo en Development/Staging
+    if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+    {
+        // Seed del tenant del sistema
+        var systemTenant = await db.Tenants.FirstOrDefaultAsync(t => t.Id == 1);
+
+        if (systemTenant == null)
+        {
+            systemTenant = new Tenant
+            {
+                Nombre = "Sistema",
+                Descripcion = "Tenant del sistema para SuperAdmin",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            db.Tenants.Add(systemTenant);
+            await db.SaveChangesAsync();
+
+            app.Logger.LogInformation("Tenant del sistema creado correctamente.");
+        }
+
+        // Seed del SuperAdmin
+        var superAdminExists = await db.Users.AnyAsync(u => u.UserName == "superadmin" && u.Role == "SuperAdmin");
+
+        if (!superAdminExists)
+        {
+            var superAdmin = new User
+            {
+                UserName = "superadmin",
+                Password = "$2a$12$b/6PtdSxL/2xxnzb5XyLP.Z8LG2acDdjcDI1ljk2x312R3.oN8WQ6",
+                Email = "admin@sistema.com",
+                Role = "SuperAdmin",
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                TenantId = systemTenant.Id,
+                Plan = 0,
+                TipoVendedor = 0
+            };
+
+            db.Users.Add(superAdmin);
+            await db.SaveChangesAsync();
+
+            app.Logger.LogInformation("Usuario SuperAdmin creado correctamente.");
+        }
+    }
+
     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
     await db.Database.CanConnectAsync(cts.Token);
-    app.Logger.LogInformation("Base de datos: conexión lista (warm-up completado). API lista para producción.");
+
+    app.Logger.LogInformation("Base de datos: conexión lista (warm-up completado). API lista.");
 }
 catch (Exception ex)
 {
-    app.Logger.LogWarning(ex, "Warm-up de base de datos falló; la API arranca igual. La primera petición puede ser lenta.");
+    app.Logger.LogWarning(ex, "Inicialización/Warm-up de base de datos falló; la API arranca igual. La primera petición puede ser lenta.");
 }
 
 // Configure the HTTP request pipeline
@@ -350,9 +421,11 @@ if (app.Environment.IsDevelopment())
     app.UseRequestLogging();
 }
 
-// Swagger habilitado en todos los entornos
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -377,6 +450,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

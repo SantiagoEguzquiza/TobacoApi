@@ -79,31 +79,18 @@ namespace TobacoBackend.Controllers
 
             try
             {
-                Console.WriteLine("=== ADD PRODUCTO ENDPOINT CALLED ===");
-                Console.WriteLine($"Producto DTO recibido: {productoDto != null}");
-                
                 if (productoDto == null)
-                {
-                    Console.WriteLine("ERROR: Producto DTO es null");
                     return BadRequest(new { message = "El producto no puede ser nulo." });
-                }
 
                 // Validar modelo
                 if (!ModelState.IsValid)
                 {
-                    Console.WriteLine("ERROR: ModelState no es válido");
                     var errors = ModelState
                         .Where(x => x.Value.Errors.Count > 0)
                         .ToDictionary(
                             kvp => kvp.Key,
                             kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
                         );
-                    
-                    foreach (var error in errors)
-                    {
-                        Console.WriteLine($"  - {error.Key}: {string.Join(", ", error.Value)}");
-                    }
-                    
                     return BadRequest(new
                     {
                         message = "Datos de validación incorrectos",
@@ -253,8 +240,13 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpPost("{id}/deactivate")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)]
         public async Task<ActionResult> DeactivateProducto(int id)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Eliminar");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para desactivar productos.");
+
             try
             {
                 var result = await _productoService.SoftDeleteProducto(id);
@@ -274,8 +266,13 @@ namespace TobacoBackend.Controllers
         }
 
         [HttpPost("{id}/activate")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOrEmployee)]
         public async Task<ActionResult> ActivateProducto(int id)
         {
+            var hasPermission = await PermissionHelper.HasPermissionAsync(User, HttpContext.RequestServices, "Productos_Editar");
+            if (!hasPermission)
+                return Forbid("No tienes permiso para activar productos.");
+
             try
             {
                 var result = await _productoService.ActivateProducto(id);

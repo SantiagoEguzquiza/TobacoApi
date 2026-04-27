@@ -4,6 +4,8 @@ using TobacoBackend.Domain.IServices;
 using TobacoBackend.Domain.Models;
 using TobacoBackend.DTOs;
 using TobacoBackend.Repositories;
+using TobacoBackend.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace TobacoBackend.Services
 {
@@ -53,7 +55,10 @@ namespace TobacoBackend.Services
             await _productoRepository.AddProducto(producto);
             
             // Retornar el producto creado mapeado a DTO
-            return _mapper.Map<ProductoDTO>(producto);
+            var result = _mapper.Map<ProductoDTO>(producto);
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(producto.TenantId);
+            result.EffectiveStockControl = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+            return result;
         }
 
         private void ValidateDiscountLogic(ProductoDTO productoDto)
@@ -120,6 +125,7 @@ namespace TobacoBackend.Services
         public async Task<List<ProductoDTO>> GetAllProductos()
         {
             var productos = await _productoRepository.GetAllProductos();
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync();
             
             // Aplicar lógica de expiración de descuentos
             foreach (var producto in productos)
@@ -127,7 +133,14 @@ namespace TobacoBackend.Services
                 await ApplyDiscountExpirationLogicAsync(producto);
             }
             
-            return _mapper.Map<List<ProductoDTO>>(productos);
+            var productosDto = _mapper.Map<List<ProductoDTO>>(productos);
+            foreach (var productoDto in productosDto)
+            {
+                var producto = productos.First(p => p.Id == productoDto.Id);
+                productoDto.EffectiveStockControl = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+            }
+
+            return productosDto;
         }
 
         public async Task<ProductoDTO> GetProductoById(int id)
@@ -137,7 +150,10 @@ namespace TobacoBackend.Services
             // Aplicar lógica de expiración de descuentos
             await ApplyDiscountExpirationLogicAsync(producto);
             
-            return _mapper.Map<ProductoDTO>(producto);
+            var productoDto = _mapper.Map<ProductoDTO>(producto);
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(producto.TenantId);
+            productoDto.EffectiveStockControl = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+            return productoDto;
         }
 
         public async Task UpdateProducto(int id, ProductoDTO productoDto)
@@ -170,6 +186,7 @@ namespace TobacoBackend.Services
         public async Task<object> GetProductosPaginados(int page, int pageSize)
         {
             var result = await _productoRepository.GetProductosPaginados(page, pageSize);
+            var tenantStockControlDefault = await GetTenantStockControlDefaultAsync();
             
             // Aplicar lógica de expiración de descuentos
             foreach (var producto in result.Productos)
@@ -178,6 +195,11 @@ namespace TobacoBackend.Services
             }
             
             var productos = _mapper.Map<List<ProductoDTO>>(result.Productos);
+            foreach (var productoDto in productos)
+            {
+                var producto = result.Productos.First(p => p.Id == productoDto.Id);
+                productoDto.EffectiveStockControl = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+            }
             
             return new
             {
@@ -189,6 +211,22 @@ namespace TobacoBackend.Services
                 hasNextPage = page < result.TotalPages,
                 hasPreviousPage = page > 1
             };
+        }
+
+        private async Task<bool> GetTenantStockControlDefaultAsync(int? explicitTenantId = null)
+        {
+            var tenantId = explicitTenantId ?? _context.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+            {
+                return true;
+            }
+
+            var tenantDefault = await _context.Tenants
+                .Where(t => t.Id == tenantId.Value)
+                .Select(t => (bool?)t.StockControlEnabledByDefault)
+                .FirstOrDefaultAsync();
+
+            return tenantDefault ?? true;
         }
     }
 }

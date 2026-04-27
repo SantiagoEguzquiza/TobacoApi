@@ -54,7 +54,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Abonos");
+                    b.ToTable("Abonos", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Asistencia", b =>
@@ -107,7 +107,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Asistencias");
+                    b.ToTable("Asistencias", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Categoria", b =>
@@ -139,7 +139,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "Nombre")
                         .IsUnique();
 
-                    b.ToTable("Categorias");
+                    b.ToTable("Categorias", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Cliente", b =>
@@ -188,7 +188,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Clientes");
+                    b.ToTable("Clientes", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Compra", b =>
@@ -234,7 +234,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Compras");
+                    b.ToTable("Compras", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.CompraItem", b =>
@@ -274,7 +274,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("CompraItems");
+                    b.ToTable("CompraItems", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.PasswordResetToken", b =>
@@ -306,7 +306,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetTokens");
+                    b.ToTable("PasswordResetTokens", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.PermisosEmpleado", b =>
@@ -398,7 +398,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("PermisosEmpleados");
+                    b.ToTable("PermisosEmpleados", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.PrecioEspecial", b =>
@@ -437,7 +437,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "ClienteId", "ProductoId")
                         .IsUnique();
 
-                    b.ToTable("PreciosEspeciales");
+                    b.ToTable("PreciosEspeciales", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.ProductQuantityPrice", b =>
@@ -468,7 +468,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "ProductId", "Quantity")
                         .IsUnique();
 
-                    b.ToTable("ProductQuantityPrices");
+                    b.ToTable("ProductQuantityPrices", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Producto", b =>
@@ -510,6 +510,11 @@ namespace TobacoBackend.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<int>("StockControlMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("TenantId")
                         .HasColumnType("integer");
 
@@ -529,7 +534,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Productos");
+                    b.ToTable("Productos", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.ProductoAFavor", b =>
@@ -597,7 +602,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("VentaId");
 
-                    b.ToTable("ProductosAFavor");
+                    b.ToTable("ProductosAFavor", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Proveedor", b =>
@@ -631,7 +636,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("Proveedores");
+                    b.ToTable("Proveedores", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.RecorridoProgramado", b =>
@@ -674,7 +679,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "VendedorId", "DiaSemana", "ClienteId")
                         .IsUnique();
 
-                    b.ToTable("RecorridosProgramados");
+                    b.ToTable("RecorridosProgramados", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.RefreshToken", b =>
@@ -704,8 +709,8 @@ namespace TobacoBackend.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -719,7 +724,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Tenant", b =>
@@ -751,6 +756,11 @@ namespace TobacoBackend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("StockControlEnabledByDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Telefono")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -760,7 +770,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tenants");
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.User", b =>
@@ -828,7 +838,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "UserName")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Venta", b =>
@@ -878,7 +888,7 @@ namespace TobacoBackend.Migrations
                     b.HasIndex("TenantId", "NumeroVenta")
                         .IsUnique();
 
-                    b.ToTable("Ventas");
+                    b.ToTable("Ventas", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.VentaPago", b =>
@@ -903,7 +913,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("VentaId");
 
-                    b.ToTable("VentaPagos");
+                    b.ToTable("VentaPagos", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.VentaProducto", b =>
@@ -943,7 +953,7 @@ namespace TobacoBackend.Migrations
 
                     b.HasIndex("UsuarioChequeoId");
 
-                    b.ToTable("VentasProductos");
+                    b.ToTable("VentasProductos", (string)null);
                 });
 
             modelBuilder.Entity("TobacoBackend.Domain.Models.Abonos", b =>
