@@ -16,6 +16,12 @@ namespace TobacoBackend.DTOs
         public TipoVendedor TipoVendedor { get; set; } = TipoVendedor.Repartidor;
         public string? Zona { get; set; }
         public PlanType Plan { get; set; } = PlanType.FREE;
+
+        /// <summary>
+        /// Tenant al que pertenece el usuario. Necesario para que el frontend
+        /// pueda consultar/actualizar la configuración general del tenant.
+        /// </summary>
+        public int? TenantId { get; set; }
     }
 
     public class LoginDTO

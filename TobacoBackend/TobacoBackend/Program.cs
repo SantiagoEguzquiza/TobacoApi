@@ -333,13 +333,29 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
 
-    // Crear estructura solo en Development/Staging
+    // Aplicar migraciones pendientes en todos los entornos.
+    // Esto evita tener que correr `dotnet ef database update` a mano cuando
+    // se publica una nueva versión y mantiene la DB sincronizada con el modelo.
+    var pendientes = (await db.Database.GetPendingMigrationsAsync()).ToList();
+    if (pendientes.Count > 0)
+    {
+        app.Logger.LogInformation(
+            "Aplicando {Count} migraciones pendientes: {Migraciones}",
+            pendientes.Count,
+            string.Join(", ", pendientes));
+
+        await db.Database.MigrateAsync();
+
+        app.Logger.LogInformation("Migraciones aplicadas correctamente.");
+    }
+    else
+    {
+        app.Logger.LogInformation("No hay migraciones pendientes; la DB ya está al día.");
+    }
+
+    // Seeds (tenant del sistema + SuperAdmin) solo en Development/Staging
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     {
-        await db.Database.EnsureCreatedAsync();
-
-        app.Logger.LogInformation("Base de datos DEV/STAGING: estructura verificada/creada correctamente.");
-
         // Seed del tenant del sistema
         var systemTenant = await db.Tenants.FirstOrDefaultAsync(t => t.Id == 1);
 
@@ -403,9 +419,6 @@ app.UseExceptionHandling();
 if (app.Environment.IsDevelopment())
 {
     app.UseRequestLogging();
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
-    db.Database.EnsureCreated();
 }
 
 if (app.Environment.IsDevelopment())
