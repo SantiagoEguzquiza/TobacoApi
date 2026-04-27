@@ -153,6 +153,84 @@ namespace TobacoBackend.Controllers
         }
 
         /// <summary>
+        /// Obtiene el tenant del usuario autenticado.
+        /// Usa el claim "tenant_id" del JWT para no depender del ID de la URL,
+        /// permitiendo que cualquier Admin acceda a su propia configuración sin pasar por SuperAdmin.
+        /// </summary>
+        [HttpGet("me")]
+        public async Task<ActionResult<TenantDTO>> GetMyTenant()
+        {
+            try
+            {
+                var tenantIdClaim = User.FindFirst("tenant_id")?.Value;
+                if (string.IsNullOrEmpty(tenantIdClaim) || !int.TryParse(tenantIdClaim, out int tenantId))
+                {
+                    return BadRequest(new { message = "El token no contiene un tenant válido." });
+                }
+
+                var tenant = await _tenantService.GetTenantByIdAsync(tenantId);
+
+                if (tenant == null)
+                    return NotFound(new { message = "Tenant no encontrado." });
+
+                return Ok(tenant);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al obtener el tenant: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
+        /// Actualiza el tenant del usuario autenticado.
+        /// </summary>
+        [HttpPut("me")]
+        public async Task<ActionResult<TenantDTO>> UpdateMyTenant([FromBody] UpdateTenantDTO updateTenantDto)
+        {
+            try
+            {
+                if (updateTenantDto == null)
+                    return BadRequest(new { message = "Los datos de actualización no pueden ser nulos." });
+
+                var tenantIdClaim = User.FindFirst("tenant_id")?.Value;
+                if (string.IsNullOrEmpty(tenantIdClaim) || !int.TryParse(tenantIdClaim, out int tenantId))
+                {
+                    return BadRequest(new { message = "El token no contiene un tenant válido." });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Datos de actualización inválidos.", errors = ModelState });
+                }
+
+                if (!string.IsNullOrEmpty(updateTenantDto.Nombre))
+                {
+                    updateTenantDto.Nombre = InputSanitizer.SanitizeString(updateTenantDto.Nombre);
+                    if (InputSanitizer.ContainsSqlInjection(updateTenantDto.Nombre) ||
+                        InputSanitizer.ContainsXss(updateTenantDto.Nombre))
+                    {
+                        return BadRequest(new { message = "Entrada inválida detectada." });
+                    }
+                }
+
+                var tenant = await _tenantService.UpdateTenantAsync(tenantId, updateTenantDto);
+
+                _auditService.LogUpdate("Tenant", tenantId, User, null,
+                    SecurityLoggingService.GetClientIpAddress(HttpContext));
+
+                return Ok(tenant);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error al actualizar el tenant: {ex.Message}" });
+            }
+        }
+
+        /// <summary>
         /// Obtiene todos los tenants
         /// </summary>
         [HttpGet]
@@ -172,7 +250,7 @@ namespace TobacoBackend.Controllers
         /// <summary>
         /// Obtiene un tenant por ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<TenantDTO>> GetTenantById(int id)
         {
             try
@@ -243,7 +321,7 @@ namespace TobacoBackend.Controllers
         /// <summary>
         /// Actualiza un tenant existente
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<TenantDTO>> UpdateTenant(int id, [FromBody] UpdateTenantDTO updateTenantDto)
         {
             try
@@ -289,7 +367,7 @@ namespace TobacoBackend.Controllers
         /// <summary>
         /// Elimina un tenant (solo si no tiene usuarios asociados)
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteTenant(int id)
         {
             try
