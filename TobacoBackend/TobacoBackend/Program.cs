@@ -333,25 +333,24 @@ try
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AplicationDbContext>();
 
-    // Aplicar migraciones pendientes en todos los entornos.
-    // Esto evita tener que correr `dotnet ef database update` a mano cuando
-    // se publica una nueva versión y mantiene la DB sincronizada con el modelo.
-    var pendientes = (await db.Database.GetPendingMigrationsAsync()).ToList();
-    if (pendientes.Count > 0)
+    // Aplicar migraciones pendientes en todos los entornos (staging/producción incluidos).
+    // Equivalente a `dotnet ef database update`; al redeploy aplicará lo nuevo automáticamente.
+    var pendientes = await db.Database.GetPendingMigrationsAsync();
+    var listaPendientes = pendientes.ToList();
+    if (listaPendientes.Count > 0)
     {
         app.Logger.LogInformation(
             "Aplicando {Count} migraciones pendientes: {Migraciones}",
-            pendientes.Count,
-            string.Join(", ", pendientes));
-
-        await db.Database.MigrateAsync();
-
-        app.Logger.LogInformation("Migraciones aplicadas correctamente.");
+            listaPendientes.Count,
+            string.Join(", ", listaPendientes));
     }
-    else
-    {
-        app.Logger.LogInformation("No hay migraciones pendientes; la DB ya está al día.");
-    }
+
+    await db.Database.MigrateAsync();
+
+    app.Logger.LogInformation(
+        listaPendientes.Count > 0
+            ? "Migraciones de EF aplicadas correctamente."
+            : "Migraciones EF: sin pendientes (esquema al día).");
 
     // Seeds (tenant del sistema + SuperAdmin) solo en Development/Staging
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
