@@ -335,22 +335,23 @@ try
 
     // Aplicar migraciones pendientes en todos los entornos (staging/producción incluidos).
     // Equivalente a `dotnet ef database update`; al redeploy aplicará lo nuevo automáticamente.
-    var pendientes = await db.Database.GetPendingMigrationsAsync();
-    var listaPendientes = pendientes.ToList();
-    if (listaPendientes.Count > 0)
-    {
-        app.Logger.LogInformation(
-            "Aplicando {Count} migraciones pendientes: {Migraciones}",
-            listaPendientes.Count,
-            string.Join(", ", listaPendientes));
-    }
 
-    await db.Database.MigrateAsync();
+    //var pendientes = await db.Database.GetPendingMigrationsAsync();
+    //var listaPendientes = pendientes.ToList();
+    //if (listaPendientes.Count > 0)
+    //{
+    //    app.Logger.LogInformation(
+    //        "Aplicando {Count} migraciones pendientes: {Migraciones}",
+    //        listaPendientes.Count,
+    //        string.Join(", ", listaPendientes));
+    //}
 
-    app.Logger.LogInformation(
-        listaPendientes.Count > 0
-            ? "Migraciones de EF aplicadas correctamente."
-            : "Migraciones EF: sin pendientes (esquema al día).");
+    //await db.Database.MigrateAsync();
+
+    //app.Logger.LogInformation(
+    //    listaPendientes.Count > 0
+    //        ? "Migraciones de EF aplicadas correctamente."
+    //        : "Migraciones EF: sin pendientes (esquema al día).");
 
     // Seeds (tenant del sistema + SuperAdmin) solo en Development/Staging
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
@@ -406,7 +407,8 @@ try
 }
 catch (Exception ex)
 {
-    app.Logger.LogWarning(ex, "Inicialización/Warm-up de base de datos falló; la API arranca igual. La primera petición puede ser lenta.");
+    app.Logger.LogError(ex, "Error crítico aplicando migraciones o inicializando la base de datos.");
+    throw;
 }
 
 // Configure the HTTP request pipeline
@@ -420,11 +422,10 @@ if (app.Environment.IsDevelopment())
     app.UseRequestLogging();
 }
 
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 if (!app.Environment.IsDevelopment())
 {
