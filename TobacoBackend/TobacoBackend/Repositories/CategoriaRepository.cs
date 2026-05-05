@@ -53,25 +53,34 @@ public class CategoriaRepository : ICategoriaRepository
 
     public async Task ReorderAsync(List<(int id, int sortOrder)> categoriaOrders)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        // EnableRetryOnFailure activa NpgsqlRetryingExecutionStrategy, que no permite
+        // transacciones iniciadas por el usuario directamente. Hay que envolver el bloque
+        // en CreateExecutionStrategy().ExecuteAsync(...) para que sea reintentable como
+        // una unidad atómica.
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
         {
-            foreach (var (id, sortOrder) in categoriaOrders)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var categoria = await FilterByTenant(_context.Categorias).FirstOrDefaultAsync(c => c.Id == id);
-                if (categoria != null)
+                foreach (var (id, sortOrder) in categoriaOrders)
                 {
-                    categoria.SortOrder = sortOrder;
+                    var categoria = await FilterByTenant(_context.Categorias).FirstOrDefaultAsync(c => c.Id == id);
+                    if (categoria != null)
+                    {
+                        categoria.SortOrder = sortOrder;
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-            
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        });
     }
 }

@@ -68,70 +68,80 @@ namespace TobacoBackend.Services
                 itemsParaGuardar.Add((item, subtotal));
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            // EnableRetryOnFailure no permite transacciones iniciadas por el usuario
+            // directamente; hay que envolverlas en la ExecutionStrategy para que el
+            // bloque entero sea reintentable como una unidad atómica. Importante: si
+            // se agregan side effects no transaccionales (emails, llamadas externas),
+            // moverlos fuera del delegate o usar el patrón outbox.
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async () =>
             {
-                var compra = new Compra
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    ProveedorId = dto.ProveedorId,
-                    Fecha = dto.Fecha.Kind == DateTimeKind.Utc ? dto.Fecha : DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc),
-                    NumeroComprobante = string.IsNullOrWhiteSpace(dto.NumeroComprobante) ? null : dto.NumeroComprobante.Trim(),
-                    Observaciones = string.IsNullOrWhiteSpace(dto.Observaciones) ? null : dto.Observaciones.Trim(),
-                    Total = totalCalculado,
-                    TenantId = tenantId.Value
-                };
-
-                foreach (var (itemDto, subtotal) in itemsParaGuardar)
-                {
-                    compra.Items.Add(new CompraItem
+                    var compra = new Compra
                     {
-                        ProductoId = itemDto.ProductoId,
-                        Cantidad = itemDto.Cantidad,
-                        CostoUnitario = itemDto.CostoUnitario,
-                        Subtotal = subtotal,
+                        ProveedorId = dto.ProveedorId,
+                        Fecha = dto.Fecha.Kind == DateTimeKind.Utc ? dto.Fecha : DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc),
+                        NumeroComprobante = string.IsNullOrWhiteSpace(dto.NumeroComprobante) ? null : dto.NumeroComprobante.Trim(),
+                        Observaciones = string.IsNullOrWhiteSpace(dto.Observaciones) ? null : dto.Observaciones.Trim(),
+                        Total = totalCalculado,
                         TenantId = tenantId.Value
-                    });
-                }
+                    };
 
-                var compraCreada = await _compraRepository.CreateAsync(compra);
-
-                foreach (var (itemDto, _) in itemsParaGuardar)
-                {
-                    var producto = await _productoRepository.GetProductoById(itemDto.ProductoId);
-                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
-                    var stockActual = producto.Stock;
-
-                    if (shouldControlStock)
+                    foreach (var (itemDto, subtotal) in itemsParaGuardar)
                     {
-                        var nuevoStock = stockActual + itemDto.Cantidad;
-                        producto.Stock = nuevoStock;
-
-                        if (stockActual <= 0)
+                        compra.Items.Add(new CompraItem
                         {
-                            producto.CostoPromedio = itemDto.CostoUnitario;
-                        }
-                        else
-                        {
-                            var costoPromedioActual = producto.CostoPromedio ?? 0;
-                            producto.CostoPromedio = ((stockActual * costoPromedioActual) + (itemDto.Cantidad * itemDto.CostoUnitario)) / nuevoStock;
-                        }
+                            ProductoId = itemDto.ProductoId,
+                            Cantidad = itemDto.Cantidad,
+                            CostoUnitario = itemDto.CostoUnitario,
+                            Subtotal = subtotal,
+                            TenantId = tenantId.Value
+                        });
                     }
 
-                    producto.UltimoCostoCompra = itemDto.CostoUnitario;
+                    var compraCreada = await _compraRepository.CreateAsync(compra);
 
-                    await _productoRepository.UpdateProducto(producto);
+                    foreach (var (itemDto, _) in itemsParaGuardar)
+                    {
+                        var producto = await _productoRepository.GetProductoById(itemDto.ProductoId);
+                        var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                        var stockActual = producto.Stock;
+
+                        if (shouldControlStock)
+                        {
+                            var nuevoStock = stockActual + itemDto.Cantidad;
+                            producto.Stock = nuevoStock;
+
+                            if (stockActual <= 0)
+                            {
+                                producto.CostoPromedio = itemDto.CostoUnitario;
+                            }
+                            else
+                            {
+                                var costoPromedioActual = producto.CostoPromedio ?? 0;
+                                producto.CostoPromedio = ((stockActual * costoPromedioActual) + (itemDto.Cantidad * itemDto.CostoUnitario)) / nuevoStock;
+                            }
+                        }
+
+                        producto.UltimoCostoCompra = itemDto.CostoUnitario;
+
+                        await _productoRepository.UpdateProducto(producto);
+                    }
+
+                    await transaction.CommitAsync();
+
+                    var compraConDetalle = await _compraRepository.GetByIdAsync(compraCreada.Id);
+                    return _mapper.Map<CompraDTO>(compraConDetalle);
                 }
-
-                await transaction.CommitAsync();
-
-                var compraConDetalle = await _compraRepository.GetByIdAsync(compraCreada.Id);
-                return _mapper.Map<CompraDTO>(compraConDetalle);
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
 
         public async Task<CompraDTO?> GetByIdAsync(int id)
@@ -158,39 +168,47 @@ namespace TobacoBackend.Services
                 return;
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            // EnableRetryOnFailure no permite transacciones iniciadas por el usuario
+            // directamente; envolvemos el bloque en la ExecutionStrategy para que sea
+            // reintentable como una unidad atómica.
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
             {
-                var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(compra.TenantId);
-                foreach (var item in compra.Items)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    var producto = await _productoRepository.GetProductoById(item.ProductoId);
-                    var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
-                    if (!shouldControlStock)
+                    var tenantStockControlDefault = await GetTenantStockControlDefaultAsync(compra.TenantId);
+                    foreach (var item in compra.Items)
                     {
-                        continue;
+                        var producto = await _productoRepository.GetProductoById(item.ProductoId);
+                        var shouldControlStock = StockControlResolver.ShouldControlStock(tenantStockControlDefault, producto.StockControlMode);
+                        if (!shouldControlStock)
+                        {
+                            continue;
+                        }
+
+                        var stockActual = producto.Stock;
+                        var cantidadARevertir = item.Cantidad;
+
+                        if (stockActual < cantidadARevertir)
+                            throw new InvalidOperationException(
+                                $"No se puede eliminar la compra: el producto \"{producto.Nombre}\" tiene stock actual {stockActual} " +
+                                $"y la compra agregó {cantidadARevertir} unidades. Revertir dejaría stock negativo.");
+
+                        producto.Stock = stockActual - cantidadARevertir;
+                        await _productoRepository.UpdateProducto(producto);
                     }
 
-                    var stockActual = producto.Stock;
-                    var cantidadARevertir = item.Cantidad;
-
-                    if (stockActual < cantidadARevertir)
-                        throw new InvalidOperationException(
-                            $"No se puede eliminar la compra: el producto \"{producto.Nombre}\" tiene stock actual {stockActual} " +
-                            $"y la compra agregó {cantidadARevertir} unidades. Revertir dejaría stock negativo.");
-
-                    producto.Stock = stockActual - cantidadARevertir;
-                    await _productoRepository.UpdateProducto(producto);
+                    await _compraRepository.DeleteAsync(compra);
+                    await transaction.CommitAsync();
                 }
-
-                await _compraRepository.DeleteAsync(compra);
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
 
         private async Task<bool> GetTenantStockControlDefaultAsync(int tenantId)
